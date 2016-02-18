@@ -335,39 +335,14 @@ namespace com.antlersoft.HostedTools.Serialization
             get { return ! IsBool && ! IsDouble && ! IsString && ! IsArray && ! IsDictionary; }
         }
 
-        public IHtValue this[string i]
-        {
-            get
-            {
-                if (! IsDictionary)
-                {
-                    this[i] = new JsonHtValue();
-                }
-                IHtValue result;
-                // For consistent semantics, the object returned must be a member of the
-                // dictionary -- but what if it did not previously exist?
-                // We don't want to error on this occasion, so we add it to the dictionary before
-                // we return it.  However, this can cause unexpected concurrency problems, since
-                // we expect this get operation to be read-only; so we don't update the dictionary,
-                // we replace it using interlocked exchange
-                // here to do a non-locking version of the dictionary update that is thread safe
-                // Note that this does not fix the case where the object was not a dictionary to begin
-                // with (partial fix with interlocked.compareexchange ugh); also does not fix
-                // array processing
-                if (!_asDictionary.TryGetValue(i, out result))
-                {
-                    Dictionary<string, IHtValue> originalDictionary, newDictionary;
-                    do
-                    {
-                        originalDictionary = _asDictionary;
-                        if (originalDictionary.TryGetValue(i, out result))
-                        {
-                            break;
-                        }
-                        newDictionary = new Dictionary<string, IHtValue>(originalDictionary);
-                        result = new JsonHtValue();
-                        newDictionary.Add(i, result);
-                    } while (Interlocked.CompareExchange(ref _asDictionary,  newDictionary, originalDictionary)!=originalDictionary);
+        public IHtValue this [string i] {
+			get {
+				if (! IsDictionary) {
+					return null;
+				}
+				IHtValue result;
+				if (!_asDictionary.TryGetValue (i, out result)) {
+					return null;
                 }
                 return result;
             }
@@ -397,17 +372,13 @@ namespace com.antlersoft.HostedTools.Serialization
             }
         }
 
-        public IHtValue this[int i]
-        {
-            get
-            {
-                if (i < 0)
-                {
-                    throw new IndexOutOfRangeException("IHtValue array index must be >= 0");
-                }
-                if (! IsArray || i >= _asArray.Count)
-                {
-                    this[i] = new JsonHtValue();
+        public IHtValue this [int i] {
+			get {
+				if (i < 0) {
+					throw new IndexOutOfRangeException ("IHtValue array index must be >= 0");
+				}
+				if (! IsArray || i >= _asArray.Count) {
+					return null;
                 }
                 IHtValue result = _asArray[i];
                 if (result == null)
