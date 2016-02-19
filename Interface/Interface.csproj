@@ -49,6 +49,8 @@
     <Compile Include="IRangeCondition.cs" />
     <Compile Include="IScanCondition.cs" />
     <Compile Include="IAsyncBatcher.cs" />
+    <Compile Include="IConditionFactory.cs" />
+    <Compile Include="ICredentialsFactory.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

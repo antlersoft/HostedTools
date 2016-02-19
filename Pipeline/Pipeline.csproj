@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>10.0.0</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{1EEFA014-DC57-4DCE-914F-85C479FF8A05}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>com.antlersoft.HostedTools.Pipeline</RootNamespace>
+    <AssemblyName>com.antlersoft.HostedTools.Pipeline</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.Core" />
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.8.0.2\lib\net40\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="DistinctTransform.cs" />
+    <Compile Include="ExpressionTransform.cs" />
+    <Compile Include="FilterTransform.cs" />
+    <Compile Include="GridWorker.cs" />
+    <Compile Include="INoSqlSource.cs" />
+    <Compile Include="IOdsValueSink.cs" />
+    <Compile Include="IOdsValueSource.cs" />
+    <Compile Include="IOdsValueTransform.cs" />
+    <Compile Include="NoSqlSourceDefinitions.cs" />
+    <Compile Include="NullSink.cs" />
+    <Compile Include="NullTransform.cs" />
+    <Compile Include="OrderByTransform.cs" />
+    <Compile Include="OverrideValueSetting.cs" />
+    <Compile Include="OverrideValueSettingManager.cs" />
+    <Compile Include="OverrideValueSettingScope.cs" />
+    <Compile Include="PipelinePlugin.cs" />
+    <Compile Include="PipelinePluginBase.cs" />
+    <Compile Include="PluginSelectionSettingDefinition.cs" />
+    <Compile Include="PluginState.cs" />
+    <Compile Include="SqlSource.cs" />
+    <Compile Include="TabDelimitedSink.cs" />
+    <Compile Include="TabDelimitedSource.cs" />
+    <Compile Include="TestRunner.cs" />
+    <Compile Include="TransformChain.cs" />
+    <Compile Include="UnrollTransform.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <None Include="Pipeline.csproj" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Interface\Interface.csproj">
+      <Project>{4A5AF272-0DF8-40B3-9438-AAFF14CEDF54}</Project>
+      <Name>Interface</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Serialization\Serialization.csproj">
+      <Project>{8FC80111-E668-4267-8974-95DB1AE13161}</Project>
+      <Name>Serialization</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Framework\Framework.csproj">
+      <Project>{7E9E1B8E-DE9C-4D5F-AD61-D53B27F80797}</Project>
+      <Name>Framework</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ConditionBuilder\ConditionBuilder.csproj">
+      <Project>{B456151D-27CA-4FDC-930D-81490D50C5EC}</Project>
+      <Name>ConditionBuilder</Name>
+    </ProjectReference>
+  </ItemGroup>
+</Project>
