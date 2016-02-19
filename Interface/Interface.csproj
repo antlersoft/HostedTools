@@ -39,6 +39,12 @@
     <Compile Include="IHtLog.cs" />
     <Compile Include="IHtLogProvider.cs" />
     <Compile Include="IHtLogProviderFactory.cs" />
+    <Compile Include="Expressions\IConstantExpression.cs" />
+    <Compile Include="Expressions\IDataReferenceExpression.cs" />
+    <Compile Include="Expressions\IOperatorExpression.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <Folder Include="Expressions\" />
+  </ItemGroup>
 </Project>
