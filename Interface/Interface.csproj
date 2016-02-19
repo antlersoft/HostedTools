@@ -42,6 +42,13 @@
     <Compile Include="Expressions\IConstantExpression.cs" />
     <Compile Include="Expressions\IDataReferenceExpression.cs" />
     <Compile Include="Expressions\IOperatorExpression.cs" />
+    <Compile Include="ICheckCondition.cs" />
+    <Compile Include="IMultiKeyCondition.cs" />
+    <Compile Include="INoSql.cs" />
+    <Compile Include="INoSqlFactory.cs" />
+    <Compile Include="IRangeCondition.cs" />
+    <Compile Include="IScanCondition.cs" />
+    <Compile Include="IAsyncBatcher.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
