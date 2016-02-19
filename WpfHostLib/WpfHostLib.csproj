@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>10.0.0</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{643FFAC7-8524-47DE-A8AA-2FD2136A54AF}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>com.antlersoft.HostedTools.WpfHostLib</RootNamespace>
+    <AssemblyName>com.antlersoft.HostedTools.WpfHostLib</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <Compile Include="BackgroundDisplay.cs" />
+    <Compile Include="BackgroundItem.xaml.cs" />
+    <Compile Include="ComboPanel.xaml.cs" />
+    <Compile Include="EditSettingsPanel.cs" />
+    <Compile Include="GridOutput.cs" />
+    <Compile Include="IHasContainer.cs" />
+    <Compile Include="ImageOutput.cs" />
+    <Compile Include="MainWindow.xaml.cs" />
+    <Compile Include="OutputListBox.cs" />
+    <Compile Include="OutputPane.cs" />
+    <Compile Include="OutputTextBox.cs" />
+    <Compile Include="SettingUpdateActionMonitor.cs" />
+    <Compile Include="WorkControl.xaml.cs" />
+    <Compile Include="WorkMonitor.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="BackgroundItem.xaml" />
+    <None Include="ComboPanel.xaml" />
+    <None Include="MainWindow.xaml" />
+    <None Include="WorkControl.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Framework\Framework.csproj">
+      <Project>{7E9E1B8E-DE9C-4D5F-AD61-D53B27F80797}</Project>
+      <Name>Framework</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Framework.Wpf\Framework.Wpf.csproj">
+      <Project>{02D5F114-C99C-4509-875F-224BFA329087}</Project>
+      <Name>Framework.Wpf</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.ComponentModel.Composition" />
+  </ItemGroup>
+</Project>

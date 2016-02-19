@@ -1,0 +1,25 @@
+﻿<Window x:Class="com.antlersoft.HostedTools.WpfHostLib.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:setting="clr-namespace:com.antlersoft.HostedTools.Framework.Model.Setting;assembly=com.antlersoft.HostedTools.Framework"
+        Title="ToolHost" Height="700" Width="950
+        ">
+    <Window.Resources>
+        <DataTemplate DataType="{x:Type setting:ItemSelectionItem}">
+            <TextBlock Text="{Binding ItemDescription}"></TextBlock>
+        </DataTemplate>
+    </Window.Resources>
+    <DockPanel >
+        <Menu Name="MainMenu" DockPanel.Dock="Top"/>
+        <DockPanel Name="MainDock">
+            <DockPanel DockPanel.Dock="Top">
+                <Label Name="ActionTitle" FontWeight="Bold" DockPanel.Dock="Left"></Label>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Name="BackButton" Content="&lt;"></Button>
+                <Button Name="ForwardButton" Content=">"></Button>
+                    </StackPanel>
+            </DockPanel>
+            <Grid />
+        </DockPanel>
+    </DockPanel>
+</Window>
