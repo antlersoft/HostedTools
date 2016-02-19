@@ -5,10 +5,10 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.0</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{8FC80111-E668-4267-8974-95DB1AE13161}</ProjectGuid>
+    <ProjectGuid>{FEE49E87-E69C-46C0-82BD-AE38C3027AB8}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>com.antlersoft.HostedTools.Serialization</RootNamespace>
-    <AssemblyName>com.antlersoft.HostedTools.Serialization</AssemblyName>
+    <RootNamespace>com.antlersoft.HostedTools.Log4NetLogging</RootNamespace>
+    <AssemblyName>com.antlersoft.HostedTools.Log4NetLogging</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -30,17 +30,15 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.8.0.2\lib\net40\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="log4net">
+      <HintPath>..\packages\log4net.2.0.5\lib\net40-full\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.Configuration" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="IJsonFactory.cs" />
-    <Compile Include="JsonHtValue.cs" />
-    <Compile Include="JsonFactory.cs" />
-    <Compile Include="Internal\HtValueConverter.cs" />
+    <Compile Include="Log4NetProvider.cs" />
+    <Compile Include="Log4NetProviderFactory.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -51,8 +49,9 @@
       <Project>{4A5AF272-0DF8-40B3-9438-AAFF14CEDF54}</Project>
       <Name>Interface</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Internal\" />
+    <ProjectReference Include="..\LogFacade\LogFacade.csproj">
+      <Project>{B22A84B8-23A1-4EC6-ABF6-CE32224B2E77}</Project>
+      <Name>LogFacade</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>
