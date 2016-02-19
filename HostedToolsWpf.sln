@@ -11,16 +11,28 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Log4NetLogging", "Log4NetLo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Framework", "Framework\Framework.csproj", "{7E9E1B8E-DE9C-4D5F-AD61-D53B27F80797}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Framework.Wpf", "Framework.Wpf\Framework.Wpf.csproj", "{02D5F114-C99C-4509-875F-224BFA329087}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfHostLib", "WpfHostLib\WpfHostLib.csproj", "{643FFAC7-8524-47DE-A8AA-2FD2136A54AF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{02D5F114-C99C-4509-875F-224BFA329087}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{02D5F114-C99C-4509-875F-224BFA329087}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{02D5F114-C99C-4509-875F-224BFA329087}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{02D5F114-C99C-4509-875F-224BFA329087}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4A5AF272-0DF8-40B3-9438-AAFF14CEDF54}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4A5AF272-0DF8-40B3-9438-AAFF14CEDF54}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4A5AF272-0DF8-40B3-9438-AAFF14CEDF54}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4A5AF272-0DF8-40B3-9438-AAFF14CEDF54}.Release|Any CPU.Build.0 = Release|Any CPU
+		{643FFAC7-8524-47DE-A8AA-2FD2136A54AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{643FFAC7-8524-47DE-A8AA-2FD2136A54AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{643FFAC7-8524-47DE-A8AA-2FD2136A54AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{643FFAC7-8524-47DE-A8AA-2FD2136A54AF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7E9E1B8E-DE9C-4D5F-AD61-D53B27F80797}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7E9E1B8E-DE9C-4D5F-AD61-D53B27F80797}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7E9E1B8E-DE9C-4D5F-AD61-D53B27F80797}.Release|Any CPU.ActiveCfg = Release|Any CPU
