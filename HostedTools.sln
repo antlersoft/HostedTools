@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogFacade", "LogFacade\LogF
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Log4NetLogging", "Log4NetLogging\Log4NetLogging.csproj", "{FEE49E87-E69C-46C0-82BD-AE38C3027AB8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Framework", "Framework\Framework.csproj", "{7E9E1B8E-DE9C-4D5F-AD61-D53B27F80797}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,6 +21,10 @@ Global
 		{4A5AF272-0DF8-40B3-9438-AAFF14CEDF54}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4A5AF272-0DF8-40B3-9438-AAFF14CEDF54}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4A5AF272-0DF8-40B3-9438-AAFF14CEDF54}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7E9E1B8E-DE9C-4D5F-AD61-D53B27F80797}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E9E1B8E-DE9C-4D5F-AD61-D53B27F80797}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E9E1B8E-DE9C-4D5F-AD61-D53B27F80797}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E9E1B8E-DE9C-4D5F-AD61-D53B27F80797}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8FC80111-E668-4267-8974-95DB1AE13161}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8FC80111-E668-4267-8974-95DB1AE13161}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8FC80111-E668-4267-8974-95DB1AE13161}.Release|Any CPU.ActiveCfg = Release|Any CPU
