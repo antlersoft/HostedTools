@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 using com.antlersoft.HostedTools.Framework.Interface.Setting;
 using com.antlersoft.HostedTools.Framework.Model.Menu;
 using com.antlersoft.HostedTools.Framework.Model.Plugin;
@@ -23,7 +21,7 @@ namespace com.antlersoft.HostedTools.Pipeline
         static ISettingDefinition CommandTimeout = new SimpleSettingDefinition("CommandTimeout", "Pipeline", "Command Timeout", "Number of seconds before query will timeout", typeof(int), "120");
 
         public SqlSource()
-            : base(new MenuItem("DevTools.Pipeline.Input.SqlSource", "Sql Query", typeof(SqlSource).FullName, "DevTools.Pipeline.Input"), new [] {"Common.AWSDataConnectionString", SqlCommand.FullKey(), CommandTimeout.FullKey()} )
+            : base(new MenuItem("DevTools.Pipeline.Input.SqlSource", "Sql Query", typeof(SqlSource).FullName, "DevTools.Pipeline.Input"), new [] {"Common.SqlDataConnectionString", SqlCommand.FullKey(), CommandTimeout.FullKey()} )
         { }
 
         public IEnumerable<ISettingDefinition> Definitions
@@ -63,7 +61,7 @@ namespace com.antlersoft.HostedTools.Pipeline
 
         public IEnumerable<IHtValue> GetRows()
         {
-            using (var conn = new SqlConnection(SettingManager["Common.AWSDataConnectionString"].Get<string>()))
+            using (var conn = new SqlConnection(SettingManager["Common.SqlDataConnectionString"].Get<string>()))
             {
                 conn.Open();
                 var cmd = new SqlCommand(SqlSource.SqlCommand.Value<string>(SettingManager), conn);

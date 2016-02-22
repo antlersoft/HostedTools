@@ -72,6 +72,7 @@
     <Compile Include="PipelinePluginBase.cs" />
     <Compile Include="PluginSelectionSettingDefinition.cs" />
     <Compile Include="PluginState.cs" />
+    <Compile Include="SqlDataParameters.cs" />
     <Compile Include="SqlSource.cs" />
     <Compile Include="TabDelimitedSink.cs" />
     <Compile Include="TabDelimitedSource.cs" />
