@@ -3,12 +3,13 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>10.0.0</ProductVersion>
+    <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{1EEFA014-DC57-4DCE-914F-85C479FF8A05}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>com.antlersoft.HostedTools.Pipeline</RootNamespace>
     <AssemblyName>com.antlersoft.HostedTools.Pipeline</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -29,22 +30,6 @@
     <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="com.antlersoft.HostedTools.ConditionBuilder, Version=1.0.5896.16595, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\com.antlersoft.HostedTools.ConditionBuilder.1.0.5896.16595\lib\net40\com.antlersoft.HostedTools.ConditionBuilder.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="com.antlersoft.HostedTools.Framework, Version=1.0.5893.23049, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\com.antlersoft.HostedTools.Framework.1.0.5893.23049\lib\net40\com.antlersoft.HostedTools.Framework.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="com.antlersoft.HostedTools.Interface, Version=1.0.5893.20674, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\com.antlersoft.HostedTools.Serialization.1.0.5893.20675\lib\net40\com.antlersoft.HostedTools.Interface.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="com.antlersoft.HostedTools.Serialization, Version=1.0.5893.20675, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\com.antlersoft.HostedTools.Serialization.1.0.5893.20675\lib\net40\com.antlersoft.HostedTools.Serialization.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
@@ -52,6 +37,19 @@
       <HintPath>..\packages\Newtonsoft.Json.8.0.2\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System.Data" />
+    <Reference Include="com.antlersoft.HostedTools.ConditionBuilder, Version=1.0.5896.16595, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\com.antlersoft.HostedTools.ConditionBuilder.1.0.5896.16595\lib\net40\com.antlersoft.HostedTools.ConditionBuilder.dll</HintPath>
+    </Reference>
+    <Reference Include="com.antlersoft.HostedTools.Framework, Version=1.0.5893.23049, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\com.antlersoft.HostedTools.Framework.1.0.5893.23049\lib\net40\com.antlersoft.HostedTools.Framework.dll</HintPath>
+    </Reference>
+    <Reference Include="com.antlersoft.HostedTools.Interface, Version=1.0.5893.20674, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\com.antlersoft.HostedTools.Serialization.1.0.5893.20675\lib\net40\com.antlersoft.HostedTools.Interface.dll</HintPath>
+    </Reference>
+    <Reference Include="com.antlersoft.HostedTools.Serialization, Version=1.0.5893.20675, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\com.antlersoft.HostedTools.Serialization.1.0.5893.20675\lib\net40\com.antlersoft.HostedTools.Serialization.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
@@ -80,6 +78,9 @@
     <Compile Include="TestRunner.cs" />
     <Compile Include="TransformChain.cs" />
     <Compile Include="UnrollTransform.cs" />
+    <Compile Include="EnvQuery.cs" />
+    <Compile Include="GenericLoaderPlugin.cs" />
+    <Compile Include="JsonHttpQuery.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
