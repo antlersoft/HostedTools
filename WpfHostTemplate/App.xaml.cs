@@ -2,7 +2,7 @@
 using System.Net;
 using System.Windows;
 using com.antlersoft.HostedTools.WpfHostLib;
-namespace com.antlersoft.HostedTools.WpfHostTemplate
+namespace $safeprojectname$
 {
     /// <summary>
     /// Interaction logic for App.xaml
