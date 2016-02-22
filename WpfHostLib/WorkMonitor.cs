@@ -120,7 +120,7 @@ namespace com.antlersoft.HostedTools.WpfHostLib
         /// Must call on UI thread
         /// </summary>
         /// <returns></returns>
-        public async void RunWork()
+        public void RunWork()
         {
             Clear();
             IsCanceled = false;
@@ -132,7 +132,7 @@ namespace com.antlersoft.HostedTools.WpfHostLib
             }
             IsRunning = true;
             _notifyRunningChanged.Invoke();
-            await Task.Run(() =>
+            LambdaDispatch.RunAsync(() =>
                 {
                     try
                     {
@@ -143,9 +143,9 @@ namespace com.antlersoft.HostedTools.WpfHostLib
                         Writer.WriteLine(ex.ToString());
                         IsCanceled = true;
                     }
+                }, ()=> { IsRunning = false;
+                            _element.Dispatcher.Invoke(_notifyRunningChanged);
                 });
-            IsRunning = false;
-            _element.Dispatcher.Invoke(_notifyRunningChanged);
         }
 
         public void Clear()

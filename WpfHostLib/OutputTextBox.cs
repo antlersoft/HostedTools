@@ -42,7 +42,7 @@ namespace com.antlersoft.HostedTools.WpfHostLib
 
         public void AddText(string text)
         {
-            Dispatcher.Invoke(() =>
+            LambdaDispatch.Invoke(Dispatcher, () =>
                 {
                     if (_lineCount == MaxLines)
                     {
@@ -59,7 +59,7 @@ namespace com.antlersoft.HostedTools.WpfHostLib
 
         public new void Clear()
         {
-            Dispatcher.Invoke(() =>
+            LambdaDispatch.Invoke(Dispatcher, () =>
             {
                 _lineCount = 0;
                 _offsets.Clear();
@@ -69,7 +69,7 @@ namespace com.antlersoft.HostedTools.WpfHostLib
 
         public void SetFont(Font font)
         {
-            Dispatcher.Invoke(() =>
+            LambdaDispatch.Invoke(Dispatcher, () =>
             {
                 FontFamily = new System.Windows.Media.FontFamily(font.Name);
                 FontSize = font.Size;

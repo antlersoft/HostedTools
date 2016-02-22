@@ -78,7 +78,7 @@ namespace com.antlersoft.HostedTools.WpfHostLib
             string path = dlg.FileName;
             if (result?? false)
             {
-                Task.Run(() =>
+                LambdaDispatch.Run(() =>
                 {
                     var colList = _columnsByName.Keys.ToList();
                     using (StreamWriter fs = new StreamWriter(path))
@@ -137,7 +137,7 @@ namespace com.antlersoft.HostedTools.WpfHostLib
             {
                 return;
             }
-            Dispatcher.Invoke(() =>
+            LambdaDispatch.Invoke(Dispatcher, () =>
                 {
                     if (_isDummyColumns)
                     {
@@ -178,7 +178,7 @@ namespace com.antlersoft.HostedTools.WpfHostLib
 
         public void Clear()
         {
-            Dispatcher.Invoke(() =>
+            LambdaDispatch.Invoke(Dispatcher, () =>
                 {
                     _rows.Clear();
                     Reset();

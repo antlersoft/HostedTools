@@ -14,17 +14,17 @@ namespace com.antlersoft.HostedTools.WpfHostLib
             {
                 text = text.Substring(0, text.Length - 2);
             }
-            Dispatcher.Invoke(() => Items.Add(text));
+            LambdaDispatch.Invoke(Dispatcher, () => Items.Add(text));
         }
 
         public void Clear()
         {
-            Dispatcher.Invoke(() => Items.Clear());
+            LambdaDispatch.Invoke(Dispatcher, () => Items.Clear());
         }
 
         public void SetFont(Font font)
         {
-            Dispatcher.Invoke(() =>
+            LambdaDispatch.Invoke(Dispatcher, () =>
             {
                 FontFamily = new System.Windows.Media.FontFamily(font.Name);
                 FontSize = font.Size;

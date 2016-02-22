@@ -18,7 +18,7 @@ namespace com.antlersoft.HostedTools.WpfHostLib
         {
             if (sourceFunctor != null)
             {
-                Dispatcher.Invoke(() =>
+                LambdaDispatch.Invoke(Dispatcher, () =>
                 {
                     ImageSource imageSource = sourceFunctor();
                     Source = imageSource;
@@ -28,7 +28,7 @@ namespace com.antlersoft.HostedTools.WpfHostLib
 
         public void Clear()
         {
-            Dispatcher.Invoke(() =>
+            LambdaDispatch.Invoke(Dispatcher, () =>
             {
                 //_imageSources.Clear();
             });
