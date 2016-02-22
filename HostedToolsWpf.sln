@@ -19,6 +19,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfHostLib", "WpfHostLib\Wp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utility", "Utility\Utility.csproj", "{D4452E27-CAAC-4B9A-8834-2F3C07651115}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfHostTemplate", "WpfHostTemplate\WpfHostTemplate.csproj", "{0C375C02-3277-4DDD-BDEA-89CF590C4454}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pipeline", "Pipeline\Pipeline.csproj", "{1EEFA014-DC57-4DCE-914F-85C479FF8A05}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConditionBuilder", "ConditionBuilder\ConditionBuilder.csproj", "{B456151D-27CA-4FDC-930D-81490D50C5EC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,6 +63,18 @@ Global
 		{D4452E27-CAAC-4B9A-8834-2F3C07651115}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D4452E27-CAAC-4B9A-8834-2F3C07651115}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D4452E27-CAAC-4B9A-8834-2F3C07651115}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0C375C02-3277-4DDD-BDEA-89CF590C4454}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C375C02-3277-4DDD-BDEA-89CF590C4454}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C375C02-3277-4DDD-BDEA-89CF590C4454}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C375C02-3277-4DDD-BDEA-89CF590C4454}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1EEFA014-DC57-4DCE-914F-85C479FF8A05}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1EEFA014-DC57-4DCE-914F-85C479FF8A05}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1EEFA014-DC57-4DCE-914F-85C479FF8A05}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1EEFA014-DC57-4DCE-914F-85C479FF8A05}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B456151D-27CA-4FDC-930D-81490D50C5EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B456151D-27CA-4FDC-930D-81490D50C5EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B456151D-27CA-4FDC-930D-81490D50C5EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B456151D-27CA-4FDC-930D-81490D50C5EC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

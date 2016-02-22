@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -29,6 +29,22 @@
     <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="com.antlersoft.HostedTools.ConditionBuilder, Version=1.0.5896.16595, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\com.antlersoft.HostedTools.ConditionBuilder.1.0.5896.16595\lib\net40\com.antlersoft.HostedTools.ConditionBuilder.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="com.antlersoft.HostedTools.Framework, Version=1.0.5893.23049, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\com.antlersoft.HostedTools.Framework.1.0.5893.23049\lib\net40\com.antlersoft.HostedTools.Framework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="com.antlersoft.HostedTools.Interface, Version=1.0.5893.20674, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\com.antlersoft.HostedTools.Serialization.1.0.5893.20675\lib\net40\com.antlersoft.HostedTools.Interface.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="com.antlersoft.HostedTools.Serialization, Version=1.0.5893.20675, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\com.antlersoft.HostedTools.Serialization.1.0.5893.20675\lib\net40\com.antlersoft.HostedTools.Serialization.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
@@ -69,23 +85,5 @@
   <ItemGroup>
     <None Include="Pipeline.csproj" />
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Interface\Interface.csproj">
-      <Project>{4A5AF272-0DF8-40B3-9438-AAFF14CEDF54}</Project>
-      <Name>Interface</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Serialization\Serialization.csproj">
-      <Project>{8FC80111-E668-4267-8974-95DB1AE13161}</Project>
-      <Name>Serialization</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Framework\Framework.csproj">
-      <Project>{7E9E1B8E-DE9C-4D5F-AD61-D53B27F80797}</Project>
-      <Name>Framework</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ConditionBuilder\ConditionBuilder.csproj">
-      <Project>{B456151D-27CA-4FDC-930D-81490D50C5EC}</Project>
-      <Name>ConditionBuilder</Name>
-    </ProjectReference>
   </ItemGroup>
 </Project>

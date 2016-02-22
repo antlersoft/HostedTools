@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>Hosted Tools Framework Wpf Host Library</title>
+    <authors>Michael MacDonald</authors>
+    <owners>antlersoft</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Wpf Host implementation for Hosted Tools</description>
+    <releaseNotes>Initial release</releaseNotes>
+    <copyright>Copyright 2016</copyright>
+    <tags>HostedTools Wpf host</tags>
+  </metadata>
+</package>

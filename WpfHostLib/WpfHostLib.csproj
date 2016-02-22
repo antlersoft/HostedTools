@@ -37,20 +37,34 @@
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <ProjectReference Include="..\Framework\Framework.csproj">
-      <Project>{7E9E1B8E-DE9C-4D5F-AD61-D53B27F80797}</Project>
-      <Name>Framework</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Framework.Wpf\Framework.Wpf.csproj">
-      <Project>{02D5F114-C99C-4509-875F-224BFA329087}</Project>
-      <Name>Framework.Wpf</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Utility\Utility.csproj">
-      <Project>{d4452e27-caac-4b9a-8834-2f3c07651115}</Project>
-      <Name>Utility</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
+    <Reference Include="com.antlersoft.HostedTools.Framework, Version=1.0.5893.23049, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\com.antlersoft.HostedTools.Framework.1.0.5893.23049\lib\net40\com.antlersoft.HostedTools.Framework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="com.antlersoft.HostedTools.Framework.Wpf, Version=1.0.5895.29675, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\com.antlersoft.HostedTools.Framework.Wpf.1.0.5895.29675\lib\net40\com.antlersoft.HostedTools.Framework.Wpf.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="com.antlersoft.HostedTools.Interface, Version=1.0.5893.20674, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\com.antlersoft.HostedTools.Serialization.1.0.5893.20675\lib\net40\com.antlersoft.HostedTools.Interface.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="com.antlersoft.HostedTools.Serialization, Version=1.0.5893.20675, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\com.antlersoft.HostedTools.Serialization.1.0.5893.20675\lib\net40\com.antlersoft.HostedTools.Serialization.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="com.antlersoft.HostedTools.Utility, Version=1.0.5893.26941, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\com.antlersoft.HostedTools.Utility.1.0.5893.26941\lib\net40\com.antlersoft.HostedTools.Utility.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.8.0.2\lib\net40\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Ookii.Dialogs.Wpf, Version=1.0.0.0, Culture=neutral, PublicKeyToken=0c15020868fd6249, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ookii.Dialogs.1.0\lib\net35\Ookii.Dialogs.Wpf.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
@@ -108,5 +122,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>
