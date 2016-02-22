@@ -35,7 +35,7 @@ namespace com.antlersoft.HostedTools.Pipeline
             {
                 if (s == "filter")
                 {
-                    result.Add("DynamoQuery.LocalFilter");
+                    result.Add("Pipeline.LocalFilter");
                 }
                 else if (s == "transform")
                 {
@@ -58,7 +58,7 @@ namespace com.antlersoft.HostedTools.Pipeline
             IHtValueSink output = ((PluginSelectionItem)PipelinePlugin.Sink.FindMatchingItem(PipelinePlugin.Sink.Value<string>(SettingManager))).Plugin.Cast<IHtValueSink>();
             IHtValueTransform transform = ((PluginSelectionItem)PipelinePlugin.Transform.FindMatchingItem(PipelinePlugin.Transform.Value<string>(SettingManager))).Plugin.Cast<IHtValueTransform>();
             bool gridOutput = PipelinePlugin.GridOutput.Value<bool>(SettingManager);
-            string filter = SettingManager["DynamoQuery.LocalFilter"].Get<string>();
+            string filter = SettingManager["Pipeline.LocalFilter"].Get<string>();
             CanBackground(monitor, "Pipe from " + input.SourceDescription + " through " + TransformDescription + " to " + output.SinkDescription);
             IEnumerable<IHtValue> rows = input.GetRows();
             bool customSet = false;

@@ -69,8 +69,8 @@
       <HintPath>..\packages\com.antlersoft.HostedTools.Serialization.1.0.5893.20675\lib\net40\com.antlersoft.HostedTools.Interface.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="com.antlersoft.HostedTools.Pipeline, Version=1.2.5896.20348, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\com.antlersoft.HostedTools.Pipeline.1.2.5896.20348\lib\net45\com.antlersoft.HostedTools.Pipeline.dll</HintPath>
+    <Reference Include="com.antlersoft.HostedTools.Pipeline, Version=1.2.5896.22586, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\com.antlersoft.HostedTools.Pipeline.1.2.5896.22586\lib\net45\com.antlersoft.HostedTools.Pipeline.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="com.antlersoft.HostedTools.Serialization, Version=1.0.5893.20675, Culture=neutral, processorArchitecture=MSIL">

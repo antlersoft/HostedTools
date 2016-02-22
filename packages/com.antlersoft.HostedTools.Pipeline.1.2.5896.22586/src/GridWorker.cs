@@ -70,7 +70,11 @@ namespace com.antlersoft.HostedTools.Pipeline
         internal static object ValueToSimpleObject(JsonSerializer serializer, IHtValue val)
         {
             object result;
-            if (val.IsBool)
+            if (val == null)
+            {
+                result = string.Empty;
+            }
+            else if (val.IsBool)
             {
                 result = val.AsBool;
             }
