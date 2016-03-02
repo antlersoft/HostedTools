@@ -1,4 +1,4 @@
-﻿<Application x:Class="$safeprojectname$.App"
+﻿<Application x:Class="com.antlersoft.HostedTools.WpfHostTemplate.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              StartupUri="pack://application:,,,/com.antlersoft.HostedTools.WpfHostLib;component/MainWindow.xaml">
