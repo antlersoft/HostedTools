@@ -39,6 +39,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -57,8 +58,8 @@
       <HintPath>..\packages\com.antlersoft.HostedTools.ConditionBuilder.1.0.5896.16595\lib\net40\com.antlersoft.HostedTools.ConditionBuilder.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="com.antlersoft.HostedTools.Framework, Version=1.0.5893.23049, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\com.antlersoft.HostedTools.Framework.1.0.5893.23049\lib\net40\com.antlersoft.HostedTools.Framework.dll</HintPath>
+    <Reference Include="com.antlersoft.HostedTools.Framework, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\com.antlersoft.HostedTools.Framework.1.1.0.0\lib\net40\com.antlersoft.HostedTools.Framework.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="com.antlersoft.HostedTools.Framework.Wpf, Version=1.0.5895.29675, Culture=neutral, processorArchitecture=MSIL">
@@ -164,6 +165,12 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PythonIntegration\PythonIntegration.csproj">
+      <Project>{0d932ab3-a0ac-4cae-8d7e-6ec046a76ef6}</Project>
+      <Name>PythonIntegration</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
