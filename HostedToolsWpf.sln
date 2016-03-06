@@ -25,6 +25,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pipeline", "Pipeline\Pipeli
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConditionBuilder", "ConditionBuilder\ConditionBuilder.csproj", "{B456151D-27CA-4FDC-930D-81490D50C5EC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PythonIntegration", "PythonIntegration\PythonIntegration.csproj", "{0D932AB3-A0AC-4CAE-8D7E-6EC046A76EF6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -75,6 +77,10 @@ Global
 		{B456151D-27CA-4FDC-930D-81490D50C5EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B456151D-27CA-4FDC-930D-81490D50C5EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B456151D-27CA-4FDC-930D-81490D50C5EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D932AB3-A0AC-4CAE-8D7E-6EC046A76EF6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D932AB3-A0AC-4CAE-8D7E-6EC046A76EF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D932AB3-A0AC-4CAE-8D7E-6EC046A76EF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D932AB3-A0AC-4CAE-8D7E-6EC046A76EF6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
