@@ -37,8 +37,8 @@
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <Reference Include="com.antlersoft.HostedTools.Framework, Version=1.0.5893.23049, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\com.antlersoft.HostedTools.Framework.1.0.5893.23049\lib\net40\com.antlersoft.HostedTools.Framework.dll</HintPath>
+    <Reference Include="com.antlersoft.HostedTools.Framework, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\com.antlersoft.HostedTools.Framework.1.1.0.0\lib\net40\com.antlersoft.HostedTools.Framework.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="com.antlersoft.HostedTools.Framework.Wpf, Version=1.0.5895.29675, Culture=neutral, processorArchitecture=MSIL">

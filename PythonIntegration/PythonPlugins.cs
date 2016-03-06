@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.Linq;
 using Python.Runtime;
 using com.antlersoft.HostedTools.Framework.Interface.Menu;
 using com.antlersoft.HostedTools.Framework.Interface.Plugin;
@@ -32,6 +32,7 @@ namespace com.antlersoft.HostedTools.PythonIntegration
     {
         [Import] public IAppConfig Config;
         [Import] public ISettingManager SettingManager;
+        [ImportMany] public IEnumerable<IPythonPlugin> PythonTools; 
         private bool _initialized;
         private List<IPlugin> _plugins = new List<IPlugin>();
         private List<ISettingDefinition> _definitions = new List<ISettingDefinition>();
@@ -42,15 +43,17 @@ namespace com.antlersoft.HostedTools.PythonIntegration
             if (!_initialized)
             {
                 string packageToLoad = Config.Get<string>("com.antlersoft.HostedTools.PythonIntegration.PackageName");
+                Dictionary<string,IPythonPlugin> toolsByName = PythonTools.ToDictionary(pt => pt.Name);
                 if (packageToLoad == null)
                 {
                     return;
                 }
-                //PythonEngine.Initialize();
-                using (var py = Py.GIL())
+                PythonEngine.Initialize();
+                PythonEngine.BeginAllowThreads();
+                using (var py = new PyLock())
                 {
                     PythonEngine.RunSimpleString("from " + packageToLoad + " import *");
-                    dynamic m1 = Py.Import("HostedTools");
+                    dynamic m1 = PythonEngine.ImportModule("HostedTools");
                     //string s = PythonEngine.Platform + " " + PythonEngine.PythonHome;
                     //dynamic module = PythonEngine.ImportModule("HostedTools");
                     PyObject coll = m1._ObjectCollection;
@@ -65,8 +68,28 @@ namespace com.antlersoft.HostedTools.PythonIntegration
                             _menuItems.Add((IMenuItem)menus.GetItem(j).AsManagedObject(typeof(IMenuItem)));
                         }
                         PyObject definitions = ht._settingDefinitions;
-                        /* ... */
-                        _plugins.Add(new PythonTool((string)ht._name, (PyObject)ht, SettingManager, new List<string>()));
+                        int l_definitions = definitions.Length();
+                        for (int j = 0; j < l_definitions; j++)
+                        {
+                            _definitions.Add((ISettingDefinition)definitions.GetItem(j).AsManagedObject(typeof(ISettingDefinition)));
+                        }
+                        List<string> settingNameList = new List<string>();
+                        PyObject nameList = ht._settingNames;
+                        int l_nameList = nameList.Length();
+                        for (int j = 0; j < l_nameList; j++)
+                        {
+                            settingNameList.Add(nameList.GetItem(j).ToString());
+                        }
+                        string pluginName = (string) ht._customToolName;
+                        IPythonPlugin pp;
+                        if (pluginName != null && toolsByName.TryGetValue(pluginName, out pp))
+                        {
+                            pp.SetPythonImplementation(ht);
+                        }
+                        else
+                        {
+                            _plugins.Add(new PythonTool((string)ht._name, (PyObject)ht, SettingManager, settingNameList));
+                        }
                     }
                 }
                 _initialized = true;

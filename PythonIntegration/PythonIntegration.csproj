@@ -9,8 +9,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>com.antlersoft.HostedTools.PythonIntegration</RootNamespace>
     <AssemblyName>com.antlersoft.HostedTools.PythonIntegration</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -30,6 +31,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="com.antlersoft.HostedTools.ConditionBuilder, Version=1.0.5896.16595, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\com.antlersoft.HostedTools.ConditionBuilder.1.0.5896.16595\lib\net40\com.antlersoft.HostedTools.ConditionBuilder.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="com.antlersoft.HostedTools.Framework, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\com.antlersoft.HostedTools.Framework.1.1.0.0\lib\net40\com.antlersoft.HostedTools.Framework.dll</HintPath>
       <Private>True</Private>
@@ -43,11 +48,12 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.8.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.8.0.2\lib\net40\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Python.Runtime">
-      <HintPath>..\..\..\Users\mmacdonald\AppData\Local\Continuum\Anaconda2\Lib\site-packages\Python.Runtime.dll</HintPath>
+    <Reference Include="Python.Runtime, Version=4.0.0.1, Culture=neutral, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\third-party\Python.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
@@ -60,6 +66,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IPythonPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PythonPlugins.cs" />
     <Compile Include="PythonTool.cs" />
