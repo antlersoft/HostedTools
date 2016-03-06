@@ -51,6 +51,7 @@
     <Compile Include="Interface\Plugin\IClearableMonitor.cs" />
     <Compile Include="Interface\Plugin\IPlugin.cs" />
     <Compile Include="Interface\Plugin\IPluginManager.cs" />
+    <Compile Include="Interface\Plugin\IPluginSource.cs" />
     <Compile Include="Interface\Plugin\ISavable.cs" />
     <Compile Include="Interface\Plugin\ISettingEditList.cs" />
     <Compile Include="Interface\Plugin\IWork.cs" />
