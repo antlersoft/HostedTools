@@ -17,12 +17,18 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConditionBuilder", "Conditi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utility", "Utility\Utility.csproj", "{D4452E27-CAAC-4B9A-8834-2F3C07651115}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PythonIntegration", "PythonIntegration\PythonIntegration.csproj", "{0D932AB3-A0AC-4CAE-8D7E-6EC046A76EF6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0D932AB3-A0AC-4CAE-8D7E-6EC046A76EF6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D932AB3-A0AC-4CAE-8D7E-6EC046A76EF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D932AB3-A0AC-4CAE-8D7E-6EC046A76EF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D932AB3-A0AC-4CAE-8D7E-6EC046A76EF6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1EEFA014-DC57-4DCE-914F-85C479FF8A05}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1EEFA014-DC57-4DCE-914F-85C479FF8A05}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1EEFA014-DC57-4DCE-914F-85C479FF8A05}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -55,8 +61,5 @@ Global
 		{FEE49E87-E69C-46C0-82BD-AE38C3027AB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FEE49E87-E69C-46C0-82BD-AE38C3027AB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FEE49E87-E69C-46C0-82BD-AE38C3027AB8}.Release|Any CPU.Build.0 = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = Interface\Interface.csproj
 	EndGlobalSection
 EndGlobal

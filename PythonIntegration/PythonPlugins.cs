@@ -38,6 +38,16 @@ namespace com.antlersoft.HostedTools.PythonIntegration
         private List<ISettingDefinition> _definitions = new List<ISettingDefinition>();
         private List<IMenuItem> _menuItems = new List<IMenuItem>();
 
+		private static readonly string BSymbol = "{QQ}";
+		private string cleanupString(string toClean)
+		{
+			if (toClean.Contains (BSymbol))
+			{
+				throw new ArgumentException ("Python parameter contains suspicious string");
+			}
+			return toClean.Replace ("\\", BSymbol).Replace ("'", "\\'").Replace ("\"", "\\\"").Replace (BSymbol, "\\");
+		}
+
         private void Initialize()
         {
             if (!_initialized)
@@ -48,12 +58,37 @@ namespace com.antlersoft.HostedTools.PythonIntegration
                 {
                     return;
                 }
-                PythonEngine.Initialize();
-                PythonEngine.BeginAllowThreads();
+				string pythonHome = Config.Get<string> ("com.antlersoft.HostedTools.PythonIntegration.PythonHome");
+				if (pythonHome != null)
+				{
+					PythonEngine.PythonHome = pythonHome;
+				}
+				string programName = Config.Get<string> ("com.antlersoft.HostedTools.PythonIntegration.ProgramName");
+				if (programName != null)
+				{
+					PythonEngine.ProgramName = programName;
+				}
+				string pythonPath = Config.Get<string> ("com.antlersoft.HostedTools.PythonIntegration.PythonPath");
                 using (var py = new PyLock())
                 {
-                    PythonEngine.RunSimpleString("from " + packageToLoad + " import *");
+					if (pythonPath != null)
+					{
+						var result = PythonEngine.RunString ("sys.path.Insert(1,\"" + cleanupString(pythonPath) + "\")");
+						if (result == null)
+						{
+							throw new PythonException ();
+						}
+					}
+					dynamic packages = PythonEngine.RunString("from " + cleanupString(packageToLoad) + " import *");
+					if (packages == null)
+					{
+						throw new PythonException ();
+					}
                     dynamic m1 = PythonEngine.ImportModule("HostedTools");
+					if (m1 == null)
+					{
+						throw new PythonException ();
+					}
                     //string s = PythonEngine.Platform + " " + PythonEngine.PythonHome;
                     //dynamic module = PythonEngine.ImportModule("HostedTools");
                     PyObject coll = m1._ObjectCollection;
