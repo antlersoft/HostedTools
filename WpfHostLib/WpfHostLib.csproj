@@ -125,5 +125,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="WpfHostLib.nuspec" />
   </ItemGroup>
 </Project>

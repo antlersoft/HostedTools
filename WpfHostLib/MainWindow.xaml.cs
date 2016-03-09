@@ -36,26 +36,48 @@ namespace com.antlersoft.HostedTools.WpfHostLib
         [Import]
         public INavigationManager NavigationManager { get; set; }
 
+        private Exception _startupError;
+
         public MainWindow()
         {
-            ((IHasContainer)Application.Current).Container.ComposeParts(this);
-            foreach (IAfterComposition ac in NeedAfterComposition)
+            try
             {
-                ac.AfterComposition();
+                ((IHasContainer)Application.Current).Container.ComposeParts(this);
+                foreach (IAfterComposition ac in NeedAfterComposition)
+                {
+                    ac.AfterComposition();
+                }
+            }
+            catch (Exception ex)
+            {
+                _startupError = ex;
             }
             InitializeComponent();
-            NavigationManager.NavigationListeners.AddListener(OnNavigate);
-            BackButton.Click += (sender, args) => NavigationManager.GoBack();
-            BackButton.IsEnabled = false;
-            ForwardButton.Click += (sender, args) => NavigationManager.GoForward();
-            ForwardButton.IsEnabled = false;
-            BuildMenu();
-            MenuManager.AddChangeListener(BuildMenu);
         }
 
         private Dictionary<string,FrameworkElement> _targetCache = new Dictionary<string, FrameworkElement>();
         private MenuItem _fileMenu;
         private FrameworkElement _currentPanel;
+
+        public override void EndInit()
+        {
+            base.EndInit();
+            if (_startupError != null)
+            {
+                MessageBox.Show(_startupError.ToString(), "Start Up Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Close();
+            }
+            else
+            {
+                NavigationManager.NavigationListeners.AddListener(OnNavigate);
+                BackButton.Click += (sender, args) => NavigationManager.GoBack();
+                BackButton.IsEnabled = false;
+                ForwardButton.Click += (sender, args) => NavigationManager.GoForward();
+                ForwardButton.IsEnabled = false;
+                BuildMenu();
+                MenuManager.AddChangeListener(BuildMenu);
+            }
+        }
 
         private void BuildMenu()
         {
