@@ -1,6 +1,11 @@
 import json
+import traceback
 
 _ObjectCollection = []
+
+def _mainEval(cmd) :
+	'''Overcome problem in Python.Runtime.PythonEngine.RunString'''
+	exec cmd in globals()
 
 class HostedToolBase(object) :
 	'''Base class for Python classes that define Hosted Tools'''
@@ -27,7 +32,7 @@ class HostedToolBase(object) :
 		self._hostedTool = d
 	def Value(self,i) :
 		'''Return a setting value from the SettingManager'''
-		return self._hostedTool.Value(i).str()
+		return self._hostedTool.Value(i)
 	def SetValue(self,i,v) :
 		'''Set a value in the SettingManager'''
 		self._hostedTool.SetValue(i,v)
@@ -37,3 +42,12 @@ class HostedToolBase(object) :
 	def FromHtValue(self,row) :
 		'''Convert an IHtValue object to the corresponding Python object'''
 		return json.loads(self._hostedTool.SerializeHtValue(row))
+	def Perform(self,monitor) :
+          '''Catch exceptions from sub-class, and write to monitor'''
+          try:
+              self.PerformPython(monitor)
+          except:
+              monitor.Writer.WriteLine("Python exception:")
+              monitor.Writer.WriteLine(traceback.format_exc())
+              raise
+

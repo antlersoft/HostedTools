@@ -69,28 +69,26 @@ namespace com.antlersoft.HostedTools.PythonIntegration
 					PythonEngine.ProgramName = programName;
 				}
 				string pythonPath = Config.Get<string> ("com.antlersoft.HostedTools.PythonIntegration.PythonPath");
+                PythonEngine.Initialize();
+                PythonEngine.BeginAllowThreads();
                 using (var py = new PyLock())
                 {
 					if (pythonPath != null)
 					{
-						var result = PythonEngine.RunString ("sys.path.Insert(1,\"" + cleanupString(pythonPath) + "\")");
-						if (result == null)
-						{
-							throw new PythonException ();
-						}
-					}
-					dynamic packages = PythonEngine.RunString("from " + cleanupString(packageToLoad) + " import *");
-					if (packages == null)
-					{
-						throw new PythonException ();
+					    foreach (string s in pythonPath.Split(';').Reverse())
+					    {
+					        if (-1 == PythonEngine.RunSimpleString("import sys\r\nsys.path.insert(1,\"" + cleanupString(s) + "\")"))
+                            {
+                                throw new Exception("Python error adding to path");
+					        }
+					    }
 					}
                     dynamic m1 = PythonEngine.ImportModule("HostedTools");
 					if (m1 == null)
 					{
 						throw new PythonException ();
 					}
-                    //string s = PythonEngine.Platform + " " + PythonEngine.PythonHome;
-                    //dynamic module = PythonEngine.ImportModule("HostedTools");
+                    m1._mainEval("from " + cleanupString(packageToLoad) + " import *");
                     PyObject coll = m1._ObjectCollection;
                     int l_coll = coll.Length();
                     for (int i=0; i<l_coll; i++)
