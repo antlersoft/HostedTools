@@ -81,8 +81,8 @@
       <HintPath>..\packages\com.antlersoft.HostedTools.Utility.1.0.5893.26941\lib\net40\com.antlersoft.HostedTools.Utility.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="com.antlersoft.HostedTools.WpfHostLib, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\com.antlersoft.HostedTools.WpfHostLib.1.0.0.0\lib\net40\com.antlersoft.HostedTools.WpfHostLib.dll</HintPath>
+    <Reference Include="com.antlersoft.HostedTools.WpfHostLib, Version=1.1.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\com.antlersoft.HostedTools.WpfHostLib.1.1.1.0\lib\net40\com.antlersoft.HostedTools.WpfHostLib.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
