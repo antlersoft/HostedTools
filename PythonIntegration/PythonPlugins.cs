@@ -7,6 +7,7 @@ using com.antlersoft.HostedTools.Framework.Interface.Menu;
 using com.antlersoft.HostedTools.Framework.Interface.Plugin;
 using com.antlersoft.HostedTools.Framework.Interface.Setting;
 using com.antlersoft.HostedTools.Framework.Model;
+using com.antlersoft.HostedTools.Framework.Model.Menu;
 using com.antlersoft.HostedTools.Interface;
 
 namespace com.antlersoft.HostedTools.PythonIntegration
@@ -28,7 +29,9 @@ namespace com.antlersoft.HostedTools.PythonIntegration
     [Export(typeof(IPluginSource))]
     [Export(typeof(ISettingDefinitionSource))]
     [Export(typeof(IMenuItemSource))]
-    public class PythonPlugins : HostedObjectBase, IPluginSource, ISettingDefinitionSource, IMenuItemSource
+	[Export(typeof(IWork))]
+	[Export(typeof(IPlugin))]
+	public class PythonPlugins : HostedObjectBase, IPluginSource, ISettingDefinitionSource, IMenuItemSource, IWork, IPlugin
     {
         [Import] public IAppConfig Config;
         [Import] public ISettingManager SettingManager;
@@ -37,6 +40,7 @@ namespace com.antlersoft.HostedTools.PythonIntegration
         private List<IPlugin> _plugins = new List<IPlugin>();
         private List<ISettingDefinition> _definitions = new List<ISettingDefinition>();
         private List<IMenuItem> _menuItems = new List<IMenuItem>();
+		private IMenuItem[] _masterItem = new [] {new MenuItem("Common.ReloadPythonTools", "Reload Python Tools", typeof(PythonPlugins).FullName, "Common")};
 
 		private static readonly string BSymbol = "{QQ}";
 		private string cleanupString(string toClean)
@@ -52,44 +56,14 @@ namespace com.antlersoft.HostedTools.PythonIntegration
         {
             if (!_initialized)
             {
-                string packageToLoad = Config.Get<string>("com.antlersoft.HostedTools.PythonIntegration.PackageName");
-                Dictionary<string,IPythonPlugin> toolsByName = PythonTools.ToDictionary(pt => pt.Name);
-                if (packageToLoad == null)
-                {
-                    return;
-                }
-				string pythonHome = Config.Get<string> ("com.antlersoft.HostedTools.PythonIntegration.PythonHome");
-				if (pythonHome != null)
+				PyObject coll = StartEngineAndGetToolCollection ();
+				if (coll == null)
 				{
-					PythonEngine.PythonHome = pythonHome;
+					return;
 				}
-				string programName = Config.Get<string> ("com.antlersoft.HostedTools.PythonIntegration.ProgramName");
-				if (programName != null)
+				Dictionary<string,IPythonPlugin> toolsByName = PythonTools.ToDictionary(pt => pt.Name);
+				using (var py = new PyLock())
 				{
-					PythonEngine.ProgramName = programName;
-				}
-				string pythonPath = Config.Get<string> ("com.antlersoft.HostedTools.PythonIntegration.PythonPath");
-                PythonEngine.Initialize();
-                PythonEngine.BeginAllowThreads();
-                using (var py = new PyLock())
-                {
-					if (pythonPath != null)
-					{
-					    foreach (string s in pythonPath.Split(';').Reverse())
-					    {
-					        if (-1 == PythonEngine.RunSimpleString("import sys\r\nsys.path.insert(1,\"" + cleanupString(s) + "\")"))
-                            {
-                                throw new Exception("Python error adding to path");
-					        }
-					    }
-					}
-                    dynamic m1 = PythonEngine.ImportModule("HostedTools");
-					if (m1 == null)
-					{
-						throw new PythonException ();
-					}
-                    m1._mainEval("from " + cleanupString(packageToLoad) + " import *");
-                    PyObject coll = m1._ObjectCollection;
                     int l_coll = coll.Length();
                     for (int i=0; i<l_coll; i++)
                     {
@@ -137,8 +111,84 @@ namespace com.antlersoft.HostedTools.PythonIntegration
             get
             {
                 Initialize();
-                return _menuItems;
+				return _masterItem.Concat(_menuItems);
             }
         }
+
+		public string Name {
+			get { return typeof(PythonPlugins).FullName; }
+		}
+
+		public void Perform(IWorkMonitor monitor)
+		{
+			Initialize ();
+			PythonEngine.Shutdown ();
+			PyObject coll = StartEngineAndGetToolCollection ();
+			if (coll == null)
+			{
+				return;
+			}
+			using (new PyLock ())
+			{
+				int l_coll = coll.Length();
+				for (int i = 0; i < l_coll; i++)
+				{
+					dynamic ht = coll.GetItem(i);
+					string name = (string)ht._name;
+					IPythonPlugin pp = PythonTools.FirstOrDefault (pt => pt.Name == name);
+					if (pp != null)
+					{
+						pp.SetPythonImplementation (ht);
+					}
+					pp = _plugins.FirstOrDefault (p => p.Name == name) as IPythonPlugin;
+					if (pp != null)
+					{
+						pp.SetPythonImplementation (ht);
+					}
+				}
+			}
+		}
+
+		private PyObject StartEngineAndGetToolCollection()
+		{
+			string packageToLoad = Config.Get<string>("com.antlersoft.HostedTools.PythonIntegration.PackageName");
+			if (packageToLoad == null)
+			{
+				return null;
+			}
+			string pythonHome = Config.Get<string> ("com.antlersoft.HostedTools.PythonIntegration.PythonHome");
+			if (pythonHome != null)
+			{
+				PythonEngine.PythonHome = pythonHome;
+			}
+			string programName = Config.Get<string> ("com.antlersoft.HostedTools.PythonIntegration.ProgramName");
+			if (programName != null)
+			{
+				PythonEngine.ProgramName = programName;
+			}
+			string pythonPath = Config.Get<string> ("com.antlersoft.HostedTools.PythonIntegration.PythonPath");
+			PythonEngine.Initialize();
+			PythonEngine.BeginAllowThreads();
+			using (var py = new PyLock ())
+			{
+				if (pythonPath != null)
+				{
+					foreach (string s in pythonPath.Split(';').Reverse())
+					{
+						if (-1 == PythonEngine.RunSimpleString ("import sys\r\nsys.path.insert(1,\"" + cleanupString (s) + "\")")) {
+							throw new Exception ("Python error adding to path");
+						}
+					}
+				}
+				dynamic m1 = PythonEngine.ImportModule ("HostedTools");
+				if (m1 == null)
+				{
+					throw new PythonException ();
+				}
+				m1._mainEval ("from " + cleanupString (packageToLoad) + " import *");
+				PyObject coll = m1._ObjectCollection;
+				return coll;
+			}
+		}
     }
 }
