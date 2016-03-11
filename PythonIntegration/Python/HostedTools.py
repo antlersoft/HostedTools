@@ -1,12 +1,57 @@
+'''
+Defines the base class as well as some utility functions for creating HostedTools tools in Python
+'''
 import json
 import traceback
+import sys
+from contextlib import contextmanager
 
 _ObjectCollection = []
+
+_globalMonitor = None
+_globalTool = None
+
+def globalWriteRow(obj):
+    if (_globalMonitor and _globalTool):
+        _globalTool.WriteRow(_globalMonitor,obj)
+
+def globalWriteLine(msg):
+    if (_globalMonitor):
+        _globalMonitor.Writer.WriteLine(msg)
+        
+class _MonitorAsFile :
+    def __init__(self,monitor):
+        self._oldOut = sys.stdout
+        self._monitor = monitor
+    # close() is an error
+    def flush():
+        pass
+    def fileno():
+        return self._oldOut.fileno()
+    # isatty (don't implement)
+    # read, seek, truncate methods not implemented; error
+    def write(self,msg):
+        self._monitor.Writer.Write(msg)
+    def writelines(self,seq):
+        for s in seq:
+            _monitor.Writer.WriteLine(str(s))
+    def __getattr__(self,attr):
+        return getattr(self._oldOut,attr)
+        
+@contextmanager
+def redirectToMonitor(monitor):
+    ''' Run code within this context manager to redirect standard out to the supplied monitor object '''
+    new_target = _MonitorAsFile(monitor)
+    old_target, sys.stdout = sys.stdout, _MonitorAsFile(monitor)
+    try:
+        yield new_target
+    finally:
+        sys.stdout = old_target
 
 def _mainEval(cmd) :
 	'''Overcome problem in Python.Runtime.PythonEngine.RunString'''
 	exec cmd in globals()
-
+         
 class HostedToolBase(object) :
 	'''Base class for Python classes that define Hosted Tools'''
 	def __init__(self,name,menuItems=None,settingDefinitions=None,settingNames=None,isGrid=False,customToolName=None) :
@@ -44,10 +89,17 @@ class HostedToolBase(object) :
 		return json.loads(self._hostedTool.SerializeHtValue(row))
 	def Perform(self,monitor) :
           '''Catch exceptions from sub-class, and write to monitor'''
+          global _globalTool, _globalMonitor
           try:
+              _globalTool = self
+              _globalMonitor = monitor
               self.PerformPython(monitor)
+              _globalTool = None
+              _globalMonitor = None
           except:
               monitor.Writer.WriteLine("Python exception:")
               monitor.Writer.WriteLine(traceback.format_exc())
+              _globalTool = None
+              _globalMonitor = None
               raise
 
