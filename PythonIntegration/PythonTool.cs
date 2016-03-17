@@ -65,8 +65,15 @@ namespace com.antlersoft.HostedTools.PythonIntegration
 
         public void SetPythonImplementation(PyObject pythonImplementation)
         {
+	        if (_pythonImplementation != null)
+	        {
+		        _pythonImplementation.Dispose();
+	        }
             _pythonImplementation = pythonImplementation;
-            _pythonImplementation.InvokeMethod("SetHostedTool", PyObject.FromManagedObject(this));
+	        if (_pythonImplementation != null)
+	        {
+		        _pythonImplementation.InvokeMethod("SetHostedTool", PyObject.FromManagedObject(this));
+	        }
         }
 
         public virtual void WriteRow(IWorkMonitor monitor, string serializedObject)

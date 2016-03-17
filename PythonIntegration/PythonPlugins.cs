@@ -8,6 +8,7 @@ using com.antlersoft.HostedTools.Framework.Interface.Plugin;
 using com.antlersoft.HostedTools.Framework.Interface.Setting;
 using com.antlersoft.HostedTools.Framework.Model;
 using com.antlersoft.HostedTools.Framework.Model.Menu;
+using com.antlersoft.HostedTools.Framework.Model.Setting;
 using com.antlersoft.HostedTools.Interface;
 
 namespace com.antlersoft.HostedTools.PythonIntegration
@@ -31,7 +32,7 @@ namespace com.antlersoft.HostedTools.PythonIntegration
     [Export(typeof(IMenuItemSource))]
 	[Export(typeof(IWork))]
 	[Export(typeof(IPlugin))]
-	public class PythonPlugins : HostedObjectBase, IPluginSource, ISettingDefinitionSource, IMenuItemSource, IWork, IPlugin
+	public class PythonPlugins : HostedObjectBase, IPluginSource, ISettingDefinitionSource, IMenuItemSource, IWork, IPlugin, ISettingEditList
     {
         [Import] public IAppConfig Config;
         [Import] public ISettingManager SettingManager;
@@ -41,6 +42,7 @@ namespace com.antlersoft.HostedTools.PythonIntegration
         private List<ISettingDefinition> _definitions = new List<ISettingDefinition>();
         private List<IMenuItem> _menuItems = new List<IMenuItem>();
 		private IMenuItem[] _masterItem = new [] {new MenuItem("Common.ReloadPythonTools", "Reload Python Tools", typeof(PythonPlugins).FullName, "Common")};
+		private static ISettingDefinition ResetModules = new SimpleSettingDefinition("ResetModules", "PythonPlugins", "Additional modules to reset", "Comma-separated list of module names");
 
 		private static readonly string BSymbol = "{QQ}";
 		private string cleanupString(string toClean)
@@ -104,7 +106,7 @@ namespace com.antlersoft.HostedTools.PythonIntegration
         }
 
         public IEnumerable<IPlugin> SourcePlugins { get { Initialize(); return _plugins; } }
-        public IEnumerable<ISettingDefinition> Definitions { get { Initialize(); return _definitions; } }
+        public IEnumerable<ISettingDefinition> Definitions { get { Initialize(); return (new [] {ResetModules}).Concat(_definitions); } }
 
         public IEnumerable<IMenuItem> Items
         {
@@ -115,15 +117,38 @@ namespace com.antlersoft.HostedTools.PythonIntegration
             }
         }
 
+		public IEnumerable<string> KeysToEdit
+		{
+			get { return new[] { ResetModules.FullKey() }; }
+		}
+
 		public string Name {
 			get { return typeof(PythonPlugins).FullName; }
 		}
 
 		public void Perform(IWorkMonitor monitor)
 		{
-			Initialize ();
-			PythonEngine.Shutdown ();
-			PyObject coll = StartEngineAndGetToolCollection ();
+			if (!_initialized)
+			{
+				Initialize();
+				return;
+			}
+			using (new PyLock())
+			{
+				foreach (var p in PythonTools)
+				{
+					p.SetPythonImplementation(null);
+				}
+				foreach (var l in _plugins)
+				{
+					var p = l as IPythonPlugin;
+					if (p != null)
+					{
+						p.SetPythonImplementation(null);
+					}
+				}
+			}
+			PyObject coll = ReimportModules();
 			if (coll == null)
 			{
 				return;
@@ -186,6 +211,53 @@ namespace com.antlersoft.HostedTools.PythonIntegration
 					throw new PythonException ();
 				}
 				m1._mainEval ("from " + cleanupString (packageToLoad) + " import *");
+				PyObject coll = m1._ObjectCollection;
+				return coll;
+			}
+		}
+
+		private PyObject ReimportModules()
+		{
+			string packageToLoad = Config.Get<string>("com.antlersoft.HostedTools.PythonIntegration.PackageName");
+			if (packageToLoad == null)
+			{
+				return null;
+			}
+			packageToLoad = cleanupString(packageToLoad);
+			using (var py = new PyLock())
+			{
+				PythonEngine.RunSimpleString(@"
+import HostedTools
+reload(HostedTools)
+import "+packageToLoad+@"
+reload(packageToLoad)
+");
+				dynamic p1 = PythonEngine.ImportModule(packageToLoad);
+				if (p1 == null)
+				{
+					throw new PythonException();
+				}
+				dynamic m1 = PythonEngine.ImportModule("HostedTools");
+				if (m1 == null)
+				{
+					throw new PythonException();
+				}
+				string reloadModules = ResetModules.Value<string>(SettingManager);
+				if (!String.IsNullOrWhiteSpace(reloadModules))
+				{
+					foreach (var s in reloadModules.Split(','))
+					{
+						string toReload = cleanupString(s);
+						m1._mainEval("import " + toReload + "\r\nreload(" + toReload + ")");
+					}
+				}
+				PyObject all = p1.__all__;
+				int all_l = all.Length();
+				for (int i = 0; i<all_l; i++)
+				{
+					dynamic pname = all.GetItem(i);
+					m1._mainEval("import " + packageToLoad + "." + (string)pname + "\r\nreload(" +packageToLoad+"."+(string)pname+")");
+				}
 				PyObject coll = m1._ObjectCollection;
 				return coll;
 			}
