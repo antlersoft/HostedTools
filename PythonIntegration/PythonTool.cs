@@ -48,7 +48,16 @@ namespace com.antlersoft.HostedTools.PythonIntegration
         }
         public void Perform(IWorkMonitor monitor)
         {
-            using (new PyLock())
+			var hasOutput = monitor.Cast<IHasOutputPanes>();
+			if (hasOutput != null)
+			{
+				IGridOutput grid = hasOutput.FindGridOutput();
+				if (grid != null)
+				{
+					grid.Clear();
+				}
+			}
+			using (new PyLock())
             {
                 _pythonImplementation.InvokeMethod("Perform", PyObject.FromManagedObject(monitor));
             }
