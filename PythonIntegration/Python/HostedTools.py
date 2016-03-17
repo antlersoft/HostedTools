@@ -42,11 +42,12 @@ class _MonitorAsFile :
 def redirectToMonitor(monitor):
     ''' Run code within this context manager to redirect standard out to the supplied monitor object '''
     new_target = _MonitorAsFile(monitor)
-    old_target, sys.stdout = sys.stdout, _MonitorAsFile(monitor)
+    old_target, old_err, sys.stderr, sys.stdout = sys.stdout, sys.stderr, new_target, new_target
     try:
         yield new_target
     finally:
         sys.stdout = old_target
+        sys.stderr = old_err
 
 def _mainEval(cmd) :
 	'''Overcome problem in Python.Runtime.PythonEngine.RunString'''
