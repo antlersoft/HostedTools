@@ -8,7 +8,9 @@
     <owners>antlersoft</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Integrate hosted tools written in Python with the hosted tools platform</description>
-    <releaseNotes>1.1.1 Improve error handling; reload tool (not working); auto clear grid on Perform
+    <releaseNotes>
+    1.1.2 Reload tool reloads tools and selected other modules; add redirect to monitor context for tools
+    1.1.1 Improve error handling; reload tool (not working); auto clear grid on Perform
     Initial release</releaseNotes>
     <copyright>Copyright 2016</copyright>
     <tags>HostedTools Python</tags>
