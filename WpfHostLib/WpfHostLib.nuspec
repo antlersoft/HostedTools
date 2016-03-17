@@ -9,6 +9,9 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Wpf Host implementation for Hosted Tools</description>
     <releaseNotes>
+      1.1.4 Fix grid again
+      1.1.3 Fix grid clear with previous fix
+      1.1.2 Fix grid output with weird column names
       1.1.1 Add error message box on startup failure
       Initial release</releaseNotes>
     <copyright>Copyright 2016</copyright>

@@ -20,6 +20,7 @@ namespace com.antlersoft.HostedTools.WpfHostLib
         private GridView _gridView;
         private bool _isDummyColumns;
         private Dictionary<string, GridViewColumn> _columnsByName;
+	    private Dictionary<string, string> _bindingsByName;
         private ListenerCollection<Dictionary<string, object>> _listenerCollection;
         private string _rightClickSource;
 
@@ -27,6 +28,7 @@ namespace com.antlersoft.HostedTools.WpfHostLib
         {
             _rows = new ObservableCollection<Dictionary<string,object>>();
             _columnsByName = new Dictionary<string, GridViewColumn>();
+	        _bindingsByName = new Dictionary<string, string>();
             _listenerCollection = new ListenerCollection<Dictionary<string, object>>();
             ItemsSource = _rows;
             SelectionChanged += (sender, args) =>
@@ -129,6 +131,7 @@ namespace com.antlersoft.HostedTools.WpfHostLib
             View = _gridView;
             _isDummyColumns = true;
             _columnsByName.Clear();
+	        _bindingsByName.Clear();
         }
 
         public void AddRow(Dictionary<string, object> row)
@@ -145,6 +148,7 @@ namespace com.antlersoft.HostedTools.WpfHostLib
                         _isDummyColumns = false;
                     }
                     GridViewColumn col;
+					Dictionary<string,object> bindRow = new Dictionary<string, object>(row.Count);
                     foreach (var kvp in row)
                     {
                         if (! _columnsByName.TryGetValue(kvp.Key, out col))
@@ -158,9 +162,12 @@ namespace com.antlersoft.HostedTools.WpfHostLib
                             {
                                 width = 256;
                             }
-                            column.Width = width;
-                            column.DisplayMemberBinding = new Binding("["+kvp.Key+"]");
+							string binding = "A" + _bindingsByName.Count;
+							column.Width = width;
+                            column.DisplayMemberBinding = new Binding("["+binding+"]");
                             _columnsByName[kvp.Key] = column;
+	                        _bindingsByName[kvp.Key] = binding;
+	                        bindRow[binding] = kvp.Value;
                             _gridView.Columns.Add(column);
                         }
                         else
@@ -170,9 +177,10 @@ namespace com.antlersoft.HostedTools.WpfHostLib
                             {
                                 col.Width = width;
                             }
-                        }
-                    }
-                    _rows.Add(row);
+							bindRow[_bindingsByName[kvp.Key]] = kvp.Value;
+						}
+					}
+                    _rows.Add(bindRow);
                 });
         }
 
