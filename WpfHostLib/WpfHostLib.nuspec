@@ -9,6 +9,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Wpf Host implementation for Hosted Tools</description>
     <releaseNotes>
+      1.1.5 Fix outputting csv file breakage from grid fix
       1.1.4 Fix grid again
       1.1.3 Fix grid clear with previous fix
       1.1.2 Fix grid output with weird column names

@@ -113,7 +113,8 @@ namespace com.antlersoft.HostedTools.WpfHostLib
                                     fs.Write('\t');
                                 }
                                 object o;
-                                if (row.TryGetValue(h, out o))
+                                string binding;
+                                if (_bindingsByName.TryGetValue(h, out binding) && row.TryGetValue(binding, out o))
                                 {
                                     fs.Write(o.ToString());
                                 }
