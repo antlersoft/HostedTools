@@ -30,11 +30,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="com.antlersoft.HostedTools.Interface, Version=1.0.5893.20674, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\com.antlersoft.HostedTools.Serialization.1.0.5893.20675\lib\net40\com.antlersoft.HostedTools.Interface.dll</HintPath>
+      <HintPath>..\packages\com.antlersoft.HostedTools.Serialization.1.0.5893.33221\lib\net40\com.antlersoft.HostedTools.Interface.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="com.antlersoft.HostedTools.Serialization, Version=1.0.5893.20675, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\com.antlersoft.HostedTools.Serialization.1.0.5893.20675\lib\net40\com.antlersoft.HostedTools.Serialization.dll</HintPath>
+    <Reference Include="com.antlersoft.HostedTools.Serialization, Version=1.0.5893.33221, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\com.antlersoft.HostedTools.Serialization.1.0.5893.33221\lib\net40\com.antlersoft.HostedTools.Serialization.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">

@@ -54,36 +54,36 @@
     <ApplicationIcon>ToolBoxHD.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="com.antlersoft.HostedTools.ConditionBuilder, Version=1.0.5896.16595, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\com.antlersoft.HostedTools.ConditionBuilder.1.0.5896.16595\lib\net40\com.antlersoft.HostedTools.ConditionBuilder.dll</HintPath>
+    <Reference Include="com.antlersoft.HostedTools.ConditionBuilder, Version=1.0.5896.16772, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\com.antlersoft.HostedTools.ConditionBuilder.1.0.5896.16772\lib\net40\com.antlersoft.HostedTools.ConditionBuilder.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="com.antlersoft.HostedTools.Framework, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\com.antlersoft.HostedTools.Framework.1.1.0.0\lib\net40\com.antlersoft.HostedTools.Framework.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="com.antlersoft.HostedTools.Framework.Wpf, Version=1.0.5895.29675, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\com.antlersoft.HostedTools.Framework.Wpf.1.0.5895.29675\lib\net40\com.antlersoft.HostedTools.Framework.Wpf.dll</HintPath>
+    <Reference Include="com.antlersoft.HostedTools.Framework.Wpf, Version=1.0.5907.19645, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\com.antlersoft.HostedTools.Framework.Wpf.1.0.5907.19645\lib\net40\com.antlersoft.HostedTools.Framework.Wpf.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="com.antlersoft.HostedTools.Interface, Version=1.0.5893.20674, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\com.antlersoft.HostedTools.Serialization.1.0.5893.20675\lib\net40\com.antlersoft.HostedTools.Interface.dll</HintPath>
+      <HintPath>..\packages\com.antlersoft.HostedTools.Serialization.1.0.5893.33221\lib\net40\com.antlersoft.HostedTools.Interface.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="com.antlersoft.HostedTools.Pipeline, Version=1.2.5896.22586, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\com.antlersoft.HostedTools.Pipeline.1.2.5896.22586\lib\net45\com.antlersoft.HostedTools.Pipeline.dll</HintPath>
+    <Reference Include="com.antlersoft.HostedTools.Pipeline, Version=1.2.5907.19645, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\com.antlersoft.HostedTools.Pipeline.1.2.5907.19645\lib\net45\com.antlersoft.HostedTools.Pipeline.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="com.antlersoft.HostedTools.Serialization, Version=1.0.5893.20675, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\com.antlersoft.HostedTools.Serialization.1.0.5893.20675\lib\net40\com.antlersoft.HostedTools.Serialization.dll</HintPath>
+    <Reference Include="com.antlersoft.HostedTools.Serialization, Version=1.0.5893.33221, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\com.antlersoft.HostedTools.Serialization.1.0.5893.33221\lib\net40\com.antlersoft.HostedTools.Serialization.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="com.antlersoft.HostedTools.Utility, Version=1.0.5893.26941, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\com.antlersoft.HostedTools.Utility.1.0.5893.26941\lib\net40\com.antlersoft.HostedTools.Utility.dll</HintPath>
+    <Reference Include="com.antlersoft.HostedTools.Utility, Version=1.0.5896.18841, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\com.antlersoft.HostedTools.Utility.1.0.5896.18841\lib\net40\com.antlersoft.HostedTools.Utility.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="com.antlersoft.HostedTools.WpfHostLib, Version=1.1.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\com.antlersoft.HostedTools.WpfHostLib.1.1.1.0\lib\net40\com.antlersoft.HostedTools.WpfHostLib.dll</HintPath>
+    <Reference Include="com.antlersoft.HostedTools.WpfHostLib, Version=1.1.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\com.antlersoft.HostedTools.WpfHostLib.1.1.5.0\lib\net40\com.antlersoft.HostedTools.WpfHostLib.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
