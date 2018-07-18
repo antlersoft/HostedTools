@@ -75,12 +75,44 @@ namespace com.antlersoft.HostedTools.Pipeline
             {
                 throw new Exception("Type " + ClassName.Value<string>(SettingManager)+" not found");
             }
+
             var mi = t.GetMethod(MethodName.Value<string>(SettingManager), EmptyTypes);
             if (mi == null)
             {
                 throw new Exception("Method " + MethodName.Value<string>(SettingManager) + " not found");
             }
-            mi.Invoke(t.GetConstructor(EmptyTypes).Invoke(EmptyArgs), EmptyArgs);
+            MethodInfo initialize = null, cleanup = null;
+            foreach (var method in t.GetMethods())
+            {
+                if (method.Name == "TestInitialize" ||
+                    method.CustomAttributes.Any(ca => ca.AttributeType.FullName.Contains("TestInitialize")))
+                {
+                  initialize = method;
+                }
+                if (method.Name == "TestCleanup" ||
+                    method.CustomAttributes.Any(ca => ca.AttributeType.FullName.Contains("TestCleanup")))
+                {
+                  cleanup = method;
+                }
+            }
+
+            var obj = t.GetConstructor(EmptyTypes).Invoke(EmptyArgs);
+            if (initialize != null)
+            {
+                initialize.Invoke(obj, EmptyArgs);
+            }
+
+            try
+            {
+                mi.Invoke(obj, EmptyArgs);
+            }
+            finally
+            {
+                if (cleanup != null)
+                {
+                    cleanup.Invoke(obj, EmptyArgs);
+                }
+            }
         }
     }
 }
