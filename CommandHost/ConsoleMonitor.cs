@@ -5,8 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using com.antlersoft.HostedTools.Interface.Plugin;
-using com.antlersoft.HostedTools.Model;
+using com.antlersoft.HostedTools.Framework.Interface.Plugin;
+using com.antlersoft.HostedTools.Framework.Model;
+
 
 namespace com.antlersoft.HostedTools.CommandHost
 {

@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
 using System.Linq;
-using com.antlersoft.HostedTools.Interface.Plugin;
-using com.antlersoft.HostedTools.Interface.Setting;
-using com.antlersoft.HostedTools.Interface.UI;
+using com.antlersoft.HostedTools.Framework.Interface.Plugin;
+using com.antlersoft.HostedTools.Framework.Interface.Setting;
+using com.antlersoft.HostedTools.Framework.Interface.UI;
 
 namespace com.antlersoft.HostedTools.CommandHost
 {
@@ -15,22 +16,31 @@ namespace com.antlersoft.HostedTools.CommandHost
         [Import]
         public ISettingManager SettingManager { get; set; }
 
+      [ImportMany]
+      public IEnumerable<IAfterComposition> NeedAfterComposition { get; set; }
+
+ 
         private CompositionContainer _container;
 
         public CompositionContainer Container { get { return _container; } }
 
-        public CommandRunner()
+      public CommandRunner()
+      {
+//An aggregate catalog that combines multiple catalogs
+         var catalog = new AggregateCatalog();
+
+//Adds all the parts found in the same assembly as the Program class
+        catalog.Catalogs.Add(new ApplicationCatalog());
+
+//Create the CompositionContainer with the parts in the catalog
+        _container = new CompositionContainer(catalog);
+
+        Container.ComposeParts(this);
+        foreach (IAfterComposition ac in NeedAfterComposition)
         {
-            //An aggregate catalog that combines multiple catalogs
-            var catalog = new AggregateCatalog();
-            //Adds all the parts found in the same assembly as the Program class
-            catalog.Catalogs.Add(new ApplicationCatalog());
-
-            //Create the CompositionContainer with the parts in the catalog
-            _container = new CompositionContainer(catalog);
-
-            Container.ComposeParts(this);
+          ac.AfterComposition();
         }
+      } 
 
         public void Run(string[] args)
         {
