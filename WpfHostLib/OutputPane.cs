@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using com.antlersoft.HostedTools.Framework.Interface.UI;
 using com.antlersoft.HostedTools.Framework.Model;
-using com.antlersoft.HostedTools.Framework.Model.Plugin;
 using com.antlersoft.HostedTools.Framework.Wpf.Interface;
 
 namespace com.antlersoft.HostedTools.WpfHostLib
@@ -139,6 +135,33 @@ namespace com.antlersoft.HostedTools.WpfHostLib
                     if (_outputImage == null)
                     {
                         _outputImage = result.Control as IImageOutput;
+                    }
+                    break;
+                case EOutputPaneType.CustomControl:
+                    result.Control = spec.Cast<IElementSource>()?.GetElement(_topElement);
+                    if (result.Control == null)
+                    {
+                        // Failsafe
+                        result.Control = new OutputTextBox();
+                        if (_outputText == null)
+                        {
+                            _outputText = result.Control as ITextOutput;
+                        }
+                    }
+                    else
+                    {
+                        if (_outputText == null)
+                        {
+                            _outputText = result.Control as ITextOutput;
+                        }
+                        if (_outputGrid == null)
+                        {
+                            _outputGrid = result.Control as IGridOutput;
+                        }
+                        if (_outputImage == null)
+                        {
+                            _outputImage = result.Control as IImageOutput;
+                        }
                     }
                     break;
                 case EOutputPaneType.Nested:
