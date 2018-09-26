@@ -12,6 +12,7 @@ namespace com.antlersoft.HostedTools.Framework.Interface.UI
         List,
         Grid,
         Nested,
-        Image
+        Image,
+        CustomControl
     }
 }

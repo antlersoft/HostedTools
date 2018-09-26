@@ -112,6 +112,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
+    <None Include="Framework.nuspec" />
     <None Include="packages.config" />
   </ItemGroup>
 </Project>
