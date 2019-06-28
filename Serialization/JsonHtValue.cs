@@ -238,7 +238,6 @@ namespace com.antlersoft.HostedTools.Serialization
 				_asLong = value;
 				_asDouble = null;
 				_asBool = null;
-				_asLong = null;
                 _asString = null;
                 _asArray = null;
                 _asDictionary = null;
@@ -332,7 +331,7 @@ namespace com.antlersoft.HostedTools.Serialization
 
         public bool IsEmpty
         {
-            get { return ! IsBool && ! IsDouble && ! IsString && ! IsArray && ! IsDictionary; }
+            get { return ! IsBool && ! IsDouble && ! IsLong && ! IsString && ! IsArray && ! IsDictionary; }
         }
 
         public IHtValue this [string i] {
