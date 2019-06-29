@@ -82,7 +82,11 @@ namespace com.antlersoft.HostedTools.Pipeline
             {
                 result = val.AsDouble;
             }
-            else if (val.IsEmpty)
+      else if (val.IsLong)
+      {
+        result = val.AsLong;
+      }
+      else if (val.IsEmpty)
             {
                 result = string.Empty;
             }
