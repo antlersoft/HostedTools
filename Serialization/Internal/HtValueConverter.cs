@@ -140,6 +140,10 @@ namespace com.antlersoft.HostedTools.Serialization.Internal
             {
                 writer.WriteValue(toWrite.AsDouble);
             }
+            else if (toWrite.IsLong)
+            {
+                writer.WriteValue(toWrite.AsLong);
+            }
             else if (toWrite.IsEmpty)
             {
                 writer.WriteNull();
