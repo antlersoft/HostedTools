@@ -53,46 +53,6 @@
     <ApplicationIcon>ToolBoxHD.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="com.antlersoft.HostedTools.ConditionBuilder, Version=1.0.5896.16772, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\com.antlersoft.HostedTools.ConditionBuilder.1.0.5896.16772\lib\net40\com.antlersoft.HostedTools.ConditionBuilder.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="com.antlersoft.HostedTools.Framework, Version=1.0.5893.23049, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\com.antlersoft.HostedTools.Framework.1.0.5893.23049\lib\net40\com.antlersoft.HostedTools.Framework.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="com.antlersoft.HostedTools.Framework.Wpf, Version=1.0.5907.19645, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\com.antlersoft.HostedTools.Framework.Wpf.1.0.5907.19645\lib\net40\com.antlersoft.HostedTools.Framework.Wpf.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="com.antlersoft.HostedTools.Interface, Version=1.0.5893.20674, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\com.antlersoft.HostedTools.Serialization.1.0.5893.33221\lib\net40\com.antlersoft.HostedTools.Interface.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="com.antlersoft.HostedTools.Pipeline, Version=1.2.5907.19645, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\com.antlersoft.HostedTools.Pipeline.1.2.5907.19645\lib\net45\com.antlersoft.HostedTools.Pipeline.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="com.antlersoft.HostedTools.Serialization, Version=1.0.5893.33221, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\com.antlersoft.HostedTools.Serialization.1.0.5893.33221\lib\net40\com.antlersoft.HostedTools.Serialization.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="com.antlersoft.HostedTools.Utility, Version=1.0.5896.18841, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\com.antlersoft.HostedTools.Utility.1.0.5896.18841\lib\net40\com.antlersoft.HostedTools.Utility.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="com.antlersoft.HostedTools.WpfHostLib, Version=1.1.5.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\com.antlersoft.HostedTools.WpfHostLib.1.1.5.0\lib\net40\com.antlersoft.HostedTools.WpfHostLib.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.8.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Ookii.Dialogs.Wpf, Version=1.0.0.0, Culture=neutral, PublicKeyToken=0c15020868fd6249, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ookii.Dialogs.1.0\lib\net35\Ookii.Dialogs.Wpf.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Data" />
@@ -137,7 +97,6 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -164,6 +123,35 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="com.antlersoft.HostedTools.ConditionBuilder">
+      <Version>1.1.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="com.antlersoft.HostedTools.Framework">
+      <Version>1.1.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="com.antlersoft.HostedTools.Framework.Wpf">
+      <Version>1.1.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="com.antlersoft.HostedTools.Pipeline">
+      <Version>1.1.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="com.antlersoft.HostedTools.Serialization">
+      <Version>1.1.0.2</Version>
+    </PackageReference>
+    <PackageReference Include="com.antlersoft.HostedTools.Utility">
+      <Version>1.1.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="com.antlersoft.HostedTools.WpfHostLib">
+      <Version>1.1.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="Newtonsoft.Json">
+      <Version>8.0.2</Version>
+    </PackageReference>
+    <PackageReference Include="Ookii.Dialogs">
+      <Version>1.0.0</Version>
+    </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
