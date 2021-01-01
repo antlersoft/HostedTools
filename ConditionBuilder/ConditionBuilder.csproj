@@ -29,19 +29,8 @@
     <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="com.antlersoft.HostedTools.Interface, Version=1.0.5893.20674, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\com.antlersoft.HostedTools.Serialization.1.0.5893.33221\lib\net40\com.antlersoft.HostedTools.Interface.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="com.antlersoft.HostedTools.Serialization, Version=1.0.5893.33221, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\com.antlersoft.HostedTools.Serialization.1.0.5893.33221\lib\net40\com.antlersoft.HostedTools.Serialization.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.8.0.2\lib\net40\Newtonsoft.Json.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
@@ -84,8 +73,12 @@
     <Compile Include="Parser\TokenNode.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <ItemGroup />
   <ItemGroup>
-    <None Include="packages.config" />
+    <PackageReference Include="com.antlersoft.HostedTools.Serialization">
+      <Version>1.1.0.2</Version>
+    </PackageReference>
+    <PackageReference Include="Newtonsoft.Json">
+      <Version>8.0.2</Version>
+    </PackageReference>
   </ItemGroup>
 </Project>
