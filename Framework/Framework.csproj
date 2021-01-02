@@ -1,118 +1,25 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>10.0.0</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{7E9E1B8E-DE9C-4D5F-AD61-D53B27F80797}</ProjectGuid>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <OutputType>Library</OutputType>
     <RootNamespace>com.antlersoft.HostedTools.Framework</RootNamespace>
     <AssemblyName>com.antlersoft.HostedTools.Framework</AssemblyName>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
     <OutputPath>bin\Debug</OutputPath>
     <DefineConstants>DEBUG;</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
-    <Optimize>true</Optimize>
     <OutputPath>bin\Release</OutputPath>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
   </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.ComponentModel.Composition" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="Interface\IAggregatable.cs" />
-    <Compile Include="Interface\IAggregator.cs" />
-    <Compile Include="Interface\IHostedObject.cs" />
-    <Compile Include="Interface\ListenerCollection.cs" />
-    <Compile Include="Interface\Navigation\INavigationManager.cs" />
-    <Compile Include="Interface\Plugin\IAfterComposition.cs" />
-    <Compile Include="Interface\Plugin\IBackgroundableMonitor.cs" />
-    <Compile Include="Interface\Plugin\ICancelableMonitor.cs" />
-    <Compile Include="Interface\Plugin\IClearableMonitor.cs" />
-    <Compile Include="Interface\Plugin\IPlugin.cs" />
-    <Compile Include="Interface\Plugin\IPluginManager.cs" />
-    <Compile Include="Interface\Plugin\IPluginSource.cs" />
-    <Compile Include="Interface\Plugin\ISavable.cs" />
-    <Compile Include="Interface\Plugin\ISettingEditList.cs" />
-    <Compile Include="Interface\Plugin\IWork.cs" />
-    <Compile Include="Interface\Plugin\IWorkMonitor.cs" />
-    <Compile Include="Interface\Setting\IItemSelectionDefinition.cs" />
-    <Compile Include="Interface\Setting\IPathSettingDefinition.cs" />
-    <Compile Include="Interface\Setting\ISetting.cs" />
-    <Compile Include="Interface\Setting\ISettingDefinition.cs" />
-    <Compile Include="Interface\Setting\ISettingDefinitionSource.cs" />
-    <Compile Include="Interface\Setting\ISettingManager.cs" />
-    <Compile Include="Interface\Setting\ISettingScope.cs" />
-    <Compile Include="Interface\Setting\ISettingSecurity.cs" />
-    <Compile Include="Interface\Setting\SettingDefinitionExtension.cs" />
-    <Compile Include="Interface\UI\EOutputPaneType.cs" />
-    <Compile Include="Interface\UI\EPaneListOrientation.cs" />
-    <Compile Include="Interface\UI\IButtonArray.cs" />
-    <Compile Include="Interface\UI\IExplanation.cs" />
-    <Compile Include="Interface\UI\IGridOutput.cs" />
-    <Compile Include="Interface\UI\IHasOutputPanes.cs" />
-    <Compile Include="Interface\UI\IHasSettingChangeActions.cs" />
-    <Compile Include="Interface\UI\IMultiLineValue.cs" />
-    <Compile Include="Interface\UI\IOutputPaneList.cs" />
-    <Compile Include="Interface\UI\IOutputPaneSpecifier.cs" />
-    <Compile Include="Interface\UI\ITextOutput.cs" />
-    <Compile Include="Interface\UI\IViewCreator.cs" />
-    <Compile Include="Model\CountingEnumerable.cs" />
-    <Compile Include="Model\HostedObjectBase.cs" />
-    <Compile Include="Model\ListenerCollection.cs" />
-    <Compile Include="Model\Navigation\NavigationManager.cs" />
-    <Compile Include="Model\Navigation\RejectNavigationException.cs" />
-    <Compile Include="Model\Plugin\EditOnlyPlugin.cs" />
-    <Compile Include="Model\Plugin\EditingSettingDeclarer.cs" />
-    <Compile Include="Model\Plugin\MonitoredEnumerable.cs" />
-    <Compile Include="Model\Plugin\NotifiedTextWriter.cs" />
-    <Compile Include="Model\Plugin\SimpleListWorker.cs" />
-    <Compile Include="Model\Plugin\SimpleWorker.cs" />
-    <Compile Include="Model\Plugin\Internal\PluginManager.cs" />
-    <Compile Include="Model\Setting\ButtonsDefinition.cs" />
-    <Compile Include="Model\Setting\ItemSelectionItem.cs" />
-    <Compile Include="Model\Setting\MultiLineSettingDefinition.cs" />
-    <Compile Include="Model\Setting\PathSettingDefinition.cs" />
-    <Compile Include="Model\Setting\SecureSettingDefinition.cs" />
-    <Compile Include="Model\Setting\SimpleSettingDefinition.cs" />
-    <Compile Include="Model\Setting\Internal\EnvScope.cs" />
-    <Compile Include="Model\Setting\Internal\FileSetting.cs" />
-    <Compile Include="Model\Setting\Internal\IInternalScope.cs" />
-    <Compile Include="Model\Setting\Internal\Setting.cs" />
-    <Compile Include="Model\Setting\Internal\SettingManager.cs" />
-    <Compile Include="Model\Setting\Internal\SettingScope.cs" />
-    <Compile Include="Model\UI\OutputPaneList.cs" />
-    <Compile Include="Model\UI\OutputPaneSpecifier.cs" />
-    <Compile Include="Interface\Menu\IMenuItem.cs" />
-    <Compile Include="Interface\Menu\IMenuItemSource.cs" />
-    <Compile Include="Interface\Menu\IMenuManager.cs" />
-    <Compile Include="Interface\Menu\MenuItemExtensions.cs" />
-    <Compile Include="Model\Menu\MenuItem.cs" />
-    <Compile Include="Model\Menu\Internal\MenuManager.cs" />
-  </ItemGroup>
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <ItemGroup>
-    <None Include="Framework.nuspec" />
-  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json">
       <Version>8.0.2</Version>
     </PackageReference>
+    <PackageReference Include="System.ComponentModel.Composition" Version="5.0.0" />
   </ItemGroup>
 </Project>

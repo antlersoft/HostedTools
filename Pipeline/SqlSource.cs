@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Data;
-using System.Data.SqlClient;
+using System.Data.Common;
 
 using com.antlersoft.HostedTools.Framework.Interface.Setting;
 using com.antlersoft.HostedTools.Framework.Model.Menu;
@@ -61,10 +61,11 @@ namespace com.antlersoft.HostedTools.Pipeline
 
         public IEnumerable<IHtValue> GetRows()
         {
-            using (var conn = new SqlConnection(SettingManager["Common.SqlDataConnectionString"].Get<string>()))
+            using (var conn = DbProviderFactories.GetFactory(SqlDataParameters.DbProviderFactoryName.Value<string>(SettingManager)).CreateConnection())
             {
                 conn.Open();
-                var cmd = new SqlCommand(SqlSource.SqlCommand.Value<string>(SettingManager), conn);
+                var cmd = conn.CreateCommand();
+                cmd.CommandText = SqlSource.SqlCommand.Value<string>(SettingManager);
                 cmd.CommandTimeout = CommandTimeout.Value<int>(SettingManager);
                 IDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())

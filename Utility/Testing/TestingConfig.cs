@@ -1,14 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.Extensions.Configuration;
+using System.Collections.Generic;
 
 namespace com.antlersoft.HostedTools.Utility.Testing
 {
     public class TestingConfig : AppConfig
     {
-        public TestingConfig()
+        public TestingConfig(IConfiguration configuration)
+        : base(configuration)
         {
             ConfigOverrides = new Dictionary<string, string>();
         }
-        public TestingConfig(Dictionary<string,string> configOverrides)
+        public TestingConfig(IConfiguration configuration, Dictionary<string,string> configOverrides)
+        : base(configuration)
         {
             ConfigOverrides = configOverrides;
         }

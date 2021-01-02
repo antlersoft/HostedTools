@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
 using com.antlersoft.HostedTools.Interface;
 using com.antlersoft.HostedTools.LogFacade;
 using log4net;
@@ -18,7 +14,7 @@ namespace com.antlersoft.HostedTools.Log4NetLogging
         {
 			if (string.IsNullOrWhiteSpace(logName))
 			{
-            	logName = ConfigurationManager.AppSettings["com.antlersoft.HostedTools.Logging.LogProviderName"];
+            	logName = Logging.AppConfig.Get("com.antlersoft.HostedTools.Logging.LogProviderName", null);
 			}
             if (string.IsNullOrWhiteSpace(logName))
             {
