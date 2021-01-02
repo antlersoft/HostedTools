@@ -1,58 +1,21 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>10.0.0</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{4A5AF272-0DF8-40B3-9438-AAFF14CEDF54}</ProjectGuid>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <OutputType>Library</OutputType>
     <RootNamespace>com.antlersoft.HostedTools.Interface</RootNamespace>
     <AssemblyName>com.antlersoft.HostedTools.Interface</AssemblyName>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
     <OutputPath>bin\Debug</OutputPath>
     <DefineConstants>DEBUG;</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
-    <Optimize>true</Optimize>
     <OutputPath>bin\Release</OutputPath>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
   </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="System" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="IHtValue.cs" />
-    <Compile Include="IHtExpression.cs" />
-    <Compile Include="IAppConfig.cs" />
-    <Compile Include="IHtLog.cs" />
-    <Compile Include="IHtLogProvider.cs" />
-    <Compile Include="IHtLogProviderFactory.cs" />
-    <Compile Include="Expressions\IConstantExpression.cs" />
-    <Compile Include="Expressions\IDataReferenceExpression.cs" />
-    <Compile Include="Expressions\IOperatorExpression.cs" />
-    <Compile Include="ICheckCondition.cs" />
-    <Compile Include="IMultiKeyCondition.cs" />
-    <Compile Include="INoSql.cs" />
-    <Compile Include="INoSqlFactory.cs" />
-    <Compile Include="IRangeCondition.cs" />
-    <Compile Include="IScanCondition.cs" />
-    <Compile Include="IAsyncBatcher.cs" />
-    <Compile Include="IConditionFactory.cs" />
-    <Compile Include="ICredentialsFactory.cs" />
-  </ItemGroup>
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="Expressions\" />
   </ItemGroup>

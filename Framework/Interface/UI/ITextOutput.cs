@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace com.antlersoft.HostedTools.Framework.Interface.UI
 {
@@ -11,6 +6,6 @@ namespace com.antlersoft.HostedTools.Framework.Interface.UI
     {
         void AddText(string text);
         void Clear();
-        void SetFont(Font font);
+        void SetFont(Object font);
     }
 }

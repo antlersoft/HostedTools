@@ -1,78 +1,21 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>10.0.0</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{B456151D-27CA-4FDC-930D-81490D50C5EC}</ProjectGuid>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <OutputType>Library</OutputType>
     <RootNamespace>com.antlersoft.HostedTools.ConditionBuilder</RootNamespace>
     <AssemblyName>com.antlersoft.HostedTools.ConditionBuilder</AssemblyName>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
     <OutputPath>bin\Debug</OutputPath>
     <DefineConstants>DEBUG;</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
-    <Optimize>true</Optimize>
     <OutputPath>bin\Release</OutputPath>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
   </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.ComponentModel.Composition" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="Interface\IConditionBuilder.cs" />
-    <Compile Include="Model\BeginsWithExpression.cs" />
-    <Compile Include="Model\ConditionBuilder.cs" />
-    <Compile Include="Model\ConstantExpression.cs" />
-    <Compile Include="Model\DataReferenceExpression.cs" />
-    <Compile Include="Model\OperatorExpression.cs" />
-    <Compile Include="Model\SubscriptExpression.cs" />
-    <Compile Include="Model\Internal\ComparisonOperator.cs" />
-    <Compile Include="Model\Internal\ConditionParser.cs" />
-    <Compile Include="Model\Internal\FunctionCallNode.cs" />
-    <Compile Include="Model\Internal\LogicalInFix.cs" />
-    <Compile Include="Model\Internal\MathOperator.cs" />
-    <Compile Include="Model\Internal\NullOdsExpression.cs" />
-    <Compile Include="Model\Internal\PlusOperator.cs" />
-    <Compile Include="Model\Internal\ProjectionExpression.cs" />
-    <Compile Include="Model\Internal\ProjectionItemNode.cs" />
-    <Compile Include="Model\Internal\ProjectionNode.cs" />
-    <Compile Include="Model\Internal\RegExpMatch.cs" />
-    <Compile Include="Model\Internal\SubscriptGoal.cs" />
-    <Compile Include="Model\Internal\WildCardNode.cs" />
-    <Compile Include="Parser\FunctorParseRule.cs" />
-    <Compile Include="Parser\GoalResult.cs" />
-    <Compile Include="Parser\IGoal.cs" />
-    <Compile Include="Parser\IParseTreeNode.cs" />
-    <Compile Include="Parser\InFixGoal.cs" />
-    <Compile Include="Parser\InFixNode.cs" />
-    <Compile Include="Parser\InFixOperator.cs" />
-    <Compile Include="Parser\NextToken.cs" />
-    <Compile Include="Parser\OperatorValidity.cs" />
-    <Compile Include="Parser\ParseRule.cs" />
-    <Compile Include="Parser\ParseState.cs" />
-    <Compile Include="Parser\ParseTreeNode.cs" />
-    <Compile Include="Parser\ParserBase.cs" />
-    <Compile Include="Parser\SG.cs" />
-    <Compile Include="Parser\Symbol.cs" />
-    <Compile Include="Parser\Token.cs" />
-    <Compile Include="Parser\TokenNode.cs" />
-  </ItemGroup>
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <PackageReference Include="com.antlersoft.HostedTools.Serialization">
       <Version>1.1.0.2</Version>
@@ -80,5 +23,6 @@
     <PackageReference Include="Newtonsoft.Json">
       <Version>8.0.2</Version>
     </PackageReference>
+    <PackageReference Include="System.ComponentModel.Composition" Version="5.0.0" />
   </ItemGroup>
 </Project>

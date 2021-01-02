@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Configuration;
 using System.Reflection;
 using System.Text;
 
@@ -14,6 +13,7 @@ namespace com.antlersoft.HostedTools.LogFacade
         private static object _lock = new object();
         private static IHtLogManager _manager;
         private static IHtLogProviderFactory _factory;
+        private static IAppConfig _configuration;
         public static IHtLogManager Manager
         {
             get
@@ -24,27 +24,30 @@ namespace com.antlersoft.HostedTools.LogFacade
                 {
                     lock (_lock)
                     {
-                        if (factory == null)
+                        if (factory == null && _configuration != null)
                         {
                             string providerName =
-                                ConfigurationManager.AppSettings["com.antlersoft.HostedTools.LogFacade.ProviderFactoryClass"];
-                            try
+                                _configuration.Get("com.antlersoft.HostedTools.LogFacade.ProviderFactoryClass", (string)null);
+                            if (providerName != null)
                             {
-                                var type = Type.GetType(providerName);
-                                if (type != null)
+                                try
                                 {
-                                    ConstructorInfo constructor = type.GetConstructor(new Type[0]);
-                                    if (constructor != null)
+                                    var type = Type.GetType(providerName);
+                                    if (type != null)
                                     {
-                                        factory =
-                                            (IHtLogProviderFactory)
-                                                constructor.Invoke(new object[0]);
+                                        ConstructorInfo constructor = type.GetConstructor(new Type[0]);
+                                        if (constructor != null)
+                                        {
+                                            factory =
+                                                (IHtLogProviderFactory)
+                                                    constructor.Invoke(new object[0]);
+                                        }
                                     }
                                 }
-                            }
-                            catch (Exception ex)
-                            {
-                                factoryCreationException = ex;
+                                catch (Exception ex)
+                                {
+                                    factoryCreationException = ex;
+                                }
                             }
                             if (factory == null)
                             {
@@ -88,6 +91,17 @@ namespace com.antlersoft.HostedTools.LogFacade
             }
         }
 
+        public static IAppConfig AppConfig
+        {
+            get
+            {
+                 return _configuration;
+            }
+            set
+            {
+                 _configuration = value;
+            }
+        }
         public static void DefaultExceptionFormat(StringBuilder sb, Exception ex)
         {
             if (ex != null)

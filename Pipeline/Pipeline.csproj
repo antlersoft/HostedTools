@@ -1,74 +1,21 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{1EEFA014-DC57-4DCE-914F-85C479FF8A05}</ProjectGuid>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <OutputType>Library</OutputType>
     <RootNamespace>com.antlersoft.HostedTools.Pipeline</RootNamespace>
     <AssemblyName>com.antlersoft.HostedTools.Pipeline</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
     <OutputPath>bin\Debug</OutputPath>
     <DefineConstants>DEBUG;</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
-    <Optimize>true</Optimize>
     <OutputPath>bin\Release</OutputPath>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
   </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.ComponentModel.Composition" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="DistinctTransform.cs" />
-    <Compile Include="ExpressionTransform.cs" />
-    <Compile Include="FilterTransform.cs" />
-    <Compile Include="GridWorker.cs" />
-    <Compile Include="INoSqlSource.cs" />
-    <Compile Include="IOdsValueSink.cs" />
-    <Compile Include="IOdsValueSource.cs" />
-    <Compile Include="IOdsValueTransform.cs" />
-    <Compile Include="NoSqlSourceDefinitions.cs" />
-    <Compile Include="NullSink.cs" />
-    <Compile Include="NullTransform.cs" />
-    <Compile Include="OrderByTransform.cs" />
-    <Compile Include="OverrideValueSetting.cs" />
-    <Compile Include="OverrideValueSettingManager.cs" />
-    <Compile Include="OverrideValueSettingScope.cs" />
-    <Compile Include="PipelinePlugin.cs" />
-    <Compile Include="PipelinePluginBase.cs" />
-    <Compile Include="PluginSelectionSettingDefinition.cs" />
-    <Compile Include="PluginState.cs" />
-    <Compile Include="SqlDataParameters.cs" />
-    <Compile Include="SqlSource.cs" />
-    <Compile Include="TabDelimitedSink.cs" />
-    <Compile Include="TabDelimitedSource.cs" />
-    <Compile Include="TestRunner.cs" />
-    <Compile Include="TransformChain.cs" />
-    <Compile Include="UnrollTransform.cs" />
-    <Compile Include="EnvQuery.cs" />
-    <Compile Include="GenericLoaderPlugin.cs" />
-    <Compile Include="JsonHttpQuery.cs" />
-  </ItemGroup>
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <None Include="Pipeline.csproj" />
   </ItemGroup>
@@ -85,5 +32,7 @@
     <PackageReference Include="Newtonsoft.Json">
       <Version>8.0.2</Version>
     </PackageReference>
+    <PackageReference Include="System.ComponentModel.Composition" Version="5.0.0" />
+    <PackageReference Include="System.Data.Common" Version="4.3.0" />
   </ItemGroup>
 </Project>

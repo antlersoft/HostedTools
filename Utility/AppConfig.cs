@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.Composition;
-using System.Configuration;
 using com.antlersoft.HostedTools.Interface;
+using Microsoft.Extensions.Configuration;
 
 namespace com.antlersoft.HostedTools.Utility
 {
@@ -95,6 +95,11 @@ namespace com.antlersoft.HostedTools.Utility
     [Export(typeof(IAppConfig))]
     public class AppConfig : AppConfigBase
     {
+        IConfiguration _configuration;
+        public AppConfig(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
         /// <summary>
         /// Return string-valued setting for key from app settings in configuration file
         /// </summary>
@@ -102,7 +107,9 @@ namespace com.antlersoft.HostedTools.Utility
         /// <returns>Value of setting, or null</returns>
         public override string GetSettingFromKey(string key)
         {
-            return ConfigurationManager.AppSettings[key];
+            return _configuration[key];
         }
+
+        public IConfiguration Configuration => _configuration;
     }
 }
