@@ -17,12 +17,9 @@
     <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Interface\Interface.csproj" />
-    <ProjectReference Include="..\LogFacade\LogFacade.csproj" />
-  </ItemGroup>
-  <ItemGroup>
+    <PackageReference Include="com.antlersoft.HostedTools.LogFacade" Version="2.0.0.1" />
     <PackageReference Include="log4net">
-      <Version>2.0.5</Version>
+      <Version>2.0.12</Version>
     </PackageReference>
   </ItemGroup>
 </Project>
