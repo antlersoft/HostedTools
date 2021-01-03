@@ -17,12 +17,7 @@
     <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System.Configuration" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="com.antlersoft.HostedTools.Serialization">
-      <Version>1.1.0.2</Version>
-    </PackageReference>
+    <PackageReference Include="com.antlersoft.HostedTools.Serialization" Version="2.0.0.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="5.0.0" />
     <PackageReference Include="System.ComponentModel.Composition" Version="5.0.0" />
   </ItemGroup>

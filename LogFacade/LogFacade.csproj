@@ -3,6 +3,8 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <OutputType>Library</OutputType>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <RootNamespace>com.antlersoft.HostedTools.LogFacade</RootNamespace>
+    <AssemblyName>com.antlersoft.HostedTools.LogFacade</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <OutputPath>bin\Debug</OutputPath>
@@ -15,14 +17,9 @@
     <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System.Configuration" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Interface\Interface.csproj" />
-  </ItemGroup>
-  <ItemGroup>
+    <PackageReference Include="com.antlersoft.HostedTools.Interface" Version="2.0.0.1" />
     <PackageReference Include="Newtonsoft.Json">
-      <Version>8.0.2</Version>
+      <Version>12.0.3</Version>
     </PackageReference>
   </ItemGroup>
 </Project>
