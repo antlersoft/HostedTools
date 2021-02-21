@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>10.0.0</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{02D5F114-C99C-4509-875F-224BFA329087}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>com.antlersoft.HostedTools.Framework.Wpf</RootNamespace>
+    <AssemblyName>com.antlersoft.HostedTools.Framework.Wpf</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="Injection\ButtonsView.cs" />
+    <Compile Include="Injection\CheckBoxView.cs" />
+    <Compile Include="Injection\ComboBoxView.cs" />
+    <Compile Include="Injection\EnumView.cs" />
+    <Compile Include="Injection\ItemSelectionView.cs" />
+    <Compile Include="Injection\MultiLineView.cs" />
+    <Compile Include="Injection\PasswordView.cs" />
+    <Compile Include="Injection\PathView.cs" />
+    <Compile Include="Injection\SettingViewBase.cs" />
+    <Compile Include="Injection\TextView.cs" />
+    <Compile Include="Injection\ViewInjector.cs" />
+    <Compile Include="Interface\IBackgroundWorkReceiver.cs" />
+    <Compile Include="Interface\IElementSource.cs" />
+    <Compile Include="Interface\IHasImageOutput.cs" />
+    <Compile Include="Interface\IImageOutput.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="com.antlersoft.HostedTools.Framework">
+      <Version>1.1.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="Newtonsoft.Json">
+      <Version>8.0.2</Version>
+    </PackageReference>
+    <PackageReference Include="Ookii.Dialogs">
+      <Version>1.0.0</Version>
+    </PackageReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+</Project>

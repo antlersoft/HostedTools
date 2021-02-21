@@ -2,8 +2,6 @@
 using System.Windows;
 using System.Windows.Controls;
 using com.antlersoft.HostedTools.Framework.Interface.Setting;
-using Microsoft.Win32;
-using Ookii.Dialogs.Wpf;
 
 namespace com.antlersoft.HostedTools.Framework.Wpf.Injection
 {
