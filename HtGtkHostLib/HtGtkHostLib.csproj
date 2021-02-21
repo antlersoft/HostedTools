@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>com.antlersoft.HostedTools.GtkHostLib</AssemblyName>
+    <RootNamespace>com.antlersoft.HostedTools.GtkHostLib</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="com.antlersoft.HostedTools.Framework" Version="2.0.0.1" />
+    <PackageReference Include="GtkSharp" Version="3.22.25.128" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Framework.Gtk\Framework.Gtk.csproj" />
+  </ItemGroup>
+
+</Project>

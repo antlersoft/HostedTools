@@ -67,7 +67,7 @@ namespace com.antlersoft.HostedTools.WpfHostLib
             });
         }
 
-        public void SetFont(Font font)
+        public void SetFont(Object font)
         {
             LambdaDispatch.Invoke(Dispatcher, () =>
             {
