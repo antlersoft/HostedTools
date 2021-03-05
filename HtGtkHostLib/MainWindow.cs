@@ -2,13 +2,15 @@
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
-using System.Text;
+using System.Linq;
 using com.antlersoft.HostedTools.Framework.Gtk.Interface;
 using com.antlersoft.HostedTools.Framework.Interface;
 using com.antlersoft.HostedTools.Framework.Interface.Menu;
 using com.antlersoft.HostedTools.Framework.Interface.Navigation;
 using com.antlersoft.HostedTools.Framework.Interface.Plugin;
 using com.antlersoft.HostedTools.Framework.Interface.Setting;
+using com.antlersoft.HostedTools.Framework.Interface.UI;
+using com.antlersoft.HostedTools.Framework.Model.Navigation;
 using Gtk;
 
 namespace com.antlersoft.HostedTools.GtkHostLib
@@ -44,7 +46,10 @@ namespace com.antlersoft.HostedTools.GtkHostLib
 
         private Menu _fileMenu;
 
+        private VBox _vbox;
+
         private Widget _currentPanel;
+        private Label _breadCrumb;
 
         public MainWindow(string s = null)
         : base(s??"HostedTools Gtk Host")
@@ -75,6 +80,7 @@ namespace com.antlersoft.HostedTools.GtkHostLib
 
             var hbox = new HBox(false, 2);
             _mainMenuBar = new MenuBar();
+            BuildMenu();
             hbox.PackStart(_mainMenuBar, true, true, 0);
             _backButton = new Button("<");
             _forwardButton = new Button(">");
@@ -84,9 +90,11 @@ namespace com.antlersoft.HostedTools.GtkHostLib
             buttonBox.PackEnd(_forwardButton, false, false, 0);
 
             hbox.PackEnd(buttonBox, false, false, 0);
-            var vbox = new VBox(false, 2);
-            vbox.PackStart(hbox, false, false, 0);
-            Add(vbox);
+            _vbox = new VBox(false, 2);
+            _vbox.PackStart(hbox, false, false, 0);
+            _breadCrumb = new Label();
+            //_vbox.PackStart(_breadCrumb, false, false, 0);
+            Add(_vbox);
         }
 
         protected override void OnShowAll()
@@ -95,7 +103,17 @@ namespace com.antlersoft.HostedTools.GtkHostLib
             if (_startupError != null)
             {
                 Console.WriteLine(_startupError.ToString());
+                new MessageDialog(this, DialogFlags.Modal, MessageType.Error, ButtonsType.Close, _startupError.ToString());
                 Close();
+            }
+            else
+            {
+                NavigationManager.NavigationListeners.AddListener(OnNavigate);
+                _backButton.Clicked += (sender, args) => NavigationManager.GoBack();
+                _backButton.Sensitive = false;
+                _forwardButton.Clicked += (sender, args) => NavigationManager.GoForward();
+                _forwardButton.Sensitive = false;
+                // MenuManager.AddChangeListener(BuildMenu);
             }
         }
 
@@ -103,5 +121,191 @@ namespace com.antlersoft.HostedTools.GtkHostLib
         {
             return this as T;
         }
+
+        private Menu GetFileMenu()
+        {
+            if (_fileMenu == null)
+            {
+                _fileMenu = new Menu();
+                _fileMenu.Name = "File";
+                MenuItem item = new MenuItem("Save");
+                _fileMenu.Add(item);
+                item.Activated += (sender, args) => SettingManager.Save();
+                _fileMenu.Add(new SeparatorMenuItem());
+                var exitItem = new MenuItem("Exit");
+                exitItem.Activated += (sender, args) => Close();
+                _fileMenu.Add(exitItem);
+            }
+            return _fileMenu;
+        }
+
+        private static void AddSubMenu(MenuShell shell, Menu m)
+        {
+            MenuItem item = new MenuItem(m.Name);
+            item.Submenu = m;
+            shell.Add(item);
+        }
+        private void BuildMenu()
+        {
+            MenuBar menu = _mainMenuBar;
+
+            AddSubMenu(menu, GetFileMenu());
+            foreach (var item in MenuManager.GetChildren(null).OrderBy(s => s.Prompt))
+            {
+                AddChild(menu, item);
+            }
+        }
+
+        private void OnClick(IMenuItem item)
+        {
+            var actionId = item.ActionId;
+            NavigationManager.NavigateTo(actionId);
+        }
+
+        private void AddChild(MenuShell parent, IMenuItem item)
+        {
+            MenuItem mi = new MenuItem(item.Prompt);
+            if (!string.IsNullOrEmpty(item.ActionId))
+            {
+                mi.Activated += (sender, args) => OnClick(item);
+            }
+            Menu submenu = null;
+            foreach (var child in MenuManager.GetChildren(item).OrderBy(s => s.Prompt))
+            {
+                if (submenu == null)
+                {
+                    submenu = new Menu();
+                    submenu.Name = item.Prompt;
+                }
+                AddChild(submenu, child);
+            }
+            if (submenu != null)
+            {
+                mi.Submenu = submenu;
+            }
+            parent.Add(mi);
+        }
+
+        private Widget CreatePanel(ISettingEditList editList, IWork work, IHasSettingChangeActions settingChangeActions)
+        {
+            IElementSource editPanel = null;
+            IElementSource workPanel = null;
+            if (editList != null)
+            {
+                var keys = editList.KeysToEdit.ToList();
+                if (keys.Count > 0)
+                {
+                    editPanel = new EditSettingsPanel(SettingManager, keys);
+                    if (work == null)
+                    {
+                        ((EditSettingsPanel)editPanel).AddExplanation(editList as IHostedObject);
+                    }
+                }
+            }
+            if (settingChangeActions != null)
+            {
+                foreach (var kvp in settingChangeActions.ActionsBySettingKey)
+                {
+                    Action<IWorkMonitor, ISetting> isa = kvp.Value;
+                    ISavable savable = editPanel as ISavable;
+                    SettingManager[kvp.Key].SettingChangedListeners.AddListener(s =>
+                    {
+                        if (savable != null)
+                        {
+                            if (!savable.TrySave())
+                            {
+                                return;
+                            }
+                        }
+                        new SettingUpdateActionMonitor(this).RunUpdateAction(isa, s);
+                    });
+                }
+            }
+            if (work != null)
+            {
+                workPanel = new WorkControl(BackgroundWorkReceiver, work, editPanel == null ? null : editPanel as ISavable);
+            }
+            if (editPanel != null && workPanel == null)
+            {
+                return editPanel.GetElement(this);
+            }
+            if (editPanel == null)
+            {
+                if (workPanel != null)
+                {
+                    return workPanel.GetElement(this);
+                }
+                return null;
+            }
+            // Case when both panels are created
+            return new ComboPanel(editPanel.GetElement(this), workPanel.GetElement(this));
+        }
+        private void OnNavigate(INavigationManager navigation)
+        {
+            var actionId = navigation.CurrentLocation;
+            Widget newContent;
+            if (!_targetCache.TryGetValue(actionId, out newContent))
+            {
+                IPlugin plugin = PluginManager[actionId];
+                if (plugin == null)
+                {
+                    new MessageDialog(this, DialogFlags.DestroyWithParent, MessageType.Error, ButtonsType.Close, "Can not find plugin for action " + actionId);
+                    throw new RejectNavigationException();
+                }
+                var elementSource = plugin.Cast<IElementSource>();
+                if (elementSource != null)
+                {
+                    newContent = elementSource.GetElement(this);
+                }
+                else
+                {
+                    var keyListSource = plugin.Cast<ISettingEditList>();
+                    var worker = plugin.Cast<IWork>();
+                    if (keyListSource != null || worker != null)
+                    {
+                        newContent = CreatePanel(keyListSource, worker, plugin.Cast<IHasSettingChangeActions>());
+                    }
+                    else
+                    {
+                        new MessageDialog(this, DialogFlags.DestroyWithParent, MessageType.Error, ButtonsType.Close, "Can't figure out how to display " + actionId);
+                        throw new RejectNavigationException();
+                    }
+                }
+                if (newContent == null)
+                {
+                    new MessageDialog(this, DialogFlags.DestroyWithParent, MessageType.Error, ButtonsType.Close, "Action panel would be empty: "+actionId);
+                    throw new RejectNavigationException();
+                }
+                _targetCache[actionId] = newContent;
+            }
+            if (_currentPanel != null)
+            {
+                _vbox.Remove(_currentPanel);
+            }
+            _vbox.PackEnd(newContent, true, true, 0);
+            _breadCrumb.Text = RecursiveFind(null, actionId).GetBreadCrumbString(MenuManager);
+            _currentPanel = newContent;
+            _forwardButton.Sensitive = navigation.Forward.Count > 0;
+            _backButton.Sensitive = navigation.History.Count > 0;
+            ShowAll();
+        }
+
+        private IMenuItem RecursiveFind(IMenuItem parent, string actionId)
+        {
+            foreach (var item in MenuManager.GetChildren(parent))
+            {
+                if (actionId == item.ActionId)
+                {
+                    return item;
+                }
+                var child = RecursiveFind(item, actionId);
+                if (child != null)
+                {
+                    return child;
+                }
+            }
+            return null;
+        }
     }
 }
+

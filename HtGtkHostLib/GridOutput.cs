@@ -6,27 +6,30 @@ using Gtk;
 
 namespace com.antlersoft.HostedTools.GtkHostLib
 {
-    class GridOutput : IGridOutput
+    class GridOutput : TreeView, IGridOutput
     {
         ListStore _model;
         public void AddRow(Dictionary<string, object> row)
         {
-            if (_model == null)
+            Gtk.Application.Invoke(delegate
             {
-                Type[] types = new Type[row.Count];
-                for (int i = 0; i<row.Count; i++)
+                if (_model == null)
                 {
-                    types[i] = typeof(String);
+                    Type[] types = new Type[row.Count];
+                    for (int i = 0; i < row.Count; i++)
+                    {
+                        types[i] = typeof(String);
+                    }
+                    _model = new ListStore(types);
                 }
-                _model = new ListStore(types);
-            }
-            var values = new object[row.Count];
-            int j = 0;
-            foreach (var v in row.Values)
-            {
-                values[j++] = v;
-            }
-            _model.AppendValues(values);
+                var values = new object[row.Count];
+                int j = 0;
+                foreach (var v in row.Values)
+                {
+                    values[j++] = v;
+                }
+                _model.AppendValues(values);
+            });
         }
 
         public T Cast<T>(bool fromAggregated = false) where T : class
@@ -36,7 +39,7 @@ namespace com.antlersoft.HostedTools.GtkHostLib
 
         public void Clear()
         {
-            _model.Clear();
+            Gtk.Application.Invoke(delegate { _model.Clear(); });
         }
     }
 }

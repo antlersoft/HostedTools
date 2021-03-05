@@ -83,11 +83,11 @@ namespace com.antlersoft.HostedTools.GtkHostLib
                     }
                     if (paneList.Orientation == EPaneListOrientation.Horizontal)
                     {
-                        grid.Attach(paneControl, paneOffset, 0, 0, trailingEdge, AttachOptions.Fill, AttachOptions.Fill, 0, 0);
+                        grid.Attach(paneControl, paneOffset, trailingEdge+1, 0, 1, AttachOptions.Fill, AttachOptions.Fill, 0, 0);
                     }
                     else
                     {
-                        grid.Attach(paneControl, 0, 0, paneOffset, trailingEdge, AttachOptions.Fill, AttachOptions.Fill, 0, 0);
+                        grid.Attach(paneControl, 0, 1, paneOffset, trailingEdge+1, AttachOptions.Fill, AttachOptions.Fill, 0, 0);
                     }
 
                     paneOffset++;

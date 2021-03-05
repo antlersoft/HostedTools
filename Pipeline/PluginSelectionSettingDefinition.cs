@@ -68,6 +68,10 @@ namespace com.antlersoft.HostedTools.Pipeline
 
         public string GetRawTextForItem(object item)
         {
+            if (item == null)
+            {
+                return string.Empty;
+            }
             return ((PluginSelectionItem) item).Plugin.Name;
         }
 

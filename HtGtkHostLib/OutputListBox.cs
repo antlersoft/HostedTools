@@ -15,7 +15,7 @@ namespace com.antlersoft.HostedTools.GtkHostLib
         }
         public void AddText(string text)
         {
-            _model.AppendValues(new object[] { text });
+            Gtk.Application.Invoke(delegate { _model.AppendValues(new object[] { text }); }) ;
         }
 
         public T Cast<T>(bool fromAggregated = false) where T : class
@@ -25,7 +25,7 @@ namespace com.antlersoft.HostedTools.GtkHostLib
 
         public void Clear()
         {
-            _model.Clear();
+            LambdaDispatch.Invoke(() => _model.Clear());
         }
 
         public void SetFont(object font)

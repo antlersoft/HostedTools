@@ -3,7 +3,7 @@ using com.antlersoft.HostedTools.Framework.Interface.Menu;
 using com.antlersoft.HostedTools.Framework.Interface.Plugin;
 using com.antlersoft.HostedTools.Framework.Model;
 using Gtk;
-using System;
+using System.Collections.Generic;
 using System.ComponentModel.Composition;
 
 namespace com.antlersoft.HostedTools.GtkHostLib
@@ -13,16 +13,29 @@ namespace com.antlersoft.HostedTools.GtkHostLib
     [Export(typeof(IPlugin))]
     public class BackgroundDisplay : HostedObjectBase, IPlugin, IBackgroundWorkReceiver, IElementSource, IMenuItemSource
     {
-        public string Name => typeof(BackgroundDisplay).FullName;
+        Notebook _tabs = new Notebook();
+
+        public string Name
+        {
+            get { return GetType().FullName; }
+        }
 
         public void AcceptWork(IWorkMonitor monitor, Widget workOutputElement, string title)
         {
-            throw new NotImplementedException();
+            var item = new BackgroundItem(monitor, workOutputElement);
+            _tabs.AppendPage(item, new Label() { Text = title });
+            int pages = _tabs.NPages;
+            item.OnCloseListener.AddListener(b => _tabs.RemovePage(pages));
         }
 
         public Widget GetElement(object container)
         {
-            throw new NotImplementedException();
+            return _tabs;
+        }
+
+        public IEnumerable<IMenuItem> Items
+        {
+            get { return new[] { new Framework.Model.Menu.MenuItem("Common.BackgroundTabs", "Background Tabs", GetType().FullName, "Common") }; }
         }
     }
 }
