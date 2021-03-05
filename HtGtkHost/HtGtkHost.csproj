@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\HtGtkHostLib\HtGtkHostLib.csproj" />
+    <ProjectReference Include="..\Pipeline\Pipeline.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.Composition.Hosting;
 using com.antlersoft.HostedTools.GtkHostLib;
 using Gtk;
 
@@ -10,6 +11,7 @@ namespace HtGtkHost
         {
             Console.WriteLine("Hello World!");
             Application.Init();
+
 
             //Create the Window
             Window myWin = new MainWindow();
