@@ -285,9 +285,9 @@ namespace com.antlersoft.HostedTools.GtkHostLib
             _vbox.PackEnd(newContent, true, true, 0);
             _breadCrumb.Text = RecursiveFind(null, actionId).GetBreadCrumbString(MenuManager);
             _currentPanel = newContent;
+            ShowAll();
             _forwardButton.Sensitive = navigation.Forward.Count > 0;
             _backButton.Sensitive = navigation.History.Count > 0;
-            ShowAll();
         }
 
         private IMenuItem RecursiveFind(IMenuItem parent, string actionId)

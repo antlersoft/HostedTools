@@ -1,5 +1,6 @@
 ﻿using com.antlersoft.HostedTools.Framework.Interface.Navigation;
 using com.antlersoft.HostedTools.Framework.Interface.Setting;
+using com.antlersoft.HostedTools.Framework.Model.Setting;
 using Gtk;
 using System;
 using System.Linq;
@@ -17,8 +18,8 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
         {
             _combobox = new ComboBoxText();
             _collection = new ObservableCollection<object>();
-            _combobox.ButtonSensitivity = SensitivityType.Off;
-            _combobox.Sensitive = false;
+            //_combobox.ButtonSensitivity = SensitivityType.Off;
+            //_combobox.Sensitive = false;
             _combobox.EditingDone += delegate (object sender, EventArgs args)
             {
                 if (_combobox.ActiveText!=null)
@@ -58,6 +59,15 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
             return 0;
         }
 
+        string ItemText(object item)
+        {
+            if (item is ItemSelectionItem sel)
+            {
+                return sel.ItemDescription;
+            }
+            return item.ToString();
+        }
+
         public override void Reset()
         {
             _collection.Clear();
@@ -65,18 +75,17 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
             foreach (var val in ItemSelection.GetAllItems())
             {
                 _collection.Add(val);
-                _combobox.AppendText(ItemSelection.GetRawTextForItem(val));
+                _combobox.AppendText(ItemText(val));
             }
             object selectedItem = ItemSelection.FindMatchingItem(Setting.GetExpanded());
             if (selectedItem == null)
             {
-                selectedItem = _combobox.ActiveText;
-                if (selectedItem != null)
-                {
-                    Setting.SetRaw(ItemSelection.GetRawTextForItem(selectedItem));
-                }
+                _combobox.Active = 0;
             }
-            _combobox.Active = ItemIndex(selectedItem);
+            else
+            {
+                _combobox.Active = ItemIndex(selectedItem);
+            }
             SetNeedsSave(false);
         }
 

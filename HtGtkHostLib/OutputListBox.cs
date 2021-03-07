@@ -6,12 +6,14 @@ using Gtk;
 
 namespace com.antlersoft.HostedTools.GtkHostLib
 {
-    class OutputListBox : TreeView, ITextOutput
+    class OutputListBox : ScrolledWindow, ITextOutput
     {
+        TreeView tree = new TreeView();
         ListStore _model = new ListStore(new Type[] { typeof(string) });
         internal OutputListBox()
         {
-            this.Model = new ListStore(new Type[] { typeof(string) });
+            tree.Model = new ListStore(new Type[] { typeof(string) });
+            Add(tree);
         }
         public void AddText(string text)
         {

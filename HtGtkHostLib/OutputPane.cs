@@ -83,14 +83,14 @@ namespace com.antlersoft.HostedTools.GtkHostLib
                     }
                     if (paneList.Orientation == EPaneListOrientation.Horizontal)
                     {
-                        grid.Attach(paneControl, paneOffset, trailingEdge+1, 0, 1, AttachOptions.Fill, AttachOptions.Fill, 0, 0);
+                        grid.Attach(paneControl, paneOffset, trailingEdge+1, 0, 1, AttachOptions.Expand|AttachOptions.Fill, AttachOptions.Expand|AttachOptions.Fill, 2, 2);
                     }
                     else
                     {
-                        grid.Attach(paneControl, 0, 1, paneOffset, trailingEdge+1, AttachOptions.Fill, AttachOptions.Fill, 0, 0);
+                        grid.Attach(paneControl, 0, 1, paneOffset, trailingEdge+1, AttachOptions.Expand|AttachOptions.Fill, AttachOptions.Expand|AttachOptions.Fill, 2, 2);
                     }
 
-                    paneOffset++;
+                    paneOffset = trailingEdge + 1;
                 }
             }
         }
