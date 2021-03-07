@@ -22,7 +22,6 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
                 IButtonArray ba = sd.Cast<IButtonArray>();
                 if (ba != null)
                 {
-                    int count = 0;
                     foreach (string id in ba.ButtonIdentifiers)
                     {
                         string[] splits = id.Split('|');

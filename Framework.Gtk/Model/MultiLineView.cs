@@ -37,7 +37,7 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
         {
             if (_currentPosition < Setting.PreviousValues.Count)
             {
-                _buffer.SetText(Setting.PreviousValues[_currentPosition]);
+                _buffer.Text = Setting.PreviousValues[_currentPosition];
                 _currentPosition += 1;
                 _downButton.Sensitive = _currentPosition < Setting.PreviousValues.Count;
                 _upButton.Sensitive = true;
@@ -50,7 +50,7 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
             if (_currentPosition > 0)
             {
                 _currentPosition -= 1;
-                _buffer.SetText(Setting.PreviousValues[_currentPosition]);
+                _buffer.Text = Setting.PreviousValues[_currentPosition];
                 _upButton.Sensitive = _currentPosition > 0;
                 _downButton.Sensitive = true;
                 SetNeedsSave(true);

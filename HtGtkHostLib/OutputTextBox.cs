@@ -6,17 +6,19 @@ using System.Text;
 
 namespace com.antlersoft.HostedTools.GtkHostLib
 {
-    class OutputTextBox : TextView, ITextOutput
+    class OutputTextBox : ScrolledWindow, ITextOutput
     {
         private const int MaxLines = 5000;
 
         private int _lineCount;
+        private TextView _text = new TextView();
         private readonly Queue<int> _offsets = new Queue<int>();
 
         internal OutputTextBox()
         {
-            this.Editable = false;
+            _text.Editable = false;
             // Enable scrollbars
+            Add(_text);
             // Enable display of highlighted unix time
         }
 
@@ -27,13 +29,13 @@ namespace com.antlersoft.HostedTools.GtkHostLib
 
         private void InternalAddText(string text)
         {
-            var buffer = Buffer;
+            var buffer = _text.Buffer;
             if (buffer == null)
             {
                 buffer = new TextBuffer(new TextTagTable());
                 buffer.Text = text;
                 _lineCount = 1;
-                Buffer = buffer;
+                _text.Buffer = buffer;
                 _offsets.Enqueue(text.Length);
                 return;
             }
@@ -60,9 +62,9 @@ namespace com.antlersoft.HostedTools.GtkHostLib
             {
                 _lineCount = 0;
                 _offsets.Clear();
-                if (Buffer != null)
+                if (_text.Buffer != null)
                 {
-                    Buffer.Text = string.Empty;
+                    _text.Buffer.Text = string.Empty;
                 }
             });
         }

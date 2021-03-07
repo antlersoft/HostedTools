@@ -36,6 +36,8 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
         {
             if (_element.ActiveText != text)
             {
+                ((ListStore)_element.Model).InsertWithValues(0, text);
+                _element.Active = 0;
                 SetNeedsSave(true);
             }
         }
@@ -43,41 +45,58 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
         private void Browse(object source, EventArgs args)
         {
             var definition = Setting.Definition.Cast<IPathSettingDefinition>();
+            object[] param = new object[4];
+            param[1] = ResponseType.Accept;
+            param[2] = Stock.Cancel;
+            param[3] = ResponseType.Cancel;
+            FileFilter filter = null;
+            FileChooserAction action = FileChooserAction.Open;
+            if (definition.FileTypesAndExtensions != null)
+            {  
+                filter = new FileFilter();
+                int splitCount = 0;
+                foreach (var substr in definition.FileTypesAndExtensions.Split('|'))
+                {
+                    if (splitCount % 2 == 1)
+                    {
+                        foreach (var pattern in substr.Split(';'))
+                        {
+                            filter.AddPattern(pattern);
+                        }
+                    }
+                    splitCount ++;
+                }
+            }
             if (definition.IsFolder)
             {
-                var dlg = new FileChooserDialog(definition.Description ?? definition.Prompt ?? string.Empty,
-                    _parent, FileChooserAction.CreateFolder);
-                dlg.Modal = true;
-                dlg.AddButton("Select Folder", ResponseType.Accept);
-                dlg.AddButton("Cancel", ResponseType.Cancel);
-                dlg.Show();
-                if (dlg.Filename != null)
+                param[0] = "Select Folder";
+                if (definition.IsSave)
                 {
-                    UpdateText(dlg.Filename);
+                    action = FileChooserAction.CreateFolder;
+                }
+                else
+                {
+                    action = FileChooserAction.SelectFolder;
                 }
             }
             else if (definition.IsSave)
             {
-                var dlg = new FileChooserDialog(definition.Description ?? definition.Prompt ?? string.Empty,
-                    _parent, FileChooserAction.Save);
-                dlg.Modal = true;
-                dlg.AddButton("Select Destination", ResponseType.Accept);
-                dlg.AddButton("Cancel", ResponseType.Cancel);
-                dlg.Show();
-                if (dlg.Filename != null)
-                {
-                    UpdateText(dlg.Filename);
-                }
+                action = FileChooserAction.Save;
+                param[0] = "Select Destination";
             }
             else
             {
-                var dlg = new FileChooserDialog(definition.Description ?? definition.Prompt ?? string.Empty,
-                                    _parent, FileChooserAction.Open);
-                dlg.Modal = true;
-                dlg.AddButton("Select File", ResponseType.Accept);
-                dlg.AddButton("Cancel", ResponseType.Cancel);
-                dlg.Show();
-                if (dlg.Filename != null)
+                param[0] = "Select File";
+            }
+            using (var dlg = new FileChooserDialog(definition.Description ?? definition.Prompt ?? string.Empty,
+                _parent, action, param))
+            {
+                if (filter != null)
+                {
+                    dlg.Filter = filter;
+                }
+                dlg.DefaultResponse = ResponseType.Cancel;
+                if (dlg.Run() == (int)ResponseType.Accept)
                 {
                     UpdateText(dlg.Filename);
                 }
