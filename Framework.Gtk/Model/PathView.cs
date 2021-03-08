@@ -18,6 +18,7 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
 
         public override Widget GetElement(object container)
         {
+            base.GetElement(container);
             if (container is Window window)
             {
                 _parent = window;
