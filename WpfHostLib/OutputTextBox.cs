@@ -67,8 +67,13 @@ namespace com.antlersoft.HostedTools.WpfHostLib
             });
         }
 
-        public void SetFont(Object font)
+        public void SetFont(object fontObj)
         {
+            Font font = fontObj as Font;
+            if (font == null)
+            {
+                return;
+            }
             LambdaDispatch.Invoke(Dispatcher, () =>
             {
                 FontFamily = new System.Windows.Media.FontFamily(font.Name);
