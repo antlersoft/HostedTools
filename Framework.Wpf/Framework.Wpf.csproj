@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0-windows</TargetFramework>
     <OutputType>Library</OutputType>
     <RootNamespace>com.antlersoft.HostedTools.Framework.Wpf</RootNamespace>
     <AssemblyName>com.antlersoft.HostedTools.Framework.Wpf</AssemblyName>
@@ -18,12 +18,7 @@
     <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="com.antlersoft.HostedTools.Framework">
-      <Version>1.1.0.1</Version>
-    </PackageReference>
-    <PackageReference Include="Newtonsoft.Json">
-      <Version>8.0.2</Version>
-    </PackageReference>
-    <PackageReference Include="System.ComponentModel.Composition" Version="5.0.0" />
+    <PackageReference Include="com.antlersoft.HostedTools.Framework" Version="2.0.0.1" />
+    <PackageReference Include="Ookii.Dialogs.Wpf" Version="3.1.0" />
   </ItemGroup>
 </Project>

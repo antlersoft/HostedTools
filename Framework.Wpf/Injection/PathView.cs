@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using com.antlersoft.HostedTools.Framework.Interface.Setting;
+using Ookii.Dialogs.Wpf;
 
 namespace com.antlersoft.HostedTools.Framework.Wpf.Injection
 {
@@ -55,7 +56,7 @@ namespace com.antlersoft.HostedTools.Framework.Wpf.Injection
             }
             else if (definition.IsSave)
             {
-                var dlg = new SaveFileDialog() { Title = definition.Prompt };
+                var dlg = new VistaSaveFileDialog { Title = definition.Prompt };
                 var ext = definition.FileTypesAndExtensions;
                 if (ext != null)
                 {
@@ -69,7 +70,7 @@ namespace com.antlersoft.HostedTools.Framework.Wpf.Injection
             }
             else
             {
-                var dlg = new OpenFileDialog() { Title = definition.Prompt, CheckFileExists = true};
+                var dlg = new VistaOpenFileDialog() { Title = definition.Prompt, CheckFileExists = true };
                 var ext = definition.FileTypesAndExtensions;
                 if (ext != null)
                 {

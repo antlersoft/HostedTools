@@ -37,10 +37,16 @@ namespace com.antlersoft.HostedTools.WpfHostLib
 
         internal static Task RunAsync(Action lambda, Action postLambda)
         {
-            Act0 act = lambda.Invoke;
+            /*
+                IAsyncResult result = lambda.BeginInvoke(null, null);
+                return new TaskFactory().FromAsync(result, (r) => postLambda());
+                */
+            return Task.Run(() => {
+                lambda.Invoke();
+                postLambda.Invoke();
+            }
 
-            IAsyncResult result = act.BeginInvoke(null, null);
-            return new TaskFactory().FromAsync(result, (r) => postLambda());
+                );
         }
     }
 }

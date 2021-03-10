@@ -1,6 +1,6 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0-windows</TargetFramework>
     <OutputType>Library</OutputType>
     <RootNamespace>com.antlersoft.HostedTools.WpfHostLib</RootNamespace>
     <AssemblyName>com.antlersoft.HostedTools.WpfHostLib</AssemblyName>
@@ -21,10 +21,8 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
-    <Reference Include="System.Xaml" />
-    <Reference Include="WindowsBase" />
+    <PackageReference Include="com.antlersoft.HostedTools.Framework" Version="2.0.0.1" />
+    <PackageReference Include="com.antlersoft.HostedTools.Utility" Version="2.0.0.2" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="BackgroundItem.xaml.cs">
@@ -41,45 +39,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Page Include="BackgroundItem.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <Page Include="ComboPanel.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <Page Include="MainWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <Page Include="WorkControl.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="com.antlersoft.HostedTools.Framework">
-      <Version>1.1.0.1</Version>
-    </PackageReference>
-    <PackageReference Include="com.antlersoft.HostedTools.Framework.Wpf">
-      <Version>1.1.0.1</Version>
-    </PackageReference>
-    <PackageReference Include="com.antlersoft.HostedTools.Serialization">
-      <Version>1.1.0.2</Version>
-    </PackageReference>
-    <PackageReference Include="com.antlersoft.HostedTools.Utility">
-      <Version>1.1.0.1</Version>
-    </PackageReference>
-    <PackageReference Include="Newtonsoft.Json">
-      <Version>8.0.2</Version>
-    </PackageReference>
-    <PackageReference Include="System.ComponentModel.Composition" Version="5.0.0" />
+    <ProjectReference Include="..\Framework.Wpf\Framework.Wpf.csproj" />
   </ItemGroup>
 </Project>

@@ -96,9 +96,9 @@ namespace com.antlersoft.HostedTools.Utility
     public class AppConfig : AppConfigBase
     {
         IConfiguration _configuration;
+        [ImportingConstructor]
         public AppConfig(IConfiguration configuration)
         {
-            _configuration = configuration;
         }
         /// <summary>
         /// Return string-valued setting for key from app settings in configuration file
