@@ -77,15 +77,6 @@ namespace com.antlersoft.HostedTools.GtkHostLib
             _monitor = new WorkMonitor(_work);
             var workText = _monitor.GetElement(this);
             _workText = workText;
-            /*
-            _table.Add(workText);
-            _table.ChildSetProperty(workText, "left-attach", new GLib.Value((uint)0));
-            _table.ChildSetProperty(workText, "right-attach", new GLib.Value((uint)2));
-            _table.ChildSetProperty(workText, "top-attach", new GLib.Value((uint)2));
-            _table.ChildSetProperty(workText, "right-attach", new GLib.Value((uint)3));
-            _table.ChildSetProperty(workText, "x-options", new GLib.Value(AttachOptions.Expand));
-            _table.ChildSetProperty(workText, "y-options", new GLib.Value(AttachOptions.Expand));
-            */
             _table.PackEnd(workText, true, true, 2);
             _monitor.IsRunningChanged.AddListener(_runningChangedListener);
             _monitor.CanPutInBackgroundChanged.AddListener(_cancelableChangedListener);
