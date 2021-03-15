@@ -17,8 +17,8 @@ namespace com.antlersoft.HostedTools.Pipeline
     [Export(typeof(IHtValueSource))]
     public class SqlSource : EditOnlyPlugin, ISettingDefinitionSource, IHtValueSource
     {
-        static ISettingDefinition SqlCommand = new MultiLineSettingDefinition("SqlCommand", "Pipeline", 8, "Sql Query");
-        static ISettingDefinition CommandTimeout = new SimpleSettingDefinition("CommandTimeout", "Pipeline", "Command Timeout", "Number of seconds before query will timeout", typeof(int), "120");
+        internal static ISettingDefinition SqlCommand = new MultiLineSettingDefinition("SqlCommand", "Pipeline", 8, "Sql Query");
+        internal static ISettingDefinition CommandTimeout = new SimpleSettingDefinition("CommandTimeout", "Pipeline", "Command Timeout", "Number of seconds before query will timeout", typeof(int), "120");
 
         public SqlSource()
             : base(new MenuItem("DevTools.Pipeline.Input.SqlSource", "Sql Query", typeof(SqlSource).FullName, "DevTools.Pipeline.Input"), new [] {"Common.SqlDataConnectionString", SqlCommand.FullKey(), CommandTimeout.FullKey()} )
@@ -29,9 +29,25 @@ namespace com.antlersoft.HostedTools.Pipeline
             get { return new[] {SqlCommand, CommandTimeout}; }
         }
 
-        private IHtValue GetColumnValue(IDataReader reader, int col)
+        internal static IHtValue GetColumnValue(IDataReader reader, int col)
         {
-            object val = reader.GetValue(col);
+            object val;
+            try
+            {
+                val = reader.GetValue(col);
+            }
+            catch (FormatException)
+            {
+                val = null;
+            }
+            catch (NullReferenceException)
+            {
+                val = null;
+            }
+            if (val == null)
+            {
+                return new JsonHtValue();
+            }
             Type t = val.GetType();
             if (t == typeof (int))
             {
