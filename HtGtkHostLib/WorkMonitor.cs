@@ -20,7 +20,6 @@ namespace com.antlersoft.HostedTools.GtkHostLib
         private readonly NotifiedTextWriter _writer = new NotifiedTextWriter();
         private OutputPane _outputPane;
         private ITextOutput _textOutput;
-        private readonly Widget _element;
         private readonly IWork _work;
         private CancellationTokenSource _source;
         private bool _isCanceled;
