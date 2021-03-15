@@ -14,7 +14,7 @@ namespace com.antlersoft.HostedTools.GtkHostLib
         private WorkMonitor _monitor;
         private readonly Button _cancelButton = new Button() { Label = "Cancel" };
         private readonly Button _runButton = new Button() { Label = "Run" };
-        private readonly Table _table = new Table(3, 2, false);
+        private VBox _table = new VBox();
         private readonly Label _explanationLabel = new Label();
         private readonly ISavable _savable;
         private readonly Action<bool> _runningChangedListener;
@@ -29,10 +29,11 @@ namespace com.antlersoft.HostedTools.GtkHostLib
             _savable = savable;
 
             // Setup layout
-            _table.Attach(_explanationLabel, 0, 2, 0, 1, AttachOptions.Fill, 0, 0, 0);
-            _table.Attach(_runButton, 0, 1, 1, 2, 0, 0, 0, 0);
-            _table.Attach(_cancelButton, 1, 2, 1, 2, 0, 0, 0, 0);
-
+            _table.PackStart(_explanationLabel, false, true, 2);
+            var hbox=new HBox();
+            hbox.PackStart(_runButton, false, false, 2);
+            hbox.PackEnd(_cancelButton, false, false, 2);
+            _table.PackStart(hbox, false, true, 2);
 
             _cancelButton.Sensitive = false;
             _cancelButton.Clicked += OnCancel;
@@ -76,7 +77,7 @@ namespace com.antlersoft.HostedTools.GtkHostLib
             _monitor = new WorkMonitor(_work);
             var workText = _monitor.GetElement(this);
             _workText = workText;
-            _table.Attach(workText, 0, 2, 2, 3, AttachOptions.Fill, AttachOptions.Expand, 0, 0);
+            _table.PackEnd(workText, true, true, 2);
             _monitor.IsRunningChanged.AddListener(_runningChangedListener);
             _monitor.CanPutInBackgroundChanged.AddListener(_cancelableChangedListener);
         }
