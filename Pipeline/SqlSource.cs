@@ -4,6 +4,7 @@ using System.ComponentModel.Composition;
 using System.Data;
 using System.Data.Common;
 
+using com.antlersoft.HostedTools.Framework.Interface.Menu;
 using com.antlersoft.HostedTools.Framework.Interface.Setting;
 using com.antlersoft.HostedTools.Framework.Model.Menu;
 using com.antlersoft.HostedTools.Framework.Model.Plugin;
@@ -13,23 +14,19 @@ using com.antlersoft.HostedTools.Serialization;
 
 namespace com.antlersoft.HostedTools.Pipeline
 {
-    [Export(typeof(ISettingDefinitionSource))]
-    [Export(typeof(IHtValueSource))]
-    public class SqlSource : EditOnlyPlugin, ISettingDefinitionSource, IHtValueSource
+    public abstract class SqlSourceBase : EditOnlyPlugin, IHtValueSource
     {
-        internal static ISettingDefinition SqlCommand = new MultiLineSettingDefinition("SqlCommand", "Pipeline", 8, "Sql Query");
-        internal static ISettingDefinition CommandTimeout = new SimpleSettingDefinition("CommandTimeout", "Pipeline", "Command Timeout", "Number of seconds before query will timeout", typeof(int), "120");
+        protected SqlSourceBase(IEnumerable<IMenuItem> menuEntries, IEnumerable<string> keys)
+        : base(menuEntries, keys)
+        {}
+        protected SqlSourceBase(IMenuItem item, IEnumerable<string> keys)
+        : base(item, keys)
+        {}
+        protected abstract DbConnection GetConnection();
 
-        public SqlSource()
-            : base(new MenuItem("DevTools.Pipeline.Input.SqlSource", "Sql Query", typeof(SqlSource).FullName, "DevTools.Pipeline.Input"), new [] {"Common.SqlDataConnectionString", SqlCommand.FullKey(), CommandTimeout.FullKey()} )
-        { }
+        protected abstract string QueryType { get; }
 
-        public IEnumerable<ISettingDefinition> Definitions
-        {
-            get { return new[] {SqlCommand, CommandTimeout}; }
-        }
-
-        internal static IHtValue GetColumnValue(IDataReader reader, int col)
+        protected virtual IHtValue GetColumnValue(IDataReader reader, int col)
         {
             object val;
             try
@@ -75,13 +72,13 @@ namespace com.antlersoft.HostedTools.Pipeline
             }
         }
 
-        public IEnumerable<IHtValue> GetRows()
+        public virtual IEnumerable<IHtValue> GetRows()
         {
-            using (var conn = DbProviderFactories.GetFactory(SqlDataParameters.DbProviderFactoryName.Value<string>(SettingManager)).CreateConnection())
+            using (var conn = GetConnection())
             {
                 conn.Open();
                 var cmd = conn.CreateCommand();
-                cmd.CommandText = SqlSource.SqlCommand.Value<string>(SettingManager);
+                cmd.CommandText = SqlCommand.Value<string>(SettingManager);
                 cmd.CommandTimeout = CommandTimeout.Value<int>(SettingManager);
                 IDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
@@ -103,7 +100,7 @@ namespace com.antlersoft.HostedTools.Pipeline
  
         }
 
-        public string SourceDescription
+        public virtual string SourceDescription
         {
             get
             {
@@ -113,8 +110,33 @@ namespace com.antlersoft.HostedTools.Pipeline
                 {
                     query = query.Substring(0, index);
                 }
-                return "Sql query: "+query;
+                return $"{QueryType}: {query}";
             }
         }
+
+        protected static ISettingDefinition SqlCommand = new MultiLineSettingDefinition("SqlCommand", "Pipeline", 8, "Sql Query");
+        protected static ISettingDefinition CommandTimeout = new SimpleSettingDefinition("CommandTimeout", "Pipeline", "Command Timeout", "Number of seconds before query will timeout", typeof(int), "120");
+    }
+
+    [Export(typeof(ISettingDefinitionSource))]
+    [Export(typeof(IHtValueSource))]
+    public class SqlSource : SqlSourceBase, ISettingDefinitionSource, IHtValueSource
+    {
+
+        public SqlSource()
+            : base(new MenuItem("DevTools.Pipeline.Input.SqlSource", "Sql Query", typeof(SqlSource).FullName, "DevTools.Pipeline.Input"), new [] {"Common.SqlDataConnectionString", SqlCommand.FullKey(), CommandTimeout.FullKey()} )
+        { }
+
+        public IEnumerable<ISettingDefinition> Definitions
+        {
+            get { return new[] {SqlCommand, CommandTimeout}; }
+        }
+
+        protected override DbConnection GetConnection()
+        {
+            return DbProviderFactories.GetFactory(SqlDataParameters.DbProviderFactoryName.Value<string>(SettingManager)).CreateConnection();
+        }
+
+        protected override string QueryType => "SQL Server";
     }
 }

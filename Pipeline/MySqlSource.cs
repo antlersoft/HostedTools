@@ -8,12 +8,13 @@ using com.antlersoft.HostedTools.Framework.Model.Plugin;
 using com.antlersoft.HostedTools.Framework.Model.Setting;
 using com.antlersoft.HostedTools.Interface;
 using com.antlersoft.HostedTools.Serialization;
+using System.Data.Common;
 
 namespace com.antlersoft.HostedTools.Pipeline
 {
     [Export(typeof(ISettingDefinitionSource))]
     [Export(typeof(IHtValueSource))]
-    public class MySqlSource : EditOnlyPlugin, IHtValueSource, ISettingDefinitionSource
+    public class MySqlSource : SqlSourceBase, ISettingDefinitionSource
     {
         static ISettingDefinition MySqlConnectionString = new SimpleSettingDefinition("ConnectionString", "MySqlSource", "Connection string");
 
@@ -24,46 +25,11 @@ namespace com.antlersoft.HostedTools.Pipeline
 
         }
 
-        public IEnumerable<IHtValue> GetRows()
-        {
-            using (var connection = new MySqlConnection(MySqlConnectionString.Value<string>(SettingManager)))
-            {
-                connection.Open();
-                var cmd = connection.CreateCommand();
-                cmd.CommandText = SqlSource.SqlCommand.Value<string>(SettingManager);
-                cmd.CommandTimeout = SqlSource.CommandTimeout.Value<int>(SettingManager);
-                IDataReader reader = cmd.ExecuteReader();
-                while (reader.Read())
-                {
-                    int count = reader.FieldCount;
-                    JsonHtValue val = new JsonHtValue();
-                    for (int i = 0; i < count; i++)
-                    {
-                        string name = reader.GetName(i);
-                        if (string.IsNullOrEmpty(name))
-                        {
-                            name = "Column-" + i;
-                        }
-                        val[name] = SqlSource.GetColumnValue(reader, i);
-                    }
-                    yield return val;
-                }
-               
-            }
-        }
+        protected override string QueryType => "MySQL";
 
-        public string SourceDescription
+        protected override DbConnection GetConnection()
         {
-            get
-            {
-                string query = SqlSource.SqlCommand.Value<string>(SettingManager);
-                int index = query.IndexOf('\n');
-                if (index >= 0)
-                {
-                    query = query.Substring(0, index);
-                }
-                return "MySql query: "+query;
-            }
+            return new MySqlConnection(MySqlConnectionString.Value<string>(SettingManager));
         }
     }
 }
