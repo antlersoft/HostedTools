@@ -20,12 +20,16 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
             _collection = new ObservableCollection<object>();
             //_combobox.ButtonSensitivity = SensitivityType.Off;
             //_combobox.Sensitive = false;
-            _combobox.EditingDone += delegate (object sender, EventArgs args)
+            _combobox.Changed += delegate (object sender, EventArgs args)
             {
                 if (_combobox.ActiveText!=null)
                 {
                     SetNeedsSave(_combobox.ActiveText != Setting.GetRaw());
                 }
+            };
+            _combobox.Mapped += delegate (object sender, EventArgs args)
+            {
+                Reset();
             };
         }
 
