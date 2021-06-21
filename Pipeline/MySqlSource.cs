@@ -25,9 +25,9 @@ namespace com.antlersoft.HostedTools.Pipeline
 
         }
 
-        protected override string QueryType => "MySQL";
+        public override string QueryType => "MySQL";
 
-        protected override DbConnection GetConnection()
+        public override DbConnection GetConnection()
         {
             return new MySqlConnection(MySqlConnectionString.Value<string>(SettingManager));
         }
