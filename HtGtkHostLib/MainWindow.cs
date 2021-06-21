@@ -51,6 +51,8 @@ namespace com.antlersoft.HostedTools.GtkHostLib
         private Widget _currentPanel;
         private Label _breadCrumb;
 
+        private bool _shownOnce = false;
+
         public MainWindow(string s = null)
         : base(s??"HostedTools Gtk Host")
         {
@@ -93,7 +95,7 @@ namespace com.antlersoft.HostedTools.GtkHostLib
             _vbox = new VBox(false, 2);
             _vbox.PackStart(hbox, false, false, 0);
             _breadCrumb = new Label();
-            //_vbox.PackStart(_breadCrumb, false, false, 0);
+            _vbox.PackStart(_breadCrumb, false, false, 0);
             Add(_vbox);
         }
 
@@ -114,6 +116,11 @@ namespace com.antlersoft.HostedTools.GtkHostLib
                 _forwardButton.Clicked += (sender, args) => NavigationManager.GoForward();
                 _forwardButton.Sensitive = false;
                 // MenuManager.AddChangeListener(BuildMenu);
+                if (!_shownOnce && SettingManager["Common.UseStartItem"].Get<bool>())
+                {
+                    _shownOnce = true;
+                    NavigationManager.NavigateTo(SettingManager["Common.StartItem"].Get<string>());
+                }
             }
         }
 
