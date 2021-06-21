@@ -10,7 +10,7 @@ namespace com.antlersoft.HostedTools.Pipeline
 {
     public class PluginSelectionItem : ItemSelectionItem, INotifyPropertyChanged
     {
-        internal IPlugin Plugin { get; private set; }
+        public IPlugin Plugin { get; private set; }
         internal Func<IPlugin, string> _toStringFunc;
 
         internal PluginSelectionItem(IPlugin plugin, ISettingManager settingManager, Func<IPlugin,string> toStringFunc)
