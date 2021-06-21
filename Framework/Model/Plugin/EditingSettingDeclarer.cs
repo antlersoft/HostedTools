@@ -33,7 +33,7 @@ namespace com.antlersoft.HostedTools.Framework.Model.Plugin
 
         public virtual IEnumerable<string> KeysToEdit
         {
-            get { return _definitions.Select(d => d.FullKey()); }
+            get { return Definitions.Select(d => d.FullKey()); }
         }
 
         public virtual IEnumerable<IMenuItem> Items
