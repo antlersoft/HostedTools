@@ -1,7 +1,7 @@
 ﻿using com.antlersoft.HostedTools.Framework.Interface;
 using System.Data.Common;
 
-namespace com.antlersoft.HostedTools.Pipeline
+namespace com.antlersoft.HostedTools.Sql.Interface
 {
     public interface ISqlConnectionSource : IHostedObject
     {

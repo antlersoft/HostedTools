@@ -1,5 +1,5 @@
 ﻿
-namespace com.antlersoft.HostedTools.Pipeline
+namespace com.antlersoft.HostedTools.Sql
 {
     public class TableAlias
     {

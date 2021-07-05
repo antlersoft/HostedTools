@@ -1,20 +1,18 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
-using System.Data;
-using MySqlConnector;
+using System.Data.Common;
 using com.antlersoft.HostedTools.Framework.Interface.Setting;
 using com.antlersoft.HostedTools.Framework.Model.Menu;
-using com.antlersoft.HostedTools.Framework.Model.Plugin;
 using com.antlersoft.HostedTools.Framework.Model.Setting;
-using com.antlersoft.HostedTools.Interface;
-using com.antlersoft.HostedTools.Serialization;
-using System.Data.Common;
+using com.antlersoft.HostedTools.Sql.Interface;
+using com.antlersoft.HostedTools.Sql.Model;
 
 namespace com.antlersoft.HostedTools.Pipeline
 {
     [Export(typeof(ISettingDefinitionSource))]
     [Export(typeof(IHtValueSource))]
-    public class MySqlSource : SqlSourceBase, ISettingDefinitionSource
+    public class MySqlSource : SqlSourceBase, ISettingDefinitionSource, ISqlPrimaryKeyInfo, ISqlReferentialConstraintInfo
     {
         static ISettingDefinition MySqlConnectionString = new SimpleSettingDefinition("ConnectionString", "MySqlSource", "Connection string");
 
@@ -29,7 +27,17 @@ namespace com.antlersoft.HostedTools.Pipeline
 
         public override DbConnection GetConnection()
         {
-            return new MySqlConnection(MySqlConnectionString.Value<string>(SettingManager));
+            return new MySqlConnectionSource(MySqlConnectionString.Value<string>(SettingManager)).GetConnection();
+        }
+
+        public IIndexSpec GetPrimaryKey(IBasicTable table)
+        {
+            return new MySqlConnectionSource(MySqlConnectionString.Value<string>(SettingManager)).GetPrimaryKey(table);
+        }
+
+        public IEnumerable<IConstraint> GetReferentialConstraints(IBasicTable table, Func<string, string, ITable> tableGetter)
+        {
+            return new MySqlConnectionSource(MySqlConnectionString.Value<string>(SettingManager)).GetReferentialConstraints(table, tableGetter);
         }
     }
 }
