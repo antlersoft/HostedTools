@@ -21,11 +21,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Utility", "Utility\Utility.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommandHost", "CommandHost\CommandHost.csproj", "{1B6AA17D-2F21-411D-8E94-9A9890AE3459}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HtGtkHost", "HtGtkHost\HtGtkHost.csproj", "{EB74D698-A1EC-49D4-B0BA-E7A6CF2BA37D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HtGtkHost", "HtGtkHost\HtGtkHost.csproj", "{EB74D698-A1EC-49D4-B0BA-E7A6CF2BA37D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HtGtkHostLib", "HtGtkHostLib\HtGtkHostLib.csproj", "{4969F40E-115C-43B8-B020-3C3E28A7DFF8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HtGtkHostLib", "HtGtkHostLib\HtGtkHostLib.csproj", "{4969F40E-115C-43B8-B020-3C3E28A7DFF8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Framework.Gtk", "Framework.Gtk\Framework.Gtk.csproj", "{7D40BF11-514F-46C3-8D09-801E364CC1F0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Framework.Gtk", "Framework.Gtk\Framework.Gtk.csproj", "{7D40BF11-514F-46C3-8D09-801E364CC1F0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Archive", "Archive\Archive.csproj", "{EFC95240-F97E-4779-BC59-7FF5BDB7E8DE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sql", "Sql\Sql.csproj", "{9EEA05B7-A830-4B1B-BC41-E34F609528B4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -81,6 +85,14 @@ Global
 		{7D40BF11-514F-46C3-8D09-801E364CC1F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7D40BF11-514F-46C3-8D09-801E364CC1F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7D40BF11-514F-46C3-8D09-801E364CC1F0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EFC95240-F97E-4779-BC59-7FF5BDB7E8DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EFC95240-F97E-4779-BC59-7FF5BDB7E8DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EFC95240-F97E-4779-BC59-7FF5BDB7E8DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EFC95240-F97E-4779-BC59-7FF5BDB7E8DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9EEA05B7-A830-4B1B-BC41-E34F609528B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9EEA05B7-A830-4B1B-BC41-E34F609528B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9EEA05B7-A830-4B1B-BC41-E34F609528B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9EEA05B7-A830-4B1B-BC41-E34F609528B4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

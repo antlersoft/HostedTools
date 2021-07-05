@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <AssemblyName>com.antlersoft.HostedTools.Archive</AssemblyName>
+    <RootNamespace>com.antlersoft.HostedTools.Archive</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="com.antlersoft.HostedTools.Framework" Version="2.0.0.2" />
+    <PackageReference Include="com.antlersoft.HostedTools.Interface" Version="2.0.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Pipeline\Pipeline.csproj" />
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="copy $(TargetPath) ..\HtGtkHost\bin\$(ConfigurationName)\netcoreapp3.1" />
+  </Target>
+
+</Project>
