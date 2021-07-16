@@ -137,6 +137,7 @@ namespace com.antlersoft.HostedTools.Pipeline
             }
             try
             {
+                bool sentRow = false;
                 using (StreamReader sw = new StreamReader(stream))
                 using (var jr = new JsonTextReader(sw))
                 {
@@ -161,7 +162,12 @@ namespace com.antlersoft.HostedTools.Pipeline
                             {
                                 break;
                             }
+                            if (value == null || (! sentRow && value.IsEmpty))
+                            {
+                                break;
+                            }
                             yield return value;
+                            sentRow = true;
                         } while (jr.Read() && jr.TokenType != JsonToken.EndArray);
                     }
                 }

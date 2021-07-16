@@ -1,8 +1,8 @@
 ﻿using com.antlersoft.HostedTools.Archive.Interface;
 using com.antlersoft.HostedTools.Framework.Model;
 using com.antlersoft.HostedTools.Interface;
+using com.antlersoft.HostedTools.Serialization;
 using com.antlersoft.HostedTools.Sql.Interface;
-using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -11,9 +11,9 @@ namespace com.antlersoft.HostedTools.Archive.Model.Serialization
     class FolderArchive : HostedObjectBase, IArchive
     {
         private IList<FolderTableArchive> _tables;
-        private JsonSerializer Serializer { get; }
+        private IJsonFactory Serializer { get; }
 
-        internal FolderArchive(JsonSerializer serializer, FolderRepository repository, IArchiveSpec spec, IList<FolderTableArchive> tables)
+        internal FolderArchive(IJsonFactory serializer, FolderRepository repository, IArchiveSpec spec, IList<FolderTableArchive> tables)
         {
             Serializer = serializer;
             Spec = spec;
