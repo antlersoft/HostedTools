@@ -31,6 +31,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Archive", "Archive\Archive.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sql", "Sql\Sql.csproj", "{9EEA05B7-A830-4B1B-BC41-E34F609528B4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphFlow", "GraphFlow\GraphFlow.csproj", "{16C17982-FC43-403B-A98C-E7D793A87BB2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataDictionary.Interface", "DataDictionary.Interface\DataDictionary.Interface.csproj", "{C5A74335-1EF5-48AB-89B1-6D541D081ED6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -93,6 +97,14 @@ Global
 		{9EEA05B7-A830-4B1B-BC41-E34F609528B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9EEA05B7-A830-4B1B-BC41-E34F609528B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9EEA05B7-A830-4B1B-BC41-E34F609528B4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{16C17982-FC43-403B-A98C-E7D793A87BB2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{16C17982-FC43-403B-A98C-E7D793A87BB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{16C17982-FC43-403B-A98C-E7D793A87BB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{16C17982-FC43-403B-A98C-E7D793A87BB2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C5A74335-1EF5-48AB-89B1-6D541D081ED6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C5A74335-1EF5-48AB-89B1-6D541D081ED6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C5A74335-1EF5-48AB-89B1-6D541D081ED6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C5A74335-1EF5-48AB-89B1-6D541D081ED6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>com.antlersoft.HostedFools.GraphFlow</AssemblyName>
+    <RootNamespace>com.antlersoft.HostedTools.GraphFlow</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="com.antlersoft.HostedTools.Framework" Version="2.0.0.1" />
+    <PackageReference Include="com.antlersoft.HostedTools.Interface" Version="2.0.0.1" />
+  </ItemGroup>
+
+</Project>
