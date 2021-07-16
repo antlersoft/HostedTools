@@ -58,9 +58,14 @@ namespace com.antlersoft.HostedTools.Archive.Model
                 foreach (var t in specOnDisk.TablesInArchive)
                 {
                     var tableJson = GetTablePath(t.Schema, t.Name, path);
+                    var table = Schema.GetTable(t.Schema, t.Name);
+                    if (table == null)
+                    {
+                        throw new InvalidOperationException($"Schema doesn't have table referenced in Folder Archive: {t.Schema}.{t.Name}");
+                    }
                     folderTables.Add(new FolderTableArchive() { Path = tableJson, Table = Schema.GetTable(t.Schema, t.Name) });
                 }
-                return new FolderArchive(_jsonFactory.GetSerializer(), this, GetArchiveSpec(specOnDisk), folderTables);
+                return new FolderArchive(_jsonFactory, this, GetArchiveSpec(specOnDisk), folderTables);
             }
             throw new InvalidOperationException($"No archive found for archive spec {spec.Title}");
         }
@@ -147,7 +152,15 @@ namespace com.antlersoft.HostedTools.Archive.Model
 
         private ArchiveSpec GetArchiveSpec(FolderArchiveSpec source)
         {
-            return new ArchiveSpec(source.Tables.Select(t => new ArchiveTableSpec(_schema.GetTable(t.SchemaName, t.TableName), new ExpressionWithSource(_builder, t.FilterExpression))).ToList(), source.Title);
+            return new ArchiveSpec(source.Tables.Select(t =>
+            {
+                ITable table = _schema.GetTable(t.SchemaName, t.TableName);
+                if (table == null)
+                {
+                    throw new InvalidOperationException($"Couldn't find table in schema matching {t.SchemaName}.{t.TableName}");
+                }
+                return new ArchiveTableSpec(table, new ExpressionWithSource(_builder, t.FilterExpression));
+            }).ToList(), source.Title);
         }
 
         private static string EscapePath(string s)
