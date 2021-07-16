@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using com.antlersoft.HostedTools.Archive.Interface;
 using com.antlersoft.HostedTools.Archive.Model.Configuration;
+using com.antlersoft.HostedTools.Framework.Interface.Plugin;
 using com.antlersoft.HostedTools.Framework.Model;
 using com.antlersoft.HostedTools.Interface;
 using com.antlersoft.HostedTools.Interface.Expressions;
@@ -102,7 +103,7 @@ namespace com.antlersoft.HostedTools.Archive.Model
             Schema = BuildSchema(schemaBuilder);
         }
 
-        public IArchive GetArchive(IArchiveSpec spec)
+        public IArchive GetArchive(IArchiveSpec spec, IWorkMonitor monitor)
         {
             var archiveTables = new List<SqlArchiveTable>();
             var backReferencedTablesToProcess = new List<IArchiveTableSpec>();
@@ -194,7 +195,7 @@ namespace com.antlersoft.HostedTools.Archive.Model
             return added;
         }
 
-        public void WriteArchive(IArchive archive)
+        public void WriteArchive(IArchive archive, IWorkMonitor monitor)
         {
             foreach (var table in TopologicalSort(archive.Tables))
             {

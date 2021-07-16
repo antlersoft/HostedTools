@@ -37,7 +37,7 @@ namespace com.antlersoft.HostedTools.Archive.Model
         }
         public ISchema Schema => _schema;
 
-        public IArchive GetArchive(IArchiveSpec spec)
+        public IArchive GetArchive(IArchiveSpec spec, IWorkMonitor monitor)
         {
             FolderArchiveSpec fa = GetFolderArchiveSpec(spec);
             var path = Path.Combine(_path, fa.Title??"not a folder");
@@ -49,12 +49,9 @@ namespace com.antlersoft.HostedTools.Archive.Model
                 using (var jr = new JsonTextReader(sr))
                 {
                     specOnDisk = _jsonFactory.GetSerializer().Deserialize<FolderArchiveSpec>(jr);
-                    if (Cast<IWorkMonitor>() is IWorkMonitor monitor)
+                    if (! specOnDisk.Equals(fa))
                     {
-                        if (! specOnDisk.Equals(fa))
-                        {
-                            monitor.Writer.WriteLine($"Archive Specification {fa.Title ?? "null"} mismatch on disk");
-                        }
+                        monitor.Writer.WriteLine($"Archive Specification {fa.Title ?? "null"} mismatch on disk");
                     }
                 }
                 var folderTables = new List<FolderTableArchive>();
@@ -68,7 +65,7 @@ namespace com.antlersoft.HostedTools.Archive.Model
             throw new InvalidOperationException($"No archive found for archive spec {spec.Title}");
         }
 
-        public void WriteArchive(IArchive archive)
+        public void WriteArchive(IArchive archive, IWorkMonitor monitor)
         {
             FolderArchiveSpec fa = GetFolderArchiveSpec(archive.Spec);
             fa.TablesInArchive = archive.Tables.Select(

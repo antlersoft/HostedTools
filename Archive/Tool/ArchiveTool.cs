@@ -163,12 +163,12 @@ namespace com.antlersoft.HostedTools.Archive.Tool
             {
                 specs.Add(new ArchiveTableSpec(table, null));
             }
-            var archive = sr.GetArchive(new ArchiveSpec(specs, title));
+            var archive = sr.GetArchive(new ArchiveSpec(specs, title), monitor);
             if (token.IsCancellationRequested)
             {
                 return;
             }
-            fr.WriteArchive(archive);
+            fr.WriteArchive(archive, monitor);
         }
 
         public void AfterComposition()
@@ -218,7 +218,7 @@ namespace com.antlersoft.HostedTools.Archive.Tool
                 monitor.Writer.WriteLine($"No archive with title [{title}] found");
                 return;
             }
-            sr.WriteArchive(fr.GetArchive(spec));
+            sr.WriteArchive(fr.GetArchive(spec, monitor), monitor);
         }
     }
 }
