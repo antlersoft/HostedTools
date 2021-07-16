@@ -10,6 +10,7 @@ namespace com.antlersoft.HostedTools.Sql.Model
         Dictionary<string, IField> _fields = new Dictionary<string, IField>();
         List<IConstraint> _constraints = new List<IConstraint>();
         IIndexSpec _primaryKey;
+        List<IField> _forceNullOnInsert = new List<IField>();
 
         public Table(string schemaName, string tableName)
         {
@@ -30,6 +31,14 @@ namespace com.antlersoft.HostedTools.Sql.Model
         {
             _primaryKey = key;
         }
+
+        public void SetForceNullOnInsertFields(IEnumerable<string> fieldNames)
+        {
+            _forceNullOnInsert.Clear();
+            _forceNullOnInsert.AddRange(fieldNames.Select(n => _fields[n]));
+        }
+
+        public IList<IField> ForceNullOnInsert => _forceNullOnInsert;
 
         public IField this[string i] => _fields[i];
 

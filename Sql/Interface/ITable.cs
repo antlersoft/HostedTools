@@ -8,5 +8,10 @@ namespace com.antlersoft.HostedTools.Sql.Interface
     {
         IList<IConstraint> Constraints { get; }
         IIndexSpec PrimaryKey { get; }
+
+        /// <summary>
+        /// Required to handle inserts of rows without deferring constraints when circular constraints
+        /// </summary>
+        IList<IField> ForceNullOnInsert { get; }
     }
 }

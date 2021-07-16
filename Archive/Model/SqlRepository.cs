@@ -199,7 +199,15 @@ namespace com.antlersoft.HostedTools.Archive.Model
         {
             foreach (var table in TopologicalSort(archive.Tables))
             {
-                SqlUtil.InsertRows(_connectionSource, table.Schema, table.Name, archive.GetRows(table));
+                SqlUtil.InsertRows(_connectionSource, table.Schema, table.Name, archive.GetRows(table).Select(r =>
+                {
+                    var empty = new JsonHtValue();
+                    foreach (var f in table.ForceNullOnInsert)
+                    {
+                        r[f.Name] = empty;
+                    }
+                    return r;
+                }));
             }
         }
 
@@ -404,6 +412,10 @@ namespace com.antlersoft.HostedTools.Archive.Model
                 {
                     AddCandidateConstraint(table, config, c, builder);
                 }
+            }
+            if (config?.ForceNullOnInsert != null)
+            {
+                table.SetForceNullOnInsertFields(config.ForceNullOnInsert);
             }
             if (_connectionSource.Cast<ISqlIndexInfo>() is ISqlIndexInfo indexGetter)
             {
