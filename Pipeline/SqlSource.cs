@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Data;
 using System.Data.Common;
@@ -10,14 +9,12 @@ using com.antlersoft.HostedTools.Framework.Model.Menu;
 using com.antlersoft.HostedTools.Framework.Model.Plugin;
 using com.antlersoft.HostedTools.Framework.Model.Setting;
 using com.antlersoft.HostedTools.Interface;
-using com.antlersoft.HostedTools.Serialization;
 using com.antlersoft.HostedTools.Sql;
 using com.antlersoft.HostedTools.Sql.Interface;
-using com.antlersoft.HostedTools.Sql.Model;
 
 namespace com.antlersoft.HostedTools.Pipeline
 {
-    public abstract class SqlSourceBase : EditOnlyPlugin, IHtValueSource, ISqlIndexInfo
+    public abstract class SqlSourceBase : EditOnlyPlugin, IHtValueSource, ISqlConnectionSource
     {
         protected SqlSourceBase(IEnumerable<IMenuItem> menuEntries, IEnumerable<string> keys)
         : base(menuEntries, keys)
@@ -37,28 +34,6 @@ namespace com.antlersoft.HostedTools.Pipeline
         public virtual IEnumerable<IHtValue> GetRows()
         {
             return SqlUtil.GetRows(this, SqlCommand.Value<string>(SettingManager), CommandTimeout.Value<int>(SettingManager), GetColumnValue);
-        }
-
-        public virtual Dictionary<string,IIndexSpec> GetIndexInfo(IBasicTable table)
-        {
-            var result = new Dictionary<string,IIndexSpec>();
-            string currentIndexName = null;
-            IndexSpec currentIndexColumns=null;
-            foreach (var row in SqlUtil.GetRows(this,
-                $"SELECT index_name, seq_in_index, column_name FROM information_schema.statistics WHERE table_schema='{table.Schema}' and table_name='{table.Name}' order by index_name, seq_in_index",
-                CommandTimeout.Value<int>(SettingManager)))
-            {
-                var newRow = SqlUtil.LowerCaseKeys(row);
-                var indexName = newRow["index_name"].AsString;
-                if (indexName != currentIndexName)
-                {
-                    currentIndexColumns = new IndexSpec();
-                    result[indexName] = currentIndexColumns;
-                    currentIndexName = indexName;
-                }
-                currentIndexColumns.AddColumn(new IndexColumn(table[newRow["column_name"].AsString]));
-            }
-            return result;
         }
 
         public virtual string SourceDescription

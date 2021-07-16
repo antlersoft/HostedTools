@@ -30,7 +30,7 @@ namespace com.antlersoft.HostedTools.Pipeline
             return new PostgreSqlConnectionSource(PostgreSqlConnectionString.Value<string>(SettingManager), CommandTimeout.Value<int>(SettingManager)).GetConnection();
         }
 
-        public override Dictionary<string, IIndexSpec> GetIndexInfo(IBasicTable table)
+        public Dictionary<string, IIndexSpec> GetIndexInfo(IBasicTable table)
         {
             return new PostgreSqlConnectionSource(PostgreSqlConnectionString.Value<string>(SettingManager), CommandTimeout.Value<int>(SettingManager)).GetIndexInfo(table);
         }

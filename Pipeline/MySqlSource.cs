@@ -12,7 +12,7 @@ namespace com.antlersoft.HostedTools.Pipeline
 {
     [Export(typeof(ISettingDefinitionSource))]
     [Export(typeof(IHtValueSource))]
-    public class MySqlSource : SqlSourceBase, ISettingDefinitionSource, ISqlPrimaryKeyInfo, ISqlReferentialConstraintInfo
+    public class MySqlSource : SqlSourceBase, ISettingDefinitionSource, ISqlPrimaryKeyInfo, ISqlReferentialConstraintInfo, ISqlIndexInfo
     {
         static ISettingDefinition MySqlConnectionString = new SimpleSettingDefinition("ConnectionString", "MySqlSource", "Connection string");
 
@@ -38,6 +38,11 @@ namespace com.antlersoft.HostedTools.Pipeline
         public IEnumerable<IConstraint> GetReferentialConstraints(IBasicTable table, Func<string, string, ITable> tableGetter)
         {
             return new MySqlConnectionSource(MySqlConnectionString.Value<string>(SettingManager)).GetReferentialConstraints(table, tableGetter);
+        }
+
+        public Dictionary<string, IIndexSpec> GetIndexInfo(IBasicTable table)
+        {
+            return new MySqlConnectionSource(MySqlConnectionString.Value<string>(SettingManager)).GetIndexInfo(table);
         }
     }
 }
