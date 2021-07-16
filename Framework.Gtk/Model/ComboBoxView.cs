@@ -42,6 +42,10 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
             {
                 _element.AppendText(val);
             }
+            if (Setting.PreviousValues.Count == 0 && Setting.GetRaw() != null)
+            {
+                _element.AppendText(Setting.GetRaw());
+            }
             _element.Active = 0;
             SetNeedsSave(false);
         }
