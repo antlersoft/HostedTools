@@ -1,6 +1,8 @@
 ﻿using com.antlersoft.HostedTools.Interface;
 using com.antlersoft.HostedTools.Sql;
 using com.antlersoft.HostedTools.Sql.Interface;
+using com.antlersoft.HostedTools.Sql.Model;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,53 +14,57 @@ namespace com.antlersoft.HostedTools.Archive.Model
         internal ITable Table { get; set; }
         internal IHtExpression Filter { get; set; }
         internal List<DependentTable> DependentTables { get; } = new List<DependentTable>();
-        internal string Query {
-            get {
-                var unionPaths = new List<List<DependentTable>>();
-                var start = new List<DependentTable>();
-                unionPaths.Add(start);
-                AddDistinctPaths(start, unionPaths);
-                int numberOfPaths = unionPaths.Count;
-                var backLinksPerPath = new List<IConstraint>[numberOfPaths];
-                for (int i = 0; i<numberOfPaths; i++)
+        internal string GetQuery(IDistinctHandling distinctHandling, ISqlColumnInfo columnInfo)
+        {
+            var unionPaths = new List<List<DependentTable>>();
+            var start = new List<DependentTable>();
+            unionPaths.Add(start);
+            AddDistinctPaths(start, unionPaths);
+            int numberOfPaths = unionPaths.Count;
+            var backLinksPerPath = new List<IConstraint>[numberOfPaths];
+            for (int i = 0; i<numberOfPaths; i++)
+            {
+                var backLinks = new List<IConstraint>();
+                backLinksPerPath[i] = backLinks;
+                foreach (var link in unionPaths[i])
                 {
-                    var backLinks = new List<IConstraint>();
-                    backLinksPerPath[i] = backLinks;
-                    foreach (var link in unionPaths[i])
+                    if (link.ReverseDependency)
                     {
-                        if (link.ReverseDependency)
-                        {
-                            backLinks.Add(link.Constraint);
-                        }
+                        backLinks.Add(link.Constraint);
                     }
                 }
-                int maxCount = backLinksPerPath.Max(bl => bl.Count);
-                List<IConstraint> maxConstraints = backLinksPerPath.First(bl => bl.Count == maxCount);
-                unionPaths = unionPaths.Where(p => maxConstraints.All(c => p.Select(dt => dt.Constraint).Contains(c))).ToList();
-                var alias = new TableAlias();
-                StringBuilder totalQuery = new StringBuilder();
-                foreach (var path in unionPaths)
-                {
-                    if (totalQuery.Length > 0)
-                    {
-                        totalQuery.Append("\r\nunion\r\n");
-                    }
-                    totalQuery.Append(SinglePathQuery(alias, path));
-                }
-                return totalQuery.ToString();
             }
+            int maxCount = backLinksPerPath.Max(bl => bl.Count);
+            List<IConstraint> maxConstraints = backLinksPerPath.First(bl => bl.Count == maxCount);
+            unionPaths = unionPaths.Where(p => maxConstraints.All(c => p.Select(dt => dt.Constraint).Contains(c))).ToList();
+            var alias = new TableAlias();
+            StringBuilder totalQuery = new StringBuilder();
+            foreach (var path in unionPaths)
+            {
+                if (totalQuery.Length > 0)
+                {
+                    totalQuery.Append("\r\nunion\r\n");
+                }
+                totalQuery.Append(SinglePathQuery(distinctHandling, columnInfo, alias, path));
+            }
+            return totalQuery.ToString();
         }
 
-        private string SinglePathQuery(TableAlias alias, List<DependentTable> path)
+        private string SinglePathQuery(IDistinctHandling distinctHandling, ISqlColumnInfo columnInfo, TableAlias alias, List<DependentTable> path)
         {
             string myAlias = alias.Next;
             StringBuilder query = new StringBuilder();
             StringBuilder whereBuilder = new StringBuilder();
 
-            query.Append($"select distinct {myAlias}.* from {Table.Schema}.{Table.Name} {myAlias}");
+            if (columnInfo == null)
+            {
+                columnInfo = new SimpleColumnInfo();
+            }
+
+            query.Append($"select {distinctHandling?.GetDistinctText(new[] { new Tuple<string, ITable>(myAlias, Table) })??"distinct"} {myAlias}.* from {Table.Schema}.{Table.Name} {myAlias}");
             if (Filter != null)
             {
-                whereBuilder.Append(SqlRepository.GetFilterText(myAlias, Filter));
+                whereBuilder.Append(SqlRepository.GetFilterText(myAlias, Table, columnInfo, Filter));
             }
             var currentAlias = myAlias;
             foreach (var dt in path)
@@ -75,11 +81,11 @@ namespace com.antlersoft.HostedTools.Archive.Model
                     }
                     if (dt.ReverseDependency)
                     {
-                        query.Append($"{prevAlias}.{dt.Constraint.LocalColumns.Columns[i].Field.Name}={currentAlias}.{dt.Constraint.ReferencedColumns.Columns[i].Field.Name}");
+                        query.Append($"{prevAlias}.{columnInfo.GetColumnReference(dt.Constraint.LocalColumns.Columns[i].Field)}={currentAlias}.{columnInfo.GetColumnReference(dt.Constraint.ReferencedColumns.Columns[i].Field)}");
                     }
                     else
                     {
-                        query.Append($"{prevAlias}.{dt.Constraint.ReferencedColumns.Columns[i].Field.Name}={currentAlias}.{dt.Constraint.LocalColumns.Columns[i].Field.Name}");
+                        query.Append($"{prevAlias}.{columnInfo.GetColumnReference(dt.Constraint.ReferencedColumns.Columns[i].Field)}={currentAlias}.{columnInfo.GetColumnReference(dt.Constraint.LocalColumns.Columns[i].Field)}");
                     }
                 }
                 if (dt.ArchiveTable.Filter != null)
@@ -88,7 +94,7 @@ namespace com.antlersoft.HostedTools.Archive.Model
                     {
                         whereBuilder.Append("\r\nand ");
                     }
-                    whereBuilder.Append(SqlRepository.GetFilterText(currentAlias, dt.ArchiveTable.Filter));
+                    whereBuilder.Append(SqlRepository.GetFilterText(currentAlias, dt.ArchiveTable.Table, columnInfo, dt.ArchiveTable.Filter));
                 }
             }
             if (whereBuilder.Length > 0)

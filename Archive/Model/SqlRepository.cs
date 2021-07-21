@@ -199,7 +199,7 @@ namespace com.antlersoft.HostedTools.Archive.Model
         {
             foreach (var table in TopologicalSort(archive.Tables))
             {
-                SqlUtil.InsertRows(_connectionSource, table.Schema, table.Name, archive.GetRows(table).Select(r =>
+                SqlUtil.InsertRows(_connectionSource, table, archive.GetRows(table).Select(r =>
                 {
                     var empty = new JsonHtValue();
                     foreach (var f in table.ForceNullOnInsert)
@@ -211,7 +211,7 @@ namespace com.antlersoft.HostedTools.Archive.Model
             }
         }
 
-        internal static string GetFilterText(string alias, IHtExpression expression)
+        internal static string GetFilterText(string alias, ITable table, ISqlColumnInfo columnInfo, IHtExpression expression)
         {
             if (expression is IHtExpressionWithSource ews)
             {
@@ -219,7 +219,7 @@ namespace com.antlersoft.HostedTools.Archive.Model
             }
             if (expression is IDataReferenceExpression dataRef)
             {
-                return $"{alias}.{dataRef.ValueName}";
+                return $"{alias}.{columnInfo.GetColumnReference(table[dataRef.ValueName])}";
             }
             else if (expression is IConstantExpression constant)
             {
@@ -242,14 +242,14 @@ namespace com.antlersoft.HostedTools.Archive.Model
                 if (opex.OperatorName == "IN")
                 {
                     StringBuilder inBuilder = new StringBuilder();
-                    inBuilder.Append(GetFilterText(alias, opex.Operands[0]));
+                    inBuilder.Append(GetFilterText(alias, table, columnInfo, opex.Operands[0]));
                     inBuilder.Append(" in ");
                     inBuilder.Append(SqlUtil.InClause(opex.Operands.Skip(1).Where(a => a is IConstantExpression).Select(a => ((IConstantExpression)a).Evaluate(null))));
                     return inBuilder.ToString();
                 }
                 else if (opex.Operands.Count == 2)
                 {
-                    return $"({GetFilterText(alias, opex.Operands[0])} {TranslateBinaryOperator(opex.OperatorName)} {GetFilterText(alias, opex.Operands[1])})";
+                    return $"({GetFilterText(alias, table, columnInfo, opex.Operands[0])} {TranslateBinaryOperator(opex.OperatorName)} {GetFilterText(alias, table, columnInfo, opex.Operands[1])})";
                 }
             }
             throw new InvalidOperationException($"Unexpected expression type {expression.GetType()}");
@@ -385,7 +385,13 @@ namespace com.antlersoft.HostedTools.Archive.Model
             {
                 foreach (var row in SqlUtil.GetRows(_connectionSource, $"SELECT * FROM information_schema.columns WHERE table_name = '{table.Name}' AND table_schema = '{table.Schema}' ORDER BY ordinal_position", 5).Select(r => SqlUtil.LowerCaseKeys(r)))
                 {
-                    table.AddField(new Field(row["column_name"].AsString, row["data_type"].AsString, (int)row["ordinal_position"].AsLong, row["is_nullable"].AsBool));
+                    IHtValue udt;
+                    var dataType = row["data_type"].AsString;
+                    if (dataType == "USER-DEFINED" && (udt = row["udt_name"])!=null)
+                    {
+                        dataType = udt.AsString;
+                    }
+                    table.AddField(new Field(row["column_name"].AsString, dataType, (int)row["ordinal_position"].AsLong, row["is_nullable"].AsBool));
                 }
                 IIndexSpec primaryKey = null;
                 if (_connectionSource.Cast<ISqlPrimaryKeyInfo>() is ISqlPrimaryKeyInfo keyInfo)
