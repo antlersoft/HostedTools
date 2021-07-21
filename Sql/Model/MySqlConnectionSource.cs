@@ -24,7 +24,9 @@ namespace com.antlersoft.HostedTools.Sql.Model
         }
         public DbConnection GetConnection()
         {
-            return new MySqlConnection(_connString);
+            var conn = new MySqlConnection(_connString);
+            conn.Open();
+            return conn;
         }
 
         public IIndexSpec GetPrimaryKey(IBasicTable table)

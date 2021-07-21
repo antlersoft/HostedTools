@@ -2,6 +2,7 @@
 using com.antlersoft.HostedTools.Interface;
 using com.antlersoft.HostedTools.Serialization;
 using com.antlersoft.HostedTools.Sql.Interface;
+using com.antlersoft.HostedTools.Sql.Model;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -147,16 +148,16 @@ namespace com.antlersoft.HostedTools.Sql
             return sb.ToString();
         }
 
-        public static void InsertRows(ISqlConnectionSource connectionSource, string schemaName, string tableName, IEnumerable<IHtValue> rows, int commandTimeout=30, int maxLength=30000)
+        public static void InsertRows(ISqlConnectionSource connectionSource, IBasicTable table, IEnumerable<IHtValue> rows, int commandTimeout=30, int maxLength=30000)
         {
             StringBuilder currentStatement = new StringBuilder();
+            ISqlColumnInfo columnInfo = connectionSource.Cast<ISqlColumnInfo>() ?? new SimpleColumnInfo();
 
             using (var conn = connectionSource.GetConnection())
             {
-                conn.Open();
                 foreach (var row in rows)
                 {
-                    var nextRow = SingleInsertStatement(schemaName, tableName, row);
+                    var nextRow = SingleInsertStatement(table, columnInfo, row);
                     if (connectionSource.Cast<IWorkMonitorSource>() is IWorkMonitorSource wms)
                     {
                         wms.GetMonitor().Writer.WriteLine(nextRow);
@@ -235,15 +236,15 @@ namespace com.antlersoft.HostedTools.Sql
             return statement;
         }
 
-        public static string SingleInsertStatement(string schemaName, string tableName, IHtValue row)
+        public static string SingleInsertStatement(IBasicTable table, ISqlColumnInfo columnInfo, IHtValue row)
         {
             StringBuilder statement = new StringBuilder($"INSERT INTO ");
-            if (! string.IsNullOrWhiteSpace(schemaName))
+            if (! string.IsNullOrWhiteSpace(table.Schema))
             {
-                statement.Append(schemaName);
+                statement.Append(table.Schema);
                 statement.Append('.');
             }
-            statement.Append(tableName);
+            statement.Append(table.Name);
             statement.Append(" ( ");
             bool first = true;
             foreach (var item in row.AsDictionaryElements)
@@ -256,7 +257,7 @@ namespace com.antlersoft.HostedTools.Sql
                 {
                     statement.Append(',');
                 }
-                statement.Append(item.Key);
+                statement.Append(columnInfo.GetColumnReference(table[item.Key]));
             }
             statement.Append(") VALUES (");
             first = true;
@@ -270,7 +271,7 @@ namespace com.antlersoft.HostedTools.Sql
                 {
                     statement.Append(',');
                 }
-                AppendSqlLiteral(statement, item.Value);
+                columnInfo.AppendColumnLiteral(statement, table[item.Key], row[item.Key]);
             }
             statement.Append(')');
             return statement.ToString();
@@ -314,7 +315,6 @@ namespace com.antlersoft.HostedTools.Sql
             }
             using (var conn = connectionSource.GetConnection())
             {
-                conn.Open();
                 foreach (var row in GetRows(getColumnValue, conn, sql, commandTimeout))
                 {
                     yield return row;

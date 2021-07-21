@@ -12,6 +12,7 @@
     <PackageReference Include="com.antlersoft.HostedTools.Serialization" Version="2.0.0.1" />
     <PackageReference Include="MySqlConnector" Version="1.3.10" />
     <PackageReference Include="Npgsql" Version="5.0.7" />
+    <PackageReference Include="Npgsql.NetTopologySuite" Version="5.0.7" />
   </ItemGroup>
 
 </Project>
