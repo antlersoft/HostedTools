@@ -21,36 +21,6 @@ using System.Threading;
 
 namespace com.antlersoft.HostedTools.Archive.Tool
 {
-    class ConnectionHolder : IWorkMonitorSource, ISqlConnectionSource
-    {
-        private IWorkMonitorSource _monitorSource;
-        private ISqlConnectionSource _connSource;
-
-        internal ConnectionHolder(IWorkMonitorSource monitorSource, ISqlConnectionSource connSource)
-        {
-            _monitorSource = monitorSource;
-            _connSource = connSource;
-        }
-
-        public T Cast<T>(bool fromAggregated = false) where T : class
-        {
-            if (typeof(T) == typeof(IWorkMonitorSource))
-            {
-                return _monitorSource as T;
-            }
-            return _connSource.Cast<T>();
-        }
-
-        public DbConnection GetConnection()
-        {
-            return _connSource.GetConnection();
-        }
-
-        public IWorkMonitor GetMonitor()
-        {
-            return _monitorSource.GetMonitor();
-        }
-    }
 
     [Export(typeof(ISettingDefinitionSource))]
     [Export(typeof(IAfterComposition))]
@@ -93,7 +63,11 @@ namespace com.antlersoft.HostedTools.Archive.Tool
                 config = JsonFactory.GetSerializer().Deserialize<SqlRepositoryConfiguration>(jreader);
             }
             var sqlModule = (SqlSources.FindMatchingItem(SqlSources.Value<string>(SettingManager)) as PluginSelectionItem).Plugin as SqlSourceBase;
-            ISqlConnectionSource connectionSource = new ConnectionHolder(monitorSource, sqlModule);
+            ISqlConnectionSource connectionSource = sqlModule.GetConnectionSource();
+            if (connectionSource.Cast<IAggregator>() is IAggregator agg)
+            {
+                agg.InjectImplementation(typeof(IWorkMonitorSource), monitorSource);
+            }
             monitorSource.SetMonitor(monitor);
             var cancelable = monitor.Cast<ICancelableMonitor>();
             var token = cancelable == null ? CancellationToken.None : cancelable.Cancellation;
@@ -201,7 +175,11 @@ namespace com.antlersoft.HostedTools.Archive.Tool
                 config = JsonFactory.GetSerializer().Deserialize<SqlRepositoryConfiguration>(jreader);
             }
             var sqlModule = (ArchiveTool.SqlSources.FindMatchingItem(ArchiveTool.SqlSources.Value<string>(SettingManager)) as PluginSelectionItem).Plugin as SqlSourceBase;
-            ISqlConnectionSource connectionSource = new ConnectionHolder(_monitorSource, sqlModule);
+            ISqlConnectionSource connectionSource = sqlModule.GetConnectionSource();
+            if (connectionSource.Cast<IAggregator>() is IAggregator agg)
+            {
+                agg.InjectImplementation(typeof(IWorkMonitorSource), _monitorSource);
+            }
             _monitorSource.SetMonitor(monitor);
 
             var cancelable = monitor.Cast<ICancelableMonitor>();

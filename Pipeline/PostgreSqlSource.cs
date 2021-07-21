@@ -3,16 +3,14 @@ using com.antlersoft.HostedTools.Framework.Model.Menu;
 using com.antlersoft.HostedTools.Framework.Model.Setting;
 using com.antlersoft.HostedTools.Sql.Interface;
 using com.antlersoft.HostedTools.Sql.Model;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
-using System.Data.Common;
 
 namespace com.antlersoft.HostedTools.Pipeline
 {
     [Export(typeof(ISettingDefinitionSource))]
     [Export(typeof(IHtValueSource))]
-    public class PostgreSqlSource : SqlSourceBase, ISettingDefinitionSource, ISqlReferentialConstraintInfo, ISqlPrimaryKeyInfo
+    public class PostgreSqlSource : SqlSourceBase, ISettingDefinitionSource
     {
         static ISettingDefinition PostgreSqlConnectionString = new SimpleSettingDefinition("ConnectionString", "PostgreSqlSource", "Connection string");
 
@@ -25,24 +23,9 @@ namespace com.antlersoft.HostedTools.Pipeline
 
         public override string QueryType => "PostgreSQL";
 
-        public override DbConnection GetConnection()
+        public override ISqlConnectionSource GetConnectionSource()
         {
-            return new PostgreSqlConnectionSource(PostgreSqlConnectionString.Value<string>(SettingManager), CommandTimeout.Value<int>(SettingManager)).GetConnection();
-        }
-
-        public Dictionary<string, IIndexSpec> GetIndexInfo(IBasicTable table)
-        {
-            return new PostgreSqlConnectionSource(PostgreSqlConnectionString.Value<string>(SettingManager), CommandTimeout.Value<int>(SettingManager)).GetIndexInfo(table);
-        }
-
-        public IEnumerable<IConstraint> GetReferentialConstraints(IBasicTable table, Func<string, string, ITable> tableGetter)
-        {
-            return new PostgreSqlConnectionSource(PostgreSqlConnectionString.Value<string>(SettingManager), CommandTimeout.Value<int>(SettingManager)).GetReferentialConstraints(table, tableGetter);
-        }
-
-        public IIndexSpec GetPrimaryKey(IBasicTable table)
-        {
-            return new PostgreSqlConnectionSource(PostgreSqlConnectionString.Value<string>(SettingManager), CommandTimeout.Value<int>(SettingManager)).GetPrimaryKey(table);
+            return new PostgreSqlConnectionSource(PostgreSqlConnectionString.Value<string>(SettingManager), CommandTimeout.Value<int>(SettingManager));
         }
     }
 }

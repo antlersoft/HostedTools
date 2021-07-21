@@ -5,6 +5,7 @@ using System.Data.Common;
 
 using com.antlersoft.HostedTools.Framework.Interface.Menu;
 using com.antlersoft.HostedTools.Framework.Interface.Setting;
+using com.antlersoft.HostedTools.Framework.Model;
 using com.antlersoft.HostedTools.Framework.Model.Menu;
 using com.antlersoft.HostedTools.Framework.Model.Plugin;
 using com.antlersoft.HostedTools.Framework.Model.Setting;
@@ -14,7 +15,7 @@ using com.antlersoft.HostedTools.Sql.Interface;
 
 namespace com.antlersoft.HostedTools.Pipeline
 {
-    public abstract class SqlSourceBase : EditOnlyPlugin, IHtValueSource, ISqlConnectionSource
+    public abstract class SqlSourceBase : EditOnlyPlugin, IHtValueSource
     {
         protected SqlSourceBase(IEnumerable<IMenuItem> menuEntries, IEnumerable<string> keys)
         : base(menuEntries, keys)
@@ -22,7 +23,6 @@ namespace com.antlersoft.HostedTools.Pipeline
         protected SqlSourceBase(IMenuItem item, IEnumerable<string> keys)
         : base(item, keys)
         {}
-        public abstract DbConnection GetConnection();
 
         public abstract string QueryType { get; }
 
@@ -31,9 +31,15 @@ namespace com.antlersoft.HostedTools.Pipeline
             return SqlUtil.GetColumnValue(reader, col);
         }
 
+        /// <summary>
+        /// Return a new instance of an ISqlConnectionSource appropriate to this SQL type and connection info
+        /// </summary>
+        /// <returns>A new instance of an ISQLConnectionSource</returns>
+        public abstract ISqlConnectionSource GetConnectionSource();
+
         public virtual IEnumerable<IHtValue> GetRows()
         {
-            return SqlUtil.GetRows(this, SqlCommand.Value<string>(SettingManager), CommandTimeout.Value<int>(SettingManager), GetColumnValue);
+            return SqlUtil.GetRows(GetConnectionSource(), SqlCommand.Value<string>(SettingManager), CommandTimeout.Value<int>(SettingManager), GetColumnValue);
         }
 
         public virtual string SourceDescription
@@ -68,11 +74,25 @@ namespace com.antlersoft.HostedTools.Pipeline
             get { return new[] {SqlCommand, CommandTimeout}; }
         }
 
-        public override DbConnection GetConnection()
+        public override ISqlConnectionSource GetConnectionSource()
         {
-            return DbProviderFactories.GetFactory(SqlDataParameters.DbProviderFactoryName.Value<string>(SettingManager)).CreateConnection();
+            return new SqlConnectionSource(SqlDataParameters.DbProviderFactoryName.Value<string>(SettingManager));
         }
 
         public override string QueryType => "SQL Server";
     }
+
+    public class SqlConnectionSource : HostedObjectBase, ISqlConnectionSource
+    {
+        private string _factoryName;
+        internal SqlConnectionSource(string factoryName)
+        {
+            _factoryName = factoryName;
+        }
+        public virtual DbConnection GetConnection()
+        {
+            return DbProviderFactories.GetFactory(_factoryName).CreateConnection();
+        }
+    }
+
 }
