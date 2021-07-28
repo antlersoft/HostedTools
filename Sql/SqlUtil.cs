@@ -85,6 +85,16 @@ namespace com.antlersoft.HostedTools.Sql
             {
                 return new JsonHtValue((bool)val);
             }
+            else if (t == typeof(string[]))
+            {
+                var result = new JsonHtValue();
+                int len = 0;
+                foreach (var s in (string[])val)
+                {
+                    result[len++] = new JsonHtValue(s);
+                }
+                return result;
+            }
             else if (t == typeof(DateTime))
             {
                 JsonHtValue dateValue = new JsonHtValue();
@@ -216,6 +226,25 @@ namespace com.antlersoft.HostedTools.Sql
                 statement.Append(t.ToString(SqlDateFormat));
                 statement.Append('\'');
             }
+            else if (val.IsArray)
+            {
+                // Postgres ARRAY constructor
+                statement.Append("ARRAY[");
+                bool first = true;
+                foreach (var s in val.AsArrayElements)
+                {
+                    if (first)
+                    {
+                        first = false;
+                    }
+                    else
+                    {
+                        statement.Append(',');
+                    }
+                    AppendSqlLiteral(statement, s);
+                }
+                statement.Append(']');
+            }
             else if (val.IsEmpty)
             {
                 statement.Append("null");
@@ -225,11 +254,30 @@ namespace com.antlersoft.HostedTools.Sql
                 statement.Append('\'');
                 foreach (var ch in val.AsString)
                 {
-                    if (ch == '\'')
+                    switch (ch)
                     {
-                        statement.Append(ch);
+                        case '\'':
+                            statement.Append("''");
+                            break;
+                        case (char)0:
+                            statement.Append("\\0");
+                            break;
+                        case '\b':
+                            statement.Append("\\b");
+                            break;
+                        case '\n':
+                            statement.Append("\\n");
+                            break;
+                        case '\r':
+                            statement.Append("\\r");
+                            break;
+                        case '\\':
+                            statement.Append("\\\\");
+                            break;
+                        default:
+                            statement.Append(ch);
+                            break;
                     }
-                    statement.Append(ch);
                 }
                 statement.Append('\'');
             }
