@@ -55,9 +55,15 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model.Internal
 
         public Func<object, object> GetFunctor()
         {
+            Func<IList<IHtValue>, IHtValue> evaluator;
+            var name = ((TokenNode)_nameNode).Token.Value;
+            if (! AvailableFunctions.TryGetValue(name, out evaluator))
+            {
+                evaluator = args => throw new InvalidOperationException($"No evaluator defined for function expression with name [{name}]");
+            }
             return
                 d =>
-                    new OperatorExpression(((TokenNode)_nameNode).Token.Value, AvailableFunctions[((TokenNode)_nameNode).Token.Value],
+                    new OperatorExpression(name, evaluator,
                         (List<IHtExpression>) _argumentsNode.GetFunctor()(d));
         }
 
