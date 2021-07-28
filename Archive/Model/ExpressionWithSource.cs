@@ -4,6 +4,7 @@ using com.antlersoft.HostedTools.Framework.Model;
 using com.antlersoft.HostedTools.Interface;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace com.antlersoft.HostedTools.Archive.Model
@@ -15,6 +16,12 @@ namespace com.antlersoft.HostedTools.Archive.Model
         public ExpressionWithSource(IConditionBuilder builder, string expressionSource)
         {
             _underlying = builder.ParseCondition(expressionSource);
+            _source = expressionSource;
+        }
+
+        public ExpressionWithSource(IConditionBuilder builder, string expressionSource, TextWriter writer)
+        {
+            _underlying = ((com.antlersoft.HostedTools.ConditionBuilder.Model.ConditionBuilder)builder).ParseConditionVerbose(expressionSource, writer);
             _source = expressionSource;
         }
 
