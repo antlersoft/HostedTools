@@ -110,16 +110,19 @@ namespace com.antlersoft.HostedTools.GtkHostLib
             }
             else
             {
-                NavigationManager.NavigationListeners.AddListener(OnNavigate);
-                _backButton.Clicked += (sender, args) => NavigationManager.GoBack();
-                _backButton.Sensitive = false;
-                _forwardButton.Clicked += (sender, args) => NavigationManager.GoForward();
-                _forwardButton.Sensitive = false;
-                // MenuManager.AddChangeListener(BuildMenu);
-                if (!_shownOnce && SettingManager["Common.UseStartItem"].Get<bool>())
+                if (!_shownOnce)
                 {
                     _shownOnce = true;
-                    NavigationManager.NavigateTo(SettingManager["Common.StartItem"].Get<string>());
+                    NavigationManager.NavigationListeners.AddListener(OnNavigate);
+                    _backButton.Clicked += (sender, args) => NavigationManager.GoBack();
+                    _backButton.Sensitive = false;
+                    _forwardButton.Clicked += (sender, args) => NavigationManager.GoForward();
+                    _forwardButton.Sensitive = false;
+                    // MenuManager.AddChangeListener(BuildMenu);
+                    if (SettingManager["Common.UseStartItem"].Get<bool>())
+                    {
+                        NavigationManager.NavigateTo(SettingManager["Common.StartItem"].Get<string>());
+                    }
                 }
             }
         }
