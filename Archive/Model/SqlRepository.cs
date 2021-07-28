@@ -247,6 +247,10 @@ namespace com.antlersoft.HostedTools.Archive.Model
                     inBuilder.Append(SqlUtil.InClause(opex.Operands.Skip(1).Where(a => a is IConstantExpression).Select(a => ((IConstantExpression)a).Evaluate(null))));
                     return inBuilder.ToString();
                 }
+                else if (opex.OperatorName == "timestamp" && opex.Operands.Count == 1)
+                {
+                    return $"timestamp {GetFilterText(alias, table, columnInfo, opex.Operands[0])}";
+                }
                 else if (opex.Operands.Count == 2)
                 {
                     return $"({GetFilterText(alias, table, columnInfo, opex.Operands[0])} {TranslateBinaryOperator(opex.OperatorName)} {GetFilterText(alias, table, columnInfo, opex.Operands[1])})";
@@ -331,7 +335,15 @@ namespace com.antlersoft.HostedTools.Archive.Model
                     }
                     string n = t.Table.Name;
                     string s = t.Table.Schema;
-                    Table table = new Table(s, n);
+                    Table table = new Table(s, n, t.IsExternal);
+                    if (t.Columns != null)
+                    {
+                        int ordinal = 1;
+                        foreach (var c in t.Columns)
+                        {
+                            table.AddField(new Field(c, "varchar", ordinal++, true));
+                        }
+                    }
                     builder.TablesToConfigure.Add(new Tuple<Table, TableConfiguration>(table, t));
                     builder.AddToTableList(new TableReference() { Schema = s, Name = n });
                     NormalizeConstraintConfiguration(builder, interestingSchema, t.AddedConstraints);
