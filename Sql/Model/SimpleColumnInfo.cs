@@ -13,6 +13,10 @@ namespace com.antlersoft.HostedTools.Sql.Model
             {
                 builder = new StringBuilder();
             }
+            if (value.IsLong && field.DataType.Contains("unsigned"))
+            {
+                builder.Append(((ulong)value.AsLong).ToString());
+            }
             return SqlUtil.AppendSqlLiteral(builder, value);
         }
 

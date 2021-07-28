@@ -51,7 +51,7 @@ namespace com.antlersoft.HostedTools.Sql
             }
             else if (t == typeof(ulong))
             {
-                return new JsonHtValue((long)(ulong)val);
+                return new JsonHtValue((ulong)val);
             }
             else if (t == typeof(double))
             {

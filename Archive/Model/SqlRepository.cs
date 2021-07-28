@@ -391,6 +391,10 @@ namespace com.antlersoft.HostedTools.Archive.Model
                     {
                         dataType = udt.AsString;
                     }
+                    else if (dataType == "bigint" && (udt = row["column_type"])!=null)
+                    {
+                        dataType = udt.AsString;
+                    }
                     table.AddField(new Field(row["column_name"].AsString, dataType, (int)row["ordinal_position"].AsLong, row["is_nullable"].AsBool));
                 }
                 IIndexSpec primaryKey = null;
