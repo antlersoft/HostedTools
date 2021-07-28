@@ -22,7 +22,7 @@ namespace com.antlersoft.HostedTools.Sql.Model
             _connString = connString;
             _timeout = timeout;
         }
-        public DbConnection GetConnection()
+        public virtual DbConnection GetConnection()
         {
             var result = new Npgsql.NpgsqlConnection(_connString);
             result.Open();
@@ -30,7 +30,7 @@ namespace com.antlersoft.HostedTools.Sql.Model
             return result;
         }
 
-        public IIndexSpec GetPrimaryKey(IBasicTable table)
+        public virtual IIndexSpec GetPrimaryKey(IBasicTable table)
         {
             IndexSpec primaryKey = null;
             foreach (var row in SqlUtil.GetRows(this,
@@ -99,7 +99,7 @@ order by
             return result;
         }
 
-        public IEnumerable<IConstraint> GetReferentialConstraints(IBasicTable table, Func<string, string, ITable> tableGetter)
+        public virtual IEnumerable<IConstraint> GetReferentialConstraints(IBasicTable table, Func<string, string, ITable> tableGetter)
         {
             IndexSpec localColumns = null;
             IndexSpec referencedColumns = null;
@@ -159,7 +159,7 @@ AND tbl.relname = '{table.Name}'
             }
         }
 
-        public string GetDistinctText(IEnumerable<Tuple<string, ITable>> aliasesAndTables)
+        public virtual string GetDistinctText(IEnumerable<Tuple<string, ITable>> aliasesAndTables)
         {
             var builder = new StringBuilder();
 
