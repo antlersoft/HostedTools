@@ -53,6 +53,10 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model.Internal
             {
                 return FromComparisonValue(args[0].AsDouble.CompareTo(args[1].AsDouble));
             }
+            if (args[0].IsLong)
+            {
+                return FromComparisonValue(args[0].AsLong.CompareTo(args[1].AsLong));
+            }
             return
                 FromComparisonValue(String.Compare(args[0].AsString, args[1].AsString, StringComparison.Ordinal));
         }
