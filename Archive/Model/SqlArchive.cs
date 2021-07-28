@@ -29,7 +29,12 @@ namespace com.antlersoft.HostedTools.Archive.Model
         public IEnumerable<IHtValue> GetRows(ITable table)
         {
             var archiveTable = _tables.First(t => t.Table.Schema == table.Schema && t.Table.Name == table.Name);
-            return SqlUtil.GetRows(_getConnection, archiveTable.GetQuery(_getConnection.Cast<IDistinctHandling>(), _getConnection.Cast<ISqlColumnInfo>()), 30);
+            int timeoutSeconds = 30;
+            if (_getConnection.Cast<ISqlCommandTimeout>() is ISqlCommandTimeout ct)
+            {
+                timeoutSeconds = ct.TimeoutSeconds;
+            }
+            return SqlUtil.GetRows(_getConnection, archiveTable.GetQuery(_getConnection.Cast<IDistinctHandling>(), _getConnection.Cast<ISqlColumnInfo>()), timeoutSeconds);
         }
     }
 }

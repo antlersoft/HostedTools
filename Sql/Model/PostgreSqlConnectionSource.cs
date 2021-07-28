@@ -10,10 +10,12 @@ using System.Text;
 namespace com.antlersoft.HostedTools.Sql.Model
 {
     public class PostgreSqlConnectionSource : HostedObjectBase, ISqlConnectionSource, ISqlIndexInfo, ISqlReferentialConstraintInfo,
-        IDistinctHandling, ISqlColumnInfo, ISqlPrimaryKeyInfo
+        IDistinctHandling, ISqlColumnInfo, ISqlPrimaryKeyInfo, ISqlCommandTimeout
     {
         private string _connString;
         private int _timeout;
+
+        public int TimeoutSeconds => _timeout;
 
         public PostgreSqlConnectionSource(string connString, int timeout=5)
         {
