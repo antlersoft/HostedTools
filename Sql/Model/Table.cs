@@ -12,10 +12,11 @@ namespace com.antlersoft.HostedTools.Sql.Model
         IIndexSpec _primaryKey;
         List<IField> _forceNullOnInsert = new List<IField>();
 
-        public Table(string schemaName, string tableName)
+        public Table(string schemaName, string tableName, bool requiredColumnListInSelect=false)
         {
             Name = tableName;
             Schema = schemaName;
+            RequiredColumnListInSelect = requiredColumnListInSelect;
         }
         public void AddField(IField f)
         {
@@ -31,6 +32,8 @@ namespace com.antlersoft.HostedTools.Sql.Model
         {
             _primaryKey = key;
         }
+
+        public bool RequiredColumnListInSelect { get; }
 
         public void SetForceNullOnInsertFields(IEnumerable<string> fieldNames)
         {

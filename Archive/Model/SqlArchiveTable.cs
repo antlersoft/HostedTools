@@ -60,8 +60,28 @@ namespace com.antlersoft.HostedTools.Archive.Model
             {
                 columnInfo = new SimpleColumnInfo();
             }
+            string columnList;
+            if (Table.RequiredColumnListInSelect)
+            {
+                StringBuilder colBuilder = new StringBuilder();
+                foreach (var c in Table.Fields)
+                {
+                    if (colBuilder.Length > 0)
+                    {
+                        colBuilder.Append(',');
+                    }
+                    colBuilder.Append(myAlias);
+                    colBuilder.Append('.');
+                    colBuilder.Append(c.Name);
+                }
+                columnList = colBuilder.ToString();
+            }
+            else
+            {
+                columnList = $"{myAlias}.*";
+            }
 
-            query.Append($"select {distinctHandling?.GetDistinctText(new[] { new Tuple<string, ITable>(myAlias, Table) })??"distinct"} {myAlias}.* from {Table.Schema}.{Table.Name} {myAlias}");
+            query.Append($"select {distinctHandling?.GetDistinctText(new[] { new Tuple<string, ITable>(myAlias, Table) })??"distinct"} {columnList} from {Table.Schema}.{Table.Name} {myAlias}");
             if (Filter != null)
             {
                 whereBuilder.Append(SqlRepository.GetFilterText(myAlias, Table, columnInfo, Filter));

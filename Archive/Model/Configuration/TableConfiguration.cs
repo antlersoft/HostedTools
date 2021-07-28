@@ -10,5 +10,9 @@ namespace com.antlersoft.HostedTools.Archive.Model.Configuration
         public List<ConstraintConfiguration> AddedConstraints { get; set; }
         public List<ConstraintConfiguration> RemovedConstraints { get; set; }
         public List<string> ForceNullOnInsert { get; set; }
+
+        public bool IsExternal { get; set; }
+
+        public List<string> Columns { get; set; }
     }
 }
