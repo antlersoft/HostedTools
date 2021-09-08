@@ -130,6 +130,7 @@ namespace com.antlersoft.HostedTools.Archive.Model
                     if (ts.ImplicitReferences.All(ir => archiveTables.Any(at => at.Table == ir)))
                     {
                         var added = AddConstraints(ts.Table, archiveTables);
+                        added.Filter = ts.TableFilter;
                         foreach (var ir in ts.ImplicitReferences)
                         {
                             bool newDependents = false;
