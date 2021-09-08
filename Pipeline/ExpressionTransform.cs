@@ -9,6 +9,7 @@ using com.antlersoft.HostedTools.Framework.Model.Plugin;
 using com.antlersoft.HostedTools.Framework.Model.Setting;
 using com.antlersoft.HostedTools.ConditionBuilder.Interface;
 using com.antlersoft.HostedTools.Interface;
+using com.antlersoft.HostedTools.Serialization;
 
 namespace com.antlersoft.HostedTools.Pipeline
 {
@@ -27,7 +28,7 @@ namespace com.antlersoft.HostedTools.Pipeline
         {
             string expr = ProjectionExpression.Value<string>(SettingManager);
             IHtExpression expression = ConditionBuilder.ParseCondition(expr);
-            return input.Select(row => expression.Evaluate(row));
+            return input.Select(row => expression.Evaluate(row)??new JsonHtValue());
         }
 
         public string TransformDescription
