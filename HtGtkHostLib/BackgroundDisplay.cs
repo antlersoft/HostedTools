@@ -25,7 +25,12 @@ namespace com.antlersoft.HostedTools.GtkHostLib
             var item = new BackgroundItem(monitor, workOutputElement);
             _tabs.AppendPage(item, new Label() { Text = title });
             int pages = _tabs.NPages;
-            item.OnCloseListener.AddListener(b => _tabs.RemovePage(pages));
+            item.OnCloseListener.AddListener(b => RemovePage(pages-1));
+        }
+
+        private void RemovePage(int n)
+        {
+            _tabs.RemovePage(n);
         }
 
         public Widget GetElement(object container)

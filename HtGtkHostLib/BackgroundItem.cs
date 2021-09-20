@@ -19,6 +19,7 @@ namespace com.antlersoft.HostedTools.GtkHostLib
             Button closeButton = new Button() { Label = "Close" };
             closeButton.Clicked += (sender, args) => ((ListenerCollection<bool>)OnCloseListener).NotifyListeners(true);
             OnCloseListener = new ListenerCollection<bool>();
+            buttons.PackEnd(closeButton, false, false, 0);
             WorkMonitor wm = monitor.Cast<WorkMonitor>();
             if (wm != null)
             {
@@ -26,6 +27,8 @@ namespace com.antlersoft.HostedTools.GtkHostLib
                 cancelButton.Sensitive = wm.IsRunning;
                 cancelButton.Clicked += (sender, args) => { wm.IsCanceled = true; };
             }
+            PackStart(buttons, false, false, 2);
+            PackEnd(output, true, true, 2);
         }
 
         public IListenerCollection<bool> OnCloseListener { get; private set; }
