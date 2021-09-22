@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Threading.Tasks;
+using System.Diagnostics;
 using com.antlersoft.HostedTools.Framework.Interface.Setting;
 using Gtk;
 
@@ -9,9 +11,13 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
         private Button _browseButton;
         private HBox _panel;
         private Window _parent;
+        private ISettingManager _settingManager;
 
-        public PathView()
+        private const string TextEditorKey = "Common.TextEditor";
+
+        public PathView(ISettingManager settingManager)
         {
+            _settingManager = settingManager;
             _browseButton = new Button() { Label = "Browse" };
             _browseButton.Clicked += Browse;
         }
@@ -28,9 +34,79 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
                 var combo = _element;
                 _panel = new HBox();
                 _panel.PackStart(_browseButton, false, true, 0);
+                if (Setting.Definition.Cast<IEditablePath>() is IEditablePath editablePath)
+                {
+                    var editButton = new Button() { Label = "Edit" };
+                    editButton.Clicked += OnEdit;
+                    editablePath.StartEditing.AddListener((s) => editButton.Sensitive = false);
+                    editablePath.FinishedEditing.AddListener((s) => editButton.Sensitive = true);
+                    _panel.PackStart(editButton, false, false, 0);
+                }
                 _panel.PackEnd(combo, true, true, 0);
             }
             return _panel;
+        }
+
+        private void OnEdit(object source, EventArgs args)
+        {
+            if (Setting.Definition.Cast<IEditablePath>() is IEditablePath editablePath)
+            {
+                editablePath.StartEditing.NotifyListeners(Setting);
+                Task t = null;
+                if (editablePath.EditPath != null)
+                {
+                    t = editablePath.EditPath.Invoke(Setting);
+                }
+                else
+                {
+                    t = UseDefaultEditor();
+                }
+                if (t == null)
+                {
+                    editablePath.FinishedEditing.NotifyListeners(Setting);
+                }
+                else
+                {
+                    WaitForEditingToFinish(t);
+                }
+            }
+        }
+
+        private Task UseDefaultEditor()
+        {
+            try
+            {
+                var editorPath = _settingManager[TextEditorKey].Get<string>();
+                if (! string.IsNullOrEmpty(editorPath))
+                {
+                    ProcessStartInfo psi = new ProcessStartInfo(editorPath, Setting.Get<string>());
+                    psi.UseShellExecute = false;
+                    psi.CreateNoWindow = true;
+                    var process = Process.Start(psi);
+                    return Task.Run(() => { process.WaitForExit(); });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Task.FromException(ex);
+            }
+            return Task.CompletedTask;
+        }
+
+        private async void WaitForEditingToFinish(Task t)
+        {
+            try
+            {
+                await t.ConfigureAwait(false);
+                Application.Invoke((obj, args) => {
+                    if (Setting.Definition.Cast<IEditablePath>() is IEditablePath editablePath)
+                    {
+                        editablePath.FinishedEditing.NotifyListeners(Setting);
+                    }
+                });
+            }
+            catch (Exception)
+            { }
         }
 
         private void UpdateText(string text)

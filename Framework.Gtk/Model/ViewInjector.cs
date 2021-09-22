@@ -54,6 +54,23 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
             }
         }
 
+        class PathViewCreator : HostedObjectBase, IViewCreator
+        {
+            private ISettingManager _manager;
+            private ISettingDefinition _definition;
+
+            internal PathViewCreator(ISettingManager manager, ISettingDefinition definition)
+            {
+                _manager = manager;
+                _definition = definition;
+            }
+
+            public IHostedObject CreateView()
+            {
+                return new PathView(_manager) { Setting = _manager[_definition.FullKey()] };
+            }
+        }
+
         [Import] public ISettingManager SettingManager;
         [Import] public INavigationManager NavigationManager;
         public void AfterComposition()
@@ -81,7 +98,7 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
                     else if (definition.Cast<IPathSettingDefinition>() != null)
                     {
                         aggregator.InjectImplementation(typeof(IViewCreator),
-                                                        new SettingViewCreator<PathView>(SettingManager, definition));
+                                                        new PathViewCreator(SettingManager, definition));
                     }
                     else if (definition.Cast<IButtonArray>() != null)
                     {

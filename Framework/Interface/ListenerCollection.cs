@@ -11,4 +11,9 @@ namespace com.antlersoft.HostedTools.Framework.Interface
         void AddListener(Action<T> listener);
         void RemoveListener(Action<T> listener);
     }
+
+    public interface INotifiableListenerCollection<T> : IListenerCollection<T>
+    {
+        void NotifyListeners(T item);
+    }
 }

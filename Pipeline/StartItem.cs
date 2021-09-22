@@ -14,6 +14,7 @@ namespace com.antlersoft.HostedTools.Pipeline
     public class StartItem : EditingSettingDeclarer, IAfterComposition
     {
         ISettingDefinition UserStartItem = new SimpleSettingDefinition("UseStartItem", "Common", "Use a specific start page", null, typeof(bool), "false", false, 0);
+        ISettingDefinition TextEditorDefinition = new PathSettingDefinition("TextEditor", "Common", "Text Editor", false, false, null, "Path to editor to use for text files", "/usr/bin/vim");
         PluginSelectionSettingDefinition _pluginSelectionDefinition;
 
         [Import]
@@ -43,7 +44,7 @@ namespace com.antlersoft.HostedTools.Pipeline
             return result;
         }
 
-        public override IEnumerable<ISettingDefinition> Definitions => new[] { UserStartItem, _pluginSelectionDefinition };
+        public override IEnumerable<ISettingDefinition> Definitions => new[] { UserStartItem, _pluginSelectionDefinition, TextEditorDefinition };
 
         public override IEnumerable<string> KeysToEdit => Definitions.Select(d => d.FullKey());
         public void AfterComposition()

@@ -4,7 +4,7 @@ using com.antlersoft.HostedTools.Framework.Interface;
 
 namespace com.antlersoft.HostedTools.Framework.Model
 {
-    public class ListenerCollection<T> : IListenerCollection<T>
+    public class ListenerCollection<T> : INotifiableListenerCollection<T>
     {
         private readonly HashSet<Action<T>> _listeners = new HashSet<Action<T>>();
  
