@@ -19,4 +19,9 @@
     <Exec Command="copy $(TargetPath) ..\HtGtkHost\bin\$(ConfigurationName)\netcoreapp3.1" />
   </Target>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+
 </Project>

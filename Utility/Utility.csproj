@@ -26,4 +26,9 @@
     <Compile Remove="Testing\FileSystemCloudStorage.cs" />
     <Compile Remove="Testing\PrivateOdsPublisher.cs" />
   </ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+
 </Project>
