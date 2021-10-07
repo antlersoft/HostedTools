@@ -49,6 +49,7 @@ namespace com.antlersoft.HostedTools.Archive.Tool
         public ArchiveTool()
         : base(new MenuItem[] {new MenuItem("Archive", "Archive"), new MenuItem("Archive.ArchiveTool", "Create folder archive from SQL", typeof(ArchiveTool).FullName, "Archive")}, new[] { SqlSources.FullKey(), RepositoryConfigurationJson.FullKey(), RepoFolder.FullKey(), TableSpecs.FullKey(), ArchiveTitle.FullKey()})
         {
+            RepositoryConfigurationJson.InjectImplementation(typeof(IEditablePath), new EditablePath());
         }
         public override void Perform(IWorkMonitor monitor)
         {
@@ -92,6 +93,10 @@ namespace com.antlersoft.HostedTools.Archive.Tool
                     else
                     {
                         table = sr.Schema.GetTable(elements[0], elements[1]);
+                    }
+                    if (table==null)
+                    {
+                        throw new Exception("Table not found for: " + line);
                     }
                 }
                 else
