@@ -37,6 +37,9 @@ namespace com.antlersoft.HostedTools.Archive.Tool
         [ImportMany]
         public IEnumerable<IHtValueSource> ValueSources { get; set; }
 
+        [ImportMany]
+        public IEnumerable<ISpecialColumnValueGetter> ColumnGetters { get; set; }
+
         [Import]
         public IJsonFactory JsonFactory { get; set; }
 
@@ -76,7 +79,7 @@ namespace com.antlersoft.HostedTools.Archive.Tool
             {
                 backgroundable.CanBackground($"{sqlModule.QueryType} Title: {title}");
             }
-            SqlRepository sr = new SqlRepository(config, connectionSource);
+            SqlRepository sr = new SqlRepository(config, connectionSource, new List<ISpecialColumnValueGetter>(ColumnGetters));
             FolderRepository fr = new FolderRepository(repoPath, sr.Schema);
             var cb = new HostedTools.ConditionBuilder.Model.ConditionBuilder();
             ITable table = null;
@@ -161,6 +164,9 @@ namespace com.antlersoft.HostedTools.Archive.Tool
         [Import]
         public IJsonFactory JsonFactory;
 
+        [ImportMany]
+        public IEnumerable<ISpecialColumnValueGetter> ColumnGetters { get; set; }
+
         private WorkMonitorSource _monitorSource = new WorkMonitorSource();
         public LoadArchiveTool()
         : base(new MenuItem("Archive.Load", "Load archive into SQL repository", typeof(LoadArchiveTool).FullName, "Archive"),
@@ -193,7 +199,7 @@ namespace com.antlersoft.HostedTools.Archive.Tool
             {
                 backgroundable.CanBackground($"{sqlModule.QueryType} Title: {title}");
             }
-            SqlRepository sr = new SqlRepository(config, connectionSource);
+            SqlRepository sr = new SqlRepository(config, connectionSource, new List<ISpecialColumnValueGetter>(ColumnGetters));
             FolderRepository fr = new FolderRepository(repoPath, sr.Schema);
             var spec = fr.AvailableArchives().FirstOrDefault(a => a.Title == title);
             if (spec == null)

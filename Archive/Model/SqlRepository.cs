@@ -94,11 +94,13 @@ namespace com.antlersoft.HostedTools.Archive.Model
             }
         }
         private ISqlConnectionSource _connectionSource;
+        private IList<ISpecialColumnValueGetter> _specialColumnValueGetters;
         public ISchema Schema { get; }
 
-        public SqlRepository(SqlRepositoryConfiguration jsonConfiguration, ISqlConnectionSource connectionSource)
+        public SqlRepository(SqlRepositoryConfiguration jsonConfiguration, ISqlConnectionSource connectionSource, IList<ISpecialColumnValueGetter> columnGetters)
         {
             _connectionSource = connectionSource;
+            _specialColumnValueGetters = columnGetters;
             var schemaBuilder = new SchemaBuilder() { JsonConfiguration = jsonConfiguration };
             Schema = BuildSchema(schemaBuilder);
         }
@@ -514,10 +516,10 @@ namespace com.antlersoft.HostedTools.Archive.Model
                 }
             }
             var referencedTable = GetReferencedTable(builder, candidateConstraint.ReferencedTable.Schema, candidateConstraint.ReferencedTable.Name);
-            table.AddConstraint(GetConstraint(candidateConstraint.Name, table, referencedTable, candidateConstraint.LocalColumns, candidateConstraint.ReferencedColumns));
+            table.AddConstraint(GetConstraint(candidateConstraint.Name, table, referencedTable, candidateConstraint.LocalColumns, candidateConstraint.ReferencedColumns, candidateConstraint.SpecialLocalColumnValueGetter));
         }
 
-        private Constraint GetConstraint(string constraintName, ITable localTable, ITable referencedTable, IEnumerable<string> localColumnNames, IEnumerable<string> referencedColumnNames)
+        private Constraint GetConstraint(string constraintName, ITable localTable, ITable referencedTable, IEnumerable<string> localColumnNames, IEnumerable<string> referencedColumnNames, string specialLocalColumnGetterName)
         {
             if (localColumnNames == null || referencedColumnNames == null)
             {
@@ -547,7 +549,17 @@ namespace com.antlersoft.HostedTools.Archive.Model
                 }
                 referencedColumns.Add(new IndexColumn(column));
             }
-            return new Constraint(constraintName, referencedTable, new IndexSpec(tableColumns), new IndexSpec(referencedColumns));
+            var result = new Constraint(constraintName, referencedTable, new IndexSpec(tableColumns), new IndexSpec(referencedColumns));
+            if (specialLocalColumnGetterName != null)
+            {
+                var getter = _specialColumnValueGetters.FirstOrDefault(g => g.Name == specialLocalColumnGetterName);
+                if (getter == null)
+                {
+                    throw new Exception($"No Special Column Value Getter implementation found with name {specialLocalColumnGetterName} for constraint {constraintName ?? "[unnamed"} on {localTable}");
+                }
+                result.InjectImplementation(typeof(ISpecialColumnValueGetter), getter);
+            }
+            return result;
         }
 
         /// <summary>

@@ -15,6 +15,7 @@ namespace com.antlersoft.HostedTools.Archive.Model
     {
         List<SqlArchiveTable> _tables;
         ISqlConnectionSource _getConnection;
+        Dictionary<SqlArchiveTable, List<IHtValue>> _tableCache = new Dictionary<SqlArchiveTable, List<IHtValue>>();
 
         internal SqlArchive(IArchiveSpec spec, ISqlConnectionSource getConnection, List<SqlArchiveTable> tables)
         {
@@ -34,7 +35,26 @@ namespace com.antlersoft.HostedTools.Archive.Model
             {
                 timeoutSeconds = ct.TimeoutSeconds;
             }
-            return SqlUtil.GetRows(_getConnection, archiveTable.GetQuery(_getConnection.Cast<IDistinctHandling>(), _getConnection.Cast<ISqlColumnInfo>()), timeoutSeconds);
+            return SqlUtil.GetRows(_getConnection, archiveTable.GetQuery(this, _getConnection.Cast<IDistinctHandling>(), _getConnection.Cast<ISqlColumnInfo>()), timeoutSeconds);
+        }
+
+        internal IEnumerable<IHtValue> GetCachedRows(SqlArchiveTable table)
+        {
+            lock (_tableCache)
+            {
+                List<IHtValue> cached;
+                if (_tableCache.TryGetValue(table, out cached))
+                {
+                    return cached;
+                }
+            }
+            var result = new List<IHtValue>(GetRows(table.Table));
+
+            lock (_tableCache)
+            {
+                _tableCache[table] = result;
+            }
+            return result;
         }
     }
 }
