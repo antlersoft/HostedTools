@@ -1,8 +1,6 @@
 ﻿using com.antlersoft.HostedTools.Archive.Model.Configuration;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace com.antlersoft.HostedTools.Archive.Model.Serialization
 {
@@ -13,6 +11,8 @@ namespace com.antlersoft.HostedTools.Archive.Model.Serialization
         public int Version { get; set; }
         public List<FolderTableSpec> Tables { get; set; }
         public List<TableReference> TablesInArchive { get; set; }
+
+        public bool UseCompression { get; set; }
 
         public override bool Equals(object obj)
         {
@@ -34,6 +34,11 @@ namespace com.antlersoft.HostedTools.Archive.Model.Serialization
             if (Tables == null && other.Tables == null)
             {
                 return true;
+            }
+
+            if (UseCompression != other.UseCompression)
+            {
+                return false;
             }
 
             var ordered = Tables.OrderBy(a => a);

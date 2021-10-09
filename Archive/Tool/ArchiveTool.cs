@@ -31,8 +31,9 @@ namespace com.antlersoft.HostedTools.Archive.Tool
         internal static ISettingDefinition RepoFolder = new PathSettingDefinition("RepoFolder", "Archive", "Repositiory Folder", true, true);
         internal static ISettingDefinition TableSpecs = new MultiLineSettingDefinition("TableSpecs", "Archive", 8, "Table specs", "Paired lines of table name/expression");
         internal static ISettingDefinition ArchiveTitle = new SimpleSettingDefinition("Title", "Archive", "Title");
+        internal static ISettingDefinition UseCompression = new SimpleSettingDefinition("UseCompression", "Archive", "Use compression", null, typeof(bool), "false", false, 2);
 
-        public IEnumerable<ISettingDefinition> Definitions => new[] { SqlSources, RepositoryConfigurationJson, RepoFolder, TableSpecs, ArchiveTitle };
+        public IEnumerable<ISettingDefinition> Definitions => new[] { SqlSources, RepositoryConfigurationJson, RepoFolder, TableSpecs, ArchiveTitle, UseCompression };
 
         [ImportMany]
         public IEnumerable<IHtValueSource> ValueSources { get; set; }
@@ -50,7 +51,7 @@ namespace com.antlersoft.HostedTools.Archive.Tool
 
         private WorkMonitorSource monitorSource = new WorkMonitorSource();
         public ArchiveTool()
-        : base(new MenuItem[] {new MenuItem("Archive", "Archive"), new MenuItem("Archive.ArchiveTool", "Create folder archive from SQL", typeof(ArchiveTool).FullName, "Archive")}, new[] { SqlSources.FullKey(), RepositoryConfigurationJson.FullKey(), RepoFolder.FullKey(), TableSpecs.FullKey(), ArchiveTitle.FullKey()})
+        : base(new MenuItem[] {new MenuItem("Archive", "Archive"), new MenuItem("Archive.ArchiveTool", "Create folder archive from SQL", typeof(ArchiveTool).FullName, "Archive")}, new[] { SqlSources.FullKey(), RepositoryConfigurationJson.FullKey(), RepoFolder.FullKey(), TableSpecs.FullKey(), ArchiveTitle.FullKey(), UseCompression.FullKey()})
         {
             RepositoryConfigurationJson.InjectImplementation(typeof(IEditablePath), new EditablePath());
         }
@@ -60,6 +61,7 @@ namespace com.antlersoft.HostedTools.Archive.Tool
             var repoPath = RepoFolder.Value<string>(SettingManager);
             var tableSpecs = TableSpecs.Value<string>(SettingManager);
             var title = ArchiveTitle.Value<string>(SettingManager);
+            var useCompression = UseCompression.Value<bool>(SettingManager);
             SqlRepositoryConfiguration config = null;
             using (var reader = new StreamReader(configPath))
             using (var jreader = new JsonTextReader(reader))
@@ -145,7 +147,7 @@ namespace com.antlersoft.HostedTools.Archive.Tool
             {
                 specs.Add(new ArchiveTableSpec(table, null));
             }
-            var archive = sr.GetArchive(new ArchiveSpec(specs, title), monitor);
+            var archive = sr.GetArchive(new ArchiveSpec(specs, title, useCompression), monitor);
             if (token.IsCancellationRequested)
             {
                 return;
