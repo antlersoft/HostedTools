@@ -167,7 +167,8 @@ namespace com.antlersoft.HostedTools.Archive.Model
                 {
                     SchemaName = t.Table.Schema,
                     TableName = t.Table.Name,
-                    FilterExpression = (t.TableFilter as IHtExpressionWithSource)?.ExpressionSource
+                    FilterExpression = (t.TableFilter as IHtExpressionWithSource)?.ExpressionSource,
+                    SqlQuery = t.SqlQuery
                 });
             }
             return fa;

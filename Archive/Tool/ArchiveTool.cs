@@ -17,6 +17,7 @@ using System.ComponentModel.Composition;
 using System.Data.Common;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 
 namespace com.antlersoft.HostedTools.Archive.Tool
@@ -85,6 +86,7 @@ namespace com.antlersoft.HostedTools.Archive.Tool
             FolderRepository fr = new FolderRepository(repoPath, sr.Schema);
             var cb = new HostedTools.ConditionBuilder.Model.ConditionBuilder();
             ITable table = null;
+            StringBuilder sqlBuilder = null;
             var specs = new List<IArchiveTableSpec>();
             foreach (var line in tableSpecs.Split('\n'))
             {
@@ -102,6 +104,33 @@ namespace com.antlersoft.HostedTools.Archive.Tool
                     if (table==null)
                     {
                         throw new Exception("Table not found for: " + line);
+                    }
+                }
+                else if (sqlBuilder != null || line.ToLowerInvariant().StartsWith("select"))
+                {
+                    bool lastLine = false;
+                    int semiIndex = line.LastIndexOf(';');
+                    if (semiIndex >= 0)
+                    {
+                        if (string.IsNullOrWhiteSpace(line.Substring(semiIndex+1)))
+                        {
+                            lastLine = true;
+                        }
+                    }
+                    if (sqlBuilder == null)
+                    {
+                        sqlBuilder = new StringBuilder(line);
+                    }
+                    else
+                    {
+                        sqlBuilder.Append('\n');
+                        sqlBuilder.Append(lastLine ? line.Substring(0, semiIndex) : line);
+                    }
+                    if (lastLine)
+                    {
+                        specs.Add(new ArchiveTableSpec(table, null, null, sqlBuilder.ToString()));
+                        table = null;
+                        sqlBuilder = null;
                     }
                 }
                 else

@@ -17,6 +17,13 @@ namespace com.antlersoft.HostedTools.Archive.Model
         internal List<DependentTable> DependentTables { get; } = new List<DependentTable>();
         internal string GetQuery(SqlArchive archive, IDistinctHandling distinctHandling, ISqlColumnInfo columnInfo)
         {
+            foreach (var t in archive.Spec.TableSpecs)
+            {
+                if (t.Table.Name == Table.Name && t.Table.Schema == Table.Schema && t.SqlQuery != null)
+                {
+                    return t.SqlQuery;
+                }
+            }
             var unionPaths = new List<List<DependentTable>>();
             var start = new List<DependentTable>();
             unionPaths.Add(start);
