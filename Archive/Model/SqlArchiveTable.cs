@@ -1,4 +1,5 @@
-﻿using com.antlersoft.HostedTools.Interface;
+﻿using com.antlersoft.HostedTools.Archive.Interface;
+using com.antlersoft.HostedTools.Interface;
 using com.antlersoft.HostedTools.Sql;
 using com.antlersoft.HostedTools.Sql.Interface;
 using com.antlersoft.HostedTools.Sql.Model;
@@ -14,12 +15,20 @@ namespace com.antlersoft.HostedTools.Archive.Model
         internal ITable Table { get; set; }
         internal IHtExpression Filter { get; set; }
         internal List<DependentTable> DependentTables { get; } = new List<DependentTable>();
-        internal string GetQuery(IDistinctHandling distinctHandling, ISqlColumnInfo columnInfo)
+        internal string GetQuery(SqlArchive archive, IDistinctHandling distinctHandling, ISqlColumnInfo columnInfo)
         {
+            foreach (var t in archive.Spec.TableSpecs)
+            {
+                if (t.Table.Name == Table.Name && t.Table.Schema == Table.Schema && t.SqlQuery != null)
+                {
+                    return t.SqlQuery;
+                }
+            }
             var unionPaths = new List<List<DependentTable>>();
             var start = new List<DependentTable>();
             unionPaths.Add(start);
             AddDistinctPaths(start, unionPaths);
+            /*
             int numberOfPaths = unionPaths.Count;
             var backLinksPerPath = new List<IConstraint>[numberOfPaths];
             for (int i = 0; i<numberOfPaths; i++)
@@ -36,7 +45,8 @@ namespace com.antlersoft.HostedTools.Archive.Model
             }
             int maxCount = backLinksPerPath.Max(bl => bl.Count);
             List<IConstraint> maxConstraints = backLinksPerPath.First(bl => bl.Count == maxCount);
-            unionPaths = unionPaths.Where(p => maxConstraints.All(c => p.Select(dt => dt.Constraint).Contains(c))).ToList();
+            unionPaths = unionPaths.Where(p => maxConstraints.All(c => p.Select(dt => dt.Constraint).Contains(c)) || !p.Any(c => c.ReverseDependency)).ToList();
+            */
             var alias = new TableAlias();
             StringBuilder totalQuery = new StringBuilder();
             foreach (var path in unionPaths)
@@ -45,12 +55,12 @@ namespace com.antlersoft.HostedTools.Archive.Model
                 {
                     totalQuery.Append("\r\nunion\r\n");
                 }
-                totalQuery.Append(SinglePathQuery(distinctHandling, columnInfo, alias, path));
+                totalQuery.Append(SinglePathQuery(archive, distinctHandling, columnInfo, alias, path));
             }
             return totalQuery.ToString();
         }
 
-        private string SinglePathQuery(IDistinctHandling distinctHandling, ISqlColumnInfo columnInfo, TableAlias alias, List<DependentTable> path)
+        private string SinglePathQuery(SqlArchive archive, IDistinctHandling distinctHandling, ISqlColumnInfo columnInfo, TableAlias alias, List<DependentTable> path)
         {
             string myAlias = alias.Next;
             StringBuilder query = new StringBuilder();
@@ -89,32 +99,105 @@ namespace com.antlersoft.HostedTools.Archive.Model
             var currentAlias = myAlias;
             foreach (var dt in path)
             {
-                var prevAlias = currentAlias;
-                currentAlias = alias.Next;
                 int columns = dt.Constraint.LocalColumns.Columns.Count;
-                query.Append($"\r\njoin {dt.ArchiveTable.Table.Schema}.{dt.ArchiveTable.Table.Name} {currentAlias} on ");
-                for (int i = 0; i<columns; i++)
+                if (dt.Constraint.Cast<ISpecialColumnValueGetter>() is ISpecialColumnValueGetter getter)
                 {
-                    if (i > 0)
+                    if (columns != 1)
                     {
-                        query.Append(" and ");
+                        throw new Exception("No support for multi-column special value in constraint");
                     }
                     if (dt.ReverseDependency)
                     {
-                        query.Append($"{prevAlias}.{columnInfo.GetColumnReference(dt.Constraint.LocalColumns.Columns[i].Field)}={currentAlias}.{columnInfo.GetColumnReference(dt.Constraint.ReferencedColumns.Columns[i].Field)}");
+                        throw new Exception("No support for reverse dependency to special column get value");
                     }
-                    else
+                    var inValues = new HashSet<string>();
+                    bool allNumeric = true;
+                    foreach (var row in archive.GetCachedRows(dt.ArchiveTable))
                     {
-                        query.Append($"{prevAlias}.{columnInfo.GetColumnReference(dt.Constraint.ReferencedColumns.Columns[i].Field)}={currentAlias}.{columnInfo.GetColumnReference(dt.Constraint.LocalColumns.Columns[i].Field)}");
+                        foreach (var rowValue in getter.GetColumnValueSets(dt.Constraint.LocalColumns, row))
+                        {
+                            foreach (var v in rowValue.Values)
+                            {
+                                if (! v.IsLong && ! v.IsDouble)
+                                {
+                                    allNumeric = false;
+                                }
+                                inValues.Add(v.AsString);
+                            }
+                        }
                     }
-                }
-                if (dt.ArchiveTable.Filter != null)
-                {
                     if (whereBuilder.Length > 0)
                     {
                         whereBuilder.Append("\r\nand ");
                     }
-                    whereBuilder.Append(SqlRepository.GetFilterText(currentAlias, dt.ArchiveTable.Table, columnInfo, dt.ArchiveTable.Filter));
+                    if (inValues.Count == 0)
+                    {
+                        whereBuilder.Append("0 = 1");
+                    }
+                    else
+                    {
+                        whereBuilder.Append($"{currentAlias}.{dt.Constraint.ReferencedColumns.Columns[0].Field.Name} in (");
+                        bool first = true;
+                        foreach (var v in inValues)
+                        {
+                            if (first)
+                            {
+                                first = false;
+                            }
+                            else
+                            {
+                                whereBuilder.Append(',');
+                            }
+                            if (! allNumeric)
+                            {
+                                whereBuilder.Append('\'');
+                                foreach (char c in v)
+                                {
+                                    if (c == '\'')
+                                    {
+                                        whereBuilder.Append('\'');
+                                    }
+                                    whereBuilder.Append(c);
+                                }
+                                whereBuilder.Append('\'');
+                            }
+                            else
+                            {
+                                whereBuilder.Append(v);
+                            }
+                        }
+                        whereBuilder.Append(')');
+                    }
+                    break; // Don't consider further dt's
+                }
+                else
+                {
+                    var prevAlias = currentAlias;
+                    currentAlias = alias.Next;
+                    query.Append($"\r\njoin {dt.ArchiveTable.Table.Schema}.{dt.ArchiveTable.Table.Name} {currentAlias} on ");
+                    for (int i = 0; i < columns; i++)
+                    {
+                        if (i > 0)
+                        {
+                            query.Append(" and ");
+                        }
+                        if (dt.ReverseDependency)
+                        {
+                            query.Append($"{prevAlias}.{columnInfo.GetColumnReference(dt.Constraint.LocalColumns.Columns[i].Field)}={currentAlias}.{columnInfo.GetColumnReference(dt.Constraint.ReferencedColumns.Columns[i].Field)}");
+                        }
+                        else
+                        {
+                            query.Append($"{prevAlias}.{columnInfo.GetColumnReference(dt.Constraint.ReferencedColumns.Columns[i].Field)}={currentAlias}.{columnInfo.GetColumnReference(dt.Constraint.LocalColumns.Columns[i].Field)}");
+                        }
+                    }
+                    if (dt.ArchiveTable.Filter != null)
+                    {
+                        if (whereBuilder.Length > 0)
+                        {
+                            whereBuilder.Append("\r\nand ");
+                        }
+                        whereBuilder.Append(SqlRepository.GetFilterText(currentAlias, dt.ArchiveTable.Table, columnInfo, dt.ArchiveTable.Filter));
+                    }
                 }
             }
             if (whereBuilder.Length > 0)

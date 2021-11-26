@@ -51,6 +51,11 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PythonIntegration\PythonIntegration.csproj">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+
       <Project>{0d932ab3-a0ac-4cae-8d7e-6ec046a76ef6}</Project>
       <Name>PythonIntegration</Name>
     </ProjectReference>
@@ -60,4 +65,9 @@
     <PackageReference Include="System.ComponentModel.Composition" Version="5.0.0" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
   </ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+
 </Project>

@@ -41,4 +41,9 @@
   <ItemGroup>
     <ProjectReference Include="..\Framework.Wpf\Framework.Wpf.csproj" />
   </ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+
 </Project>

@@ -52,10 +52,9 @@ namespace com.antlersoft.HostedTools.Pipeline
             }
             int result = -1;
             await Task.WhenAll(tasks).ConfigureAwait(false);
-            if (!token.IsCancellationRequested)
+            while (! process.HasExited && !token.IsCancellationRequested)
             {
-                process.WaitForExit();
-                result = process.ExitCode;
+                await Task.Delay(100, token).ConfigureAwait(false);
             }
             return result;
         }
@@ -75,6 +74,7 @@ namespace com.antlersoft.HostedTools.Pipeline
                 }
                 else
                 {
+                    process.StandardInput.Close();
                     break;
                 }
             }

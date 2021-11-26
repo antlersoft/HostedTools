@@ -9,5 +9,7 @@ namespace com.antlersoft.HostedTools.Archive.Interface
     {
         string Title { get; }
         IList<IArchiveTableSpec> TableSpecs { get; }
+
+        bool UseCompression { get; }
     }
 }

@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using com.antlersoft.HostedTools.Framework.Interface;
 
 namespace com.antlersoft.HostedTools.Sql.Interface
 {
-    public interface IConstraint
+    public interface IConstraint : IHostedObject
     {
         string Name { get; }
         ITable ReferencedTable { get; }

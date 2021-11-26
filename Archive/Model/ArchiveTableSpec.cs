@@ -9,16 +9,22 @@ namespace com.antlersoft.HostedTools.Archive.Model
 {
     public class ArchiveTableSpec : HostedObjectBase, IArchiveTableSpec
     {
-        public ArchiveTableSpec(ITable table, IHtExpression filter, IEnumerable<ITable> implicitReferences=null)
+        public ArchiveTableSpec(ITable table, IHtExpression filter, IEnumerable<ITable> implicitReferences=null, string sqlQuery = null)
         {
             Table = table;
             TableFilter = filter;
             ImplicitReferences = implicitReferences == null ? new List<ITable>() : implicitReferences.ToList();
+            SqlQuery = sqlQuery;            
         }
         public ITable Table { get; }
 
         public IHtExpression TableFilter { get; }
 
         public IList<ITable> ImplicitReferences { get; }
+
+        /// <summary>
+        /// If this is set, retrieve data for this table with this query regardless of the repository configuration
+        /// </summary>
+        public string SqlQuery { get; }
     }
 }

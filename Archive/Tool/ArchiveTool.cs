@@ -17,6 +17,7 @@ using System.ComponentModel.Composition;
 using System.Data.Common;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 
 namespace com.antlersoft.HostedTools.Archive.Tool
@@ -31,11 +32,15 @@ namespace com.antlersoft.HostedTools.Archive.Tool
         internal static ISettingDefinition RepoFolder = new PathSettingDefinition("RepoFolder", "Archive", "Repositiory Folder", true, true);
         internal static ISettingDefinition TableSpecs = new MultiLineSettingDefinition("TableSpecs", "Archive", 8, "Table specs", "Paired lines of table name/expression");
         internal static ISettingDefinition ArchiveTitle = new SimpleSettingDefinition("Title", "Archive", "Title");
+        internal static ISettingDefinition UseCompression = new SimpleSettingDefinition("UseCompression", "Archive", "Use compression", null, typeof(bool), "false", false, 2);
 
-        public IEnumerable<ISettingDefinition> Definitions => new[] { SqlSources, RepositoryConfigurationJson, RepoFolder, TableSpecs, ArchiveTitle };
+        public IEnumerable<ISettingDefinition> Definitions => new[] { SqlSources, RepositoryConfigurationJson, RepoFolder, TableSpecs, ArchiveTitle, UseCompression };
 
         [ImportMany]
         public IEnumerable<IHtValueSource> ValueSources { get; set; }
+
+        [ImportMany]
+        public IEnumerable<ISpecialColumnValueGetter> ColumnGetters { get; set; }
 
         [Import]
         public IJsonFactory JsonFactory { get; set; }
@@ -47,8 +52,9 @@ namespace com.antlersoft.HostedTools.Archive.Tool
 
         private WorkMonitorSource monitorSource = new WorkMonitorSource();
         public ArchiveTool()
-        : base(new MenuItem[] {new MenuItem("Archive", "Archive"), new MenuItem("Archive.ArchiveTool", "Create folder archive from SQL", typeof(ArchiveTool).FullName, "Archive")}, new[] { SqlSources.FullKey(), RepositoryConfigurationJson.FullKey(), RepoFolder.FullKey(), TableSpecs.FullKey(), ArchiveTitle.FullKey()})
+        : base(new MenuItem[] {new MenuItem("Archive", "Archive"), new MenuItem("Archive.ArchiveTool", "Create folder archive from SQL", typeof(ArchiveTool).FullName, "Archive")}, new[] { SqlSources.FullKey(), RepositoryConfigurationJson.FullKey(), RepoFolder.FullKey(), TableSpecs.FullKey(), ArchiveTitle.FullKey(), UseCompression.FullKey()})
         {
+            RepositoryConfigurationJson.InjectImplementation(typeof(IEditablePath), new EditablePath());
         }
         public override void Perform(IWorkMonitor monitor)
         {
@@ -56,6 +62,7 @@ namespace com.antlersoft.HostedTools.Archive.Tool
             var repoPath = RepoFolder.Value<string>(SettingManager);
             var tableSpecs = TableSpecs.Value<string>(SettingManager);
             var title = ArchiveTitle.Value<string>(SettingManager);
+            var useCompression = UseCompression.Value<bool>(SettingManager);
             SqlRepositoryConfiguration config = null;
             using (var reader = new StreamReader(configPath))
             using (var jreader = new JsonTextReader(reader))
@@ -75,10 +82,11 @@ namespace com.antlersoft.HostedTools.Archive.Tool
             {
                 backgroundable.CanBackground($"{sqlModule.QueryType} Title: {title}");
             }
-            SqlRepository sr = new SqlRepository(config, connectionSource);
+            SqlRepository sr = new SqlRepository(config, connectionSource, new List<ISpecialColumnValueGetter>(ColumnGetters));
             FolderRepository fr = new FolderRepository(repoPath, sr.Schema);
             var cb = new HostedTools.ConditionBuilder.Model.ConditionBuilder();
             ITable table = null;
+            StringBuilder sqlBuilder = null;
             var specs = new List<IArchiveTableSpec>();
             foreach (var line in tableSpecs.Split('\n'))
             {
@@ -92,6 +100,37 @@ namespace com.antlersoft.HostedTools.Archive.Tool
                     else
                     {
                         table = sr.Schema.GetTable(elements[0], elements[1]);
+                    }
+                    if (table==null)
+                    {
+                        throw new Exception("Table not found for: " + line);
+                    }
+                }
+                else if (sqlBuilder != null || line.ToLowerInvariant().StartsWith("select"))
+                {
+                    bool lastLine = false;
+                    int semiIndex = line.LastIndexOf(';');
+                    if (semiIndex >= 0)
+                    {
+                        if (string.IsNullOrWhiteSpace(line.Substring(semiIndex+1)))
+                        {
+                            lastLine = true;
+                        }
+                    }
+                    if (sqlBuilder == null)
+                    {
+                        sqlBuilder = new StringBuilder(line);
+                    }
+                    else
+                    {
+                        sqlBuilder.Append('\n');
+                        sqlBuilder.Append(lastLine ? line.Substring(0, semiIndex) : line);
+                    }
+                    if (lastLine)
+                    {
+                        specs.Add(new ArchiveTableSpec(table, null, null, sqlBuilder.ToString()));
+                        table = null;
+                        sqlBuilder = null;
                     }
                 }
                 else
@@ -137,7 +176,7 @@ namespace com.antlersoft.HostedTools.Archive.Tool
             {
                 specs.Add(new ArchiveTableSpec(table, null));
             }
-            var archive = sr.GetArchive(new ArchiveSpec(specs, title), monitor);
+            var archive = sr.GetArchive(new ArchiveSpec(specs, title, useCompression), monitor);
             if (token.IsCancellationRequested)
             {
                 return;
@@ -155,6 +194,9 @@ namespace com.antlersoft.HostedTools.Archive.Tool
     {
         [Import]
         public IJsonFactory JsonFactory;
+
+        [ImportMany]
+        public IEnumerable<ISpecialColumnValueGetter> ColumnGetters { get; set; }
 
         private WorkMonitorSource _monitorSource = new WorkMonitorSource();
         public LoadArchiveTool()
@@ -188,7 +230,7 @@ namespace com.antlersoft.HostedTools.Archive.Tool
             {
                 backgroundable.CanBackground($"{sqlModule.QueryType} Title: {title}");
             }
-            SqlRepository sr = new SqlRepository(config, connectionSource);
+            SqlRepository sr = new SqlRepository(config, connectionSource, new List<ISpecialColumnValueGetter>(ColumnGetters));
             FolderRepository fr = new FolderRepository(repoPath, sr.Schema);
             var spec = fr.AvailableArchives().FirstOrDefault(a => a.Title == title);
             if (spec == null)

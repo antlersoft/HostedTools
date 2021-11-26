@@ -9,6 +9,7 @@ namespace com.antlersoft.HostedTools.Archive.Model.Serialization
         public string SchemaName { get; set; }
         public string TableName { get; set; }
         public string FilterExpression { get; set; }
+        public string SqlQuery { get; set; }
 
         public override bool Equals(object obj)
         {
@@ -21,7 +22,7 @@ namespace com.antlersoft.HostedTools.Archive.Model.Serialization
 
         public override int GetHashCode()
         {
-            return (SchemaName?.GetHashCode() ?? 0) | (TableName?.GetHashCode() ?? 0) | (FilterExpression?.GetHashCode() ?? 0);
+            return (SchemaName?.GetHashCode() ?? 0) | (TableName?.GetHashCode() ?? 0) | (FilterExpression?.GetHashCode() ?? 0) | (SqlQuery?.GetHashCode() ?? 0);
         }
 
         public int CompareTo(FolderTableSpec other)
@@ -34,6 +35,10 @@ namespace com.antlersoft.HostedTools.Archive.Model.Serialization
             if (diff == 0)
             {
                 diff = FilterExpression?.CompareTo(other.FilterExpression) ?? (other.FilterExpression == null ? 0 : -1);
+            }
+            if (diff == 0)
+            {
+                diff = SqlQuery?.CompareTo(other.SqlQuery) ?? (other.SqlQuery == null ? 0 : -1);
             }
             return diff;
         }

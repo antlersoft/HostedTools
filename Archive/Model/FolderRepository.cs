@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using com.antlersoft.HostedTools.Archive.Interface;
@@ -9,6 +10,7 @@ using com.antlersoft.HostedTools.Archive.Model.Serialization;
 using com.antlersoft.HostedTools.ConditionBuilder.Interface;
 using com.antlersoft.HostedTools.Framework.Interface.Plugin;
 using com.antlersoft.HostedTools.Framework.Model;
+using com.antlersoft.HostedTools.Interface;
 using com.antlersoft.HostedTools.Serialization;
 using com.antlersoft.HostedTools.Sql.Interface;
 using Newtonsoft.Json;
@@ -24,6 +26,7 @@ namespace com.antlersoft.HostedTools.Archive.Model
         const string SpecFile = "Spec.json";
         const string SchemaFolder = "Schemas";
         const string JsonSuffix = ".json";
+        internal const string GzipSuffix = ".gz";
         const int FolderArchiveVersion = 0;
         const string EmptySchema = "{Empty}";
         static char[] _invalid = Path.GetInvalidFileNameChars();
@@ -82,19 +85,38 @@ namespace com.antlersoft.HostedTools.Archive.Model
             foreach (var ts in archive.Tables)
             {
                 var tablePath = GetTablePath(ts, archiveFolderPath);
-                using (StreamWriter s = new StreamWriter(tablePath))
-                using (JsonTextWriter w = new JsonTextWriter(s))
+                if (archive.Spec.UseCompression)
                 {
-                    var serializer = _jsonFactory.GetSerializer(true);
-                    w.WriteStartArray();
-                    foreach (var row in archive.GetRows(ts))
+                    using (var fs = new FileStream(tablePath + GzipSuffix, FileMode.Create))
+                    using (var gs = new GZipStream(fs, CompressionMode.Compress))
                     {
-                        w.WriteWhitespace("\n");
-                        serializer.Serialize(w, row);
+                        WriteTableToStream(archive.GetRows(ts), gs);
                     }
-                    w.WriteEndArray();
-                    w.WriteWhitespace("\n");
                 }
+                else
+                {
+                    using (var fs = new FileStream(tablePath, FileMode.Create))
+                    {
+                        WriteTableToStream(archive.GetRows(ts), fs);
+                    }
+                }
+            }
+        }
+
+        private void WriteTableToStream(IEnumerable<IHtValue> rows, Stream stream)
+        {
+            using (StreamWriter s = new StreamWriter(stream))
+            using (JsonTextWriter w = new JsonTextWriter(s))
+            {
+                var serializer = _jsonFactory.GetSerializer(true);
+                w.WriteStartArray();
+                foreach (var row in rows)
+                {
+                    w.WriteWhitespace("\n");
+                    serializer.Serialize(w, row);
+                }
+                w.WriteEndArray();
+                w.WriteWhitespace("\n");
             }
         }
 
@@ -137,6 +159,7 @@ namespace com.antlersoft.HostedTools.Archive.Model
             fa.Version = FolderArchiveVersion;
             fa.Title = source.Title;
             fa.Tables = new List<FolderTableSpec>();
+            fa.UseCompression = source.UseCompression;
 
             foreach (var t in source.TableSpecs)
             {
@@ -144,7 +167,8 @@ namespace com.antlersoft.HostedTools.Archive.Model
                 {
                     SchemaName = t.Table.Schema,
                     TableName = t.Table.Name,
-                    FilterExpression = (t.TableFilter as IHtExpressionWithSource)?.ExpressionSource
+                    FilterExpression = (t.TableFilter as IHtExpressionWithSource)?.ExpressionSource,
+                    SqlQuery = t.SqlQuery
                 });
             }
             return fa;
@@ -160,7 +184,7 @@ namespace com.antlersoft.HostedTools.Archive.Model
                     throw new InvalidOperationException($"Couldn't find table in schema matching {t.SchemaName}.{t.TableName}");
                 }
                 return new ArchiveTableSpec(table, new ExpressionWithSource(_builder, t.FilterExpression));
-            }).ToList(), source.Title);
+            }).ToList(), source.Title, source.UseCompression);
         }
 
         private static string EscapePath(string s)

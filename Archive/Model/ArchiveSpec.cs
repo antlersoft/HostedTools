@@ -8,13 +8,16 @@ namespace com.antlersoft.HostedTools.Archive.Model
 {
     public class ArchiveSpec : HostedObjectBase, IArchiveSpec
     {
-        public ArchiveSpec(IEnumerable<IArchiveTableSpec> tableSpecs, string title = null)
+        public ArchiveSpec(IEnumerable<IArchiveTableSpec> tableSpecs, string title = null, bool useCompression = false)
         {
             TableSpecs = tableSpecs.ToList();
             Title = title ?? Guid.NewGuid().ToString();
+            UseCompression = useCompression;
         }
         public IList<IArchiveTableSpec> TableSpecs { get; }
 
         public string Title { get; }
+
+        public bool UseCompression { get; set; }
     }
 }

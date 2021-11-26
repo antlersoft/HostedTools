@@ -12,7 +12,7 @@ namespace com.antlersoft.HostedTools.Sql.Model
         IIndexSpec _primaryKey;
         List<IField> _forceNullOnInsert = new List<IField>();
 
-        public Table(string schemaName, string tableName, bool requiredColumnListInSelect=false)
+        public Table(string schemaName, string tableName, bool requiredColumnListInSelect = false)
         {
             Name = tableName;
             Schema = schemaName;
@@ -43,7 +43,14 @@ namespace com.antlersoft.HostedTools.Sql.Model
 
         public IList<IField> ForceNullOnInsert => _forceNullOnInsert;
 
-        public IField this[string i] => _fields[i];
+        public IField this[string i] { get {
+                IField result;
+                if (_fields.TryGetValue(i, out result))
+                {
+                    return result;
+                }
+                return null;
+            } }
 
         public string Name { get; private set; }
 

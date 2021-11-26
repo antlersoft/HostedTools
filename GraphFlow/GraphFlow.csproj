@@ -11,4 +11,9 @@
     <PackageReference Include="com.antlersoft.HostedTools.Interface" Version="2.0.0.1" />
   </ItemGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+
 </Project>
