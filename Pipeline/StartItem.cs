@@ -26,22 +26,12 @@ namespace com.antlersoft.HostedTools.Pipeline
         [Import]
         public ISettingManager SettingManager { get; set; }
 
-        public Dictionary<IPlugin, string> _keyToDescriptionDictionary = new Dictionary<IPlugin, string>();
+        private MenuIdentifiedPluginDescription _pluginDescription = new MenuIdentifiedPluginDescription();
 
         public StartItem()
         : base(new [] {new MenuItem("Common.StartItem", "Set Start Item", typeof(StartItem).FullName, "Common")}, new ISettingDefinition[0])
         {
-            _pluginSelectionDefinition = new PluginSelectionSettingDefinition(GetPluginDescription, "StartItem", "Common", "Set item to go to at start-up");
-        }
-
-        public string GetPluginDescription(IPlugin plugin)
-        {
-            string result;
-            if (! _keyToDescriptionDictionary.TryGetValue(plugin, out result))
-            {
-                result = string.Empty;
-            }
-            return result;
+            _pluginSelectionDefinition = new PluginSelectionSettingDefinition(_pluginDescription.GetPluginDescription, "StartItem", "Common", "Set item to go to at start-up");
         }
 
         public override IEnumerable<ISettingDefinition> Definitions => new[] { UserStartItem, _pluginSelectionDefinition, TextEditorDefinition };
@@ -49,27 +39,7 @@ namespace com.antlersoft.HostedTools.Pipeline
         public override IEnumerable<string> KeysToEdit => Definitions.Select(d => d.FullKey());
         public void AfterComposition()
         {
-            var actions = new Dictionary<string,IMenuItem>();
-            var items = MenuManager.GetChildren(null).ToList();
-            for (int i = 0; i<items.Count; i++)
-            {
-                var item = items[i];
-                if (! string.IsNullOrEmpty(item.ActionId))
-                {
-                    actions[item.ActionId] = item;
-                }
-                items.AddRange(MenuManager.GetChildren(item));
-            }
-            foreach (var plugins in PluginManager.Plugins)
-            {
-                IMenuItem item;
-                if (actions.TryGetValue(plugins.Name, out item))
-                {
-                    _keyToDescriptionDictionary[plugins] = item.GetBreadCrumbString(MenuManager);   
-                }
-            }
-            var pluginList = _keyToDescriptionDictionary.Keys.OrderBy(p => _keyToDescriptionDictionary[p]).ToList();
-            _pluginSelectionDefinition.SetPlugins(pluginList, SettingManager);
+            _pluginDescription.AfterComposition(MenuManager,SettingManager,PluginManager.Plugins, _pluginSelectionDefinition);
         }
     }
 }
