@@ -18,6 +18,16 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
         {
             _buffer = new TextBuffer(new TextTagTable());
             _textBox = new TextView(_buffer);
+            _textBox.PopulatePopup += (object source, PopulatePopupArgs args) => {
+                if (args.Popup is Menu menu)
+                {
+                    foreach (var item in GetPopupMenuItems())
+                    {
+                        item.Visible = true;
+                        menu.Add(item);
+                    }
+                }
+            };
             //_textBox.VerticalScrollBarVisibility = ScrollBarVisibility.Visible;
             // _textBox.HorizontalScrollBarVisibility = ScrollBarVisibility.Visible;
             _buffer.Changed += (obj, args) => SetNeedsSave(true);

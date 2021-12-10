@@ -104,7 +104,14 @@ namespace com.antlersoft.HostedTools.Pipeline
             }
             else
             {
-                existing = JsonConvert.DeserializeObject<List<PluginState>>(existingStr);
+                try
+                {
+                    existing = JsonConvert.DeserializeObject<List<PluginState>>(existingStr);
+                }
+                catch (JsonException)
+                {
+                    existing = new List<PluginState>();
+                }
             }
             return existing;
         }
