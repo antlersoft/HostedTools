@@ -10,6 +10,16 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
         public TextEntryView()
         {
             _element = new Entry();
+            _element.PopulatePopup += (object source, PopulatePopupArgs args) => {
+                if (args.Popup is Menu menu)
+                {
+                    foreach (var item in GetPopupMenuItems())
+                    {
+                        item.Visible = true;
+                        menu.Add(item);
+                    }
+                }
+            };
             SetNeedsSave(true);
         }
 
