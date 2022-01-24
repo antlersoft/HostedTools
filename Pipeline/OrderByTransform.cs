@@ -46,6 +46,10 @@ namespace com.antlersoft.HostedTools.Pipeline
             {
                 diff = x.AsDouble > y.AsDouble ? 1 : (y.AsDouble > x.AsDouble ? -1 : 0);
             }
+            else if (x.IsLong && y.IsLong)
+            {
+                diff = x.AsLong > y.AsLong ? 1 : (y.AsLong > x.AsLong ? -1 : 0);
+            }
             else
             {
                 diff = String.CompareOrdinal(x.AsString, y.AsString);
