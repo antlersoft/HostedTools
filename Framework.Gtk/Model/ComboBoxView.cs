@@ -5,8 +5,8 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
 {
     class ComboBoxTextWithEntry : ComboBoxText
     {
-        internal ComboBoxTextWithEntry()
-        : base(true)
+        internal ComboBoxTextWithEntry(bool withEntry)
+        : base(withEntry)
         { }
     }
     internal class ComboBoxView : SettingViewBase
@@ -14,8 +14,14 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
         protected readonly ComboBoxText _element;
 
         public ComboBoxView()
+        : this(true)
         {
-            _element = new ComboBoxTextWithEntry();
+
+        }
+
+        protected ComboBoxView(bool withEntry)
+        {
+            _element = new ComboBoxTextWithEntry(withEntry);
             //_element.IsEditable = true;
             //_element.IsReadOnly = false;
             _element.EditingDone += delegate { CheckForChange(); };
