@@ -1,6 +1,7 @@
 ﻿
 using com.antlersoft.HostedTools.Interface;
 using com.antlersoft.HostedTools.Interface.Expressions;
+using com.antlersoft.HostedTools.Serialization;
 
 namespace com.antlersoft.HostedTools.ConditionBuilder.Model
 {
@@ -20,7 +21,7 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model
 
         public IHtValue Evaluate(IHtValue data)
         {
-            return data[_name];
+            return data[_name]??new JsonHtValue();
         }
     }
 }

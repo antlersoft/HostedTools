@@ -1,4 +1,5 @@
 ﻿using com.antlersoft.HostedTools.Interface;
+using com.antlersoft.HostedTools.Serialization;
 
 namespace com.antlersoft.HostedTools.ConditionBuilder.Model
 {
@@ -16,11 +17,20 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model
         {
             IHtValue subscript = _subscript.Evaluate(data);
             IHtValue subscripted = _subscripted.Evaluate(data);
+            IHtValue result;
             if (subscript.IsDouble)
             {
-                return subscripted[(int) subscript.AsDouble];
+                result = subscripted[(int)subscript.AsDouble];
             }
-            return subscripted[subscript.AsString];
+            else
+            {
+                result = subscripted[subscript.AsString];
+            }
+            if (result == null)
+            {
+                result = new JsonHtValue();
+            }
+            return result;
         }
     }
 }
