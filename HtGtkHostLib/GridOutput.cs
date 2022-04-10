@@ -1,22 +1,66 @@
 ﻿using com.antlersoft.HostedTools.Framework.Interface.UI;
 using System.Collections.Generic;
 using Gtk;
+using Gdk;
 
 namespace com.antlersoft.HostedTools.GtkHostLib
 {
+    class TreeViewWithButton : TreeView
+    {
+        internal delegate void TreeViewButtonHandler(EventButton evnt);
+        internal event TreeViewButtonHandler ButtonPressedOnTree;
+
+        protected override bool OnButtonPressEvent(EventButton evnt)
+        {
+            var result = base.OnButtonPressEvent(evnt);
+            ButtonPressedOnTree.Invoke(evnt);
+            return result;
+        }
+    }
     class GridOutput : ScrolledWindow, IGridOutput
     {
         ListStore _model = new ListStore(typeof(Dictionary<string,object>));
         Dictionary<string,TreeViewColumn> columns = new Dictionary<string, TreeViewColumn>();
         CellRenderer _renderer = new CellRendererText();
-        TreeView _tree = new TreeView();
-
+        TreeViewWithButton _tree = new TreeViewWithButton();
+        Menu _menu;
         internal GridOutput()
         {
             _tree.Model = _model;
             this.Add(_tree);
             SetSizeRequest(600, 200);
+            _menu = new Menu();
+            var copy = new Gtk.MenuItem("Copy");
+            copy.Activated += (sender, e) =>
+            {
+                System.Console.WriteLine("Copy selected");
+                Gtk.Clipboard clipboard = Gtk.Clipboard.Get(Gdk.Atom.Intern("CLIPBOARD", false));
+
+                var selection = _tree.Selection;
+                selection.SelectedForeach((model, path, iter) => {
+                    var row = model.GetValue(iter, 0) as Dictionary<string, object>;
+                    if (row != null)
+                    {
+                        foreach (var v in row.Values)
+                        {
+                            clipboard.Text = v.ToString();
+                        }
+                    }
+                });
+            };
+            _menu.Name = "Context menu";
+            _menu.Add(copy);
+            _tree.ButtonPressedOnTree += (btn) =>
+            {
+                if (btn.Button == 3)
+                {
+                    _menu.ShowAll();
+                    _menu.Popup(null, null, null, btn.Button, btn.Time);
+                }
+            };
         }
+
+        
 
         public void AddRow(Dictionary<string, object> row)
         {
