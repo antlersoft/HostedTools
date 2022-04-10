@@ -244,7 +244,7 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model.Internal
                     ValueSym
                     ),
                  new FunctorParseRule(
-                    (t, pr) => new GoalResult(pr[1].Node, pr[2].NextTokenOffset),
+                    (t, pr) => new GoalResult(new ParenthesizedNode(pr[1].Node), pr[2].NextTokenOffset),
                     LeftParen, ExprSym, RightParen
                     ),
                  new FunctorParseRule(
