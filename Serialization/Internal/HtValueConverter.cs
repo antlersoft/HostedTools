@@ -3,6 +3,7 @@ using System;
 using Newtonsoft.Json;
 
 using com.antlersoft.HostedTools.Interface;
+using System.Numerics;
 
 namespace com.antlersoft.HostedTools.Serialization.Internal
 {
@@ -50,7 +51,30 @@ namespace com.antlersoft.HostedTools.Serialization.Internal
                     toRead.AsString = (string)reader.Value;
                     break;
                 case JsonToken.Integer:
-                    toRead.AsLong = (long)reader.Value;
+                    if (reader.Value is BigInteger bi)
+                    {
+                        try
+                        {
+                            var s = bi.ToString();
+                            long l;
+                            if (long.TryParse(s, out l))
+                            {
+                                toRead.AsLong = l;
+                            }
+                            else
+                            {
+                                toRead.AsLong = long.MaxValue;
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            toRead.AsLong = long.MaxValue;
+                        }
+                    }
+                    else
+                    {
+                        toRead.AsLong = (long)reader.Value;
+                    }
                     break;
                 case JsonToken.Null:
                     break;
