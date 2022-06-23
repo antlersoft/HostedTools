@@ -19,7 +19,7 @@
   <ItemGroup>
     <PackageReference Include="com.antlersoft.HostedTools.Interface" Version="2.0.0.1" />
     <PackageReference Include="Newtonsoft.Json">
-      <Version>12.0.3</Version>
+      <Version>13.0.1</Version>
     </PackageReference>
   </ItemGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
