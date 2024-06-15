@@ -87,9 +87,11 @@ namespace com.antlersoft.HostedTools.Pipeline
 
             if (toFilter.MoveNext() && outerRows.MoveNext())
             {
+                var leftKey = filteredKey.Evaluate(toFilter.Current);
+                var rightKey = fileKey.Evaluate(outerRows.Current);
                 while (true)
                 {
-                    var comparison = _comparer.Compare(filteredKey.Evaluate(toFilter.Current), fileKey.Evaluate(outerRows.Current));
+                    var comparison = _comparer.Compare(leftKey, rightKey);
                     if (comparison == 0)
                     {
                         IHtValue rowResult = null;
@@ -125,10 +127,22 @@ namespace com.antlersoft.HostedTools.Pipeline
                                 rowResult["right"] = outerRows.Current;
                                 rowResult = projectionExpression.Evaluate(rowResult);
                                 break;
-                         }
+                        }
                         yield return rowResult;
+                        if (jt == JoinTypes.FilterOnly || _comparer.Compare(rightKey, fileKey.Evaluate(outerRows.Current))!=0) {
+                            if (! toFilter.MoveNext()) {
+                                break;
+                            }
+                            leftKey=filteredKey.Evaluate(toFilter.Current);
+                        } else if (outerRows.MoveNext()) {
+                            rightKey=fileKey.Evaluate(outerRows.Current);
+                        } else if (toFilter.MoveNext()) {
+                            leftKey=filteredKey.Evaluate(toFilter.Current);
+                        } else {
+                            break;
+                        }
                     }
-                    if (comparison <= 0)
+                    else if (comparison < 0)
                     {
                         if (! toFilter.MoveNext())
                         {
