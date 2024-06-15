@@ -13,7 +13,7 @@
       "request": "launch",
       "preLaunchTask": "build",
       "OS-COMMENT4": "If you have changed target frameworks, make sure to update the program path.",
-      "program": "${workspaceFolder}/HtGtkHost/bin/Debug/netcoreapp3.1/HtGtkHost.dll",
+      "program": "${workspaceFolder}/HtGtkHost/bin/Debug/netcoreapp7.0/HtGtkHost.dll",
       "args": [],
       "cwd": "${workspaceFolder}/HtGtkHost",
       "OS-COMMENT5": "For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console",
