@@ -148,6 +148,7 @@ namespace com.antlersoft.HostedTools.Pipeline
                         {
                             break;
                         }
+                        leftKey=filteredKey.Evaluate(toFilter.Current);
                     }
                     else
                     {
@@ -155,6 +156,7 @@ namespace com.antlersoft.HostedTools.Pipeline
                         {
                             break;
                         }
+                        rightKey=fileKey.Evaluate(outerRows.Current);
                     }
                 }
             }
