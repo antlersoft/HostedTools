@@ -26,6 +26,7 @@
     <PackageReference Include="com.antlersoft.HostedTools.Serialization">
       <Version>2.0.0.1</Version>
     </PackageReference>
+    <PackageReference Include="CsvHelper" Version="33.0.1" />
     <PackageReference Include="Newtonsoft.Json">
       <Version>12.0.3</Version>
     </PackageReference>
