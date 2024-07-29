@@ -2,9 +2,17 @@
 using System.Collections.Generic;
 using Gtk;
 using Gdk;
+using System;
+using System.Xml.XPath;
+using Newtonsoft.Json;
 
 namespace com.antlersoft.HostedTools.GtkHostLib
 {
+    class TickHolder
+    {
+        public long Ticks;
+    }
+
     class TreeViewWithButton : TreeView
     {
         internal delegate void TreeViewButtonHandler(EventButton evnt);
@@ -93,6 +101,10 @@ namespace com.antlersoft.HostedTools.GtkHostLib
                     if (row.TryGetValue(column.Title, out obj))
                     {
                         result = obj.ToString();
+                        if (obj is String && ((String)obj).IndexOf("Ticks")>0) {
+                            DateTime dt = new DateTime(JsonConvert.DeserializeObject<TickHolder>((String)obj).Ticks);
+                            result = dt.ToString();
+                        }
                     }
                 }
                 text.Text = result;
