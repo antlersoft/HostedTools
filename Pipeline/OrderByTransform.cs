@@ -12,12 +12,12 @@ using com.antlersoft.HostedTools.Interface;
 
 namespace com.antlersoft.HostedTools.Pipeline
 {
-    class ValueComparer : IComparer<IHtValue>
+    public class ValueComparer : IComparer<IHtValue>
     {
         private bool _nullsLast;
         private bool _descending;
 
-        internal ValueComparer(bool descending = false, bool nullsLast = false)
+        public ValueComparer(bool descending = false, bool nullsLast = false)
         {
             _descending = descending;
             _nullsLast = nullsLast;
