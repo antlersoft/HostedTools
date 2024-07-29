@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Runtime.Serialization;
 
 namespace com.antlersoft.HostedTools.Framework.Gtk.Model
 {
@@ -23,7 +24,17 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
                 }
                 _enumsSet = true;
             }
-            _element.Active = Array.IndexOf(Enum.GetValues(Setting.Definition.Type), Enum.Parse(Setting.Definition.Type, Setting.GetRaw()));
+            object enumValue = null;
+            try {
+                enumValue = Enum.Parse(Setting.Definition.Type, Setting.GetRaw());                
+            } catch (Exception e) {
+                // Do nothing
+            }
+            if (enumValue == null) {
+                _element.Active = 0;
+            } else {
+                _element.Active = Array.IndexOf(Enum.GetValues(Setting.Definition.Type), enumValue);
+            }
             SetNeedsSave(false);
         }
     }
