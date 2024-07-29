@@ -38,6 +38,7 @@ namespace com.antlersoft.HostedTools.Pipeline
     {
         [Import]
         public IJsonFactory JsonFactory;
+        private FileStream _stream;
 
         public JsonFileSource()
             : base(new MenuItem("DevTools.Pipeline.Input.JsonFile", "json file", typeof(JsonFileSource).FullName, "DevTools.Pipeline.Input"), new[] { Settings.LoadFile.FullKey(), Settings.DataIsGzip.FullKey(), PipelinePlugin.IsSingleValued.FullKey()})
@@ -48,7 +49,12 @@ namespace com.antlersoft.HostedTools.Pipeline
         public IEnumerable<IHtValue> GetRows()
         {
             string loadFile = Settings.LoadFile.Value<string>(SettingManager);
-            return PipelinePlugin.FromJsonStream(new FileStream(loadFile, FileMode.Open, FileAccess.Read), JsonFactory,
+            if (_stream != null) {
+                _stream.Dispose();
+                _stream = null;
+            }
+            _stream=new FileStream(loadFile, FileMode.Open, FileAccess.Read);
+            return PipelinePlugin.FromJsonStream(_stream, JsonFactory,
                 Settings.DataIsGzip.Value<bool>(SettingManager),
                 PipelinePlugin.IsSingleValued.Value<bool>(SettingManager));
         }
