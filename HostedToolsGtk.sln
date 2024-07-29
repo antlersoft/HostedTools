@@ -35,6 +35,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphFlow", "GraphFlow\Grap
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataDictionary.Interface", "DataDictionary.Interface\DataDictionary.Interface.csproj", "{C5A74335-1EF5-48AB-89B1-6D541D081ED6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AvroTools", "AvroTools\AvroTools.csproj", "{32551EAB-1E7F-4AF3-9031-628F1673058F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{E3E2B0BC-FF68-4BD4-9622-FBC35637379D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -105,6 +109,14 @@ Global
 		{C5A74335-1EF5-48AB-89B1-6D541D081ED6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C5A74335-1EF5-48AB-89B1-6D541D081ED6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C5A74335-1EF5-48AB-89B1-6D541D081ED6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32551EAB-1E7F-4AF3-9031-628F1673058F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32551EAB-1E7F-4AF3-9031-628F1673058F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32551EAB-1E7F-4AF3-9031-628F1673058F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32551EAB-1E7F-4AF3-9031-628F1673058F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E3E2B0BC-FF68-4BD4-9622-FBC35637379D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3E2B0BC-FF68-4BD4-9622-FBC35637379D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3E2B0BC-FF68-4BD4-9622-FBC35637379D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3E2B0BC-FF68-4BD4-9622-FBC35637379D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
