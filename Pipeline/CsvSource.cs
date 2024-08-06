@@ -34,7 +34,7 @@ namespace com.antlersoft.HostedTools.Pipeline
         {
         }
 
-        public string SourceDescription => "Read a standard CSV format file (as exported by Excel, etc.)";
+        public string SourceDescription => "Read a standard CSV format file (as exported by Excel, etc.) "+SettingManager["Pipeline.CsvInput"].Get<string>();
 
         private static string columnKey(string[] headers, int index)
         {

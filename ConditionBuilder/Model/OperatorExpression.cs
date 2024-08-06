@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using com.antlersoft.HostedTools.ConditionBuilder.Interface;
 using com.antlersoft.HostedTools.Interface;
 using com.antlersoft.HostedTools.Interface.Expressions;
 
 namespace com.antlersoft.HostedTools.ConditionBuilder.Model
 {
-    public class OperatorExpression : IOperatorExpression
+    public class OperatorExpression : IOperatorExpression, IGroupExpression
     {
         private readonly Func<IList<IHtValue>, IHtValue> _evaluator;
         private readonly string _name;
@@ -29,9 +31,42 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model
             get { return _operands; }
         }
 
+        public void AddRow(IHtValue row)
+        {
+            foreach (var exp in _operands)
+            {
+                if (exp is IGroupExpression group)
+                {
+                    group.AddRow(row);
+                }
+            }
+        }
+
+        public void EndGroup()
+        {
+            foreach (var exp in _operands)
+            {
+                if (exp is IGroupExpression group)
+                {
+                    group.EndGroup();
+                }
+            }    
+        }
+
         public virtual IHtValue Evaluate(IHtValue data)
         {
             return _evaluator(_operands.Select(e => e.Evaluate(data)).ToList());
+        }
+
+        public void StartGroup()
+        {
+            foreach (var exp in _operands)
+            {
+                if (exp is IGroupExpression group)
+                {
+                    group.StartGroup();
+                }
+            }
         }
     }
 }
