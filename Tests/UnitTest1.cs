@@ -184,7 +184,57 @@ public class Tests
             Assert.That(_comparer.Compare(val, expectedResult), Is.EqualTo(0));
         }
         Assert.That(count, Is.EqualTo(4));
-   }  [Test]
+    }  
+   
+    [Test]
+    public void JoinTestInner9() {
+        var arg1 = new string[0];
+        var arg2 = new string[] { "0", "2", "2", "3"};
+        int count = 0;
+        foreach (var val in JoinTransform.GetJoin(JoinTransform.JoinTypes.JoinSymmetric, JoinTransform.ResultTypes.ProjectionExpression, _comparer, _allFields, GenerateHtValue(arg1), _keyExpression, GenerateHtValue(arg2), _keyExpression))
+        {
+            count++;
+        }
+        Assert.That(count, Is.EqualTo(0));
+    }  
+
+    [Test]
+    public void JoinTestInner10() {
+        var arg2 = new string[0];
+        var arg1 = new string[] { "0", "2", "2", "3"};
+        int count = 0;
+        foreach (var val in JoinTransform.GetJoin(JoinTransform.JoinTypes.JoinSymmetric, JoinTransform.ResultTypes.ProjectionExpression, _comparer, _allFields, GenerateHtValue(arg1), _keyExpression, GenerateHtValue(arg2), _keyExpression))
+        {
+            count++;
+        }
+        Assert.That(count, Is.EqualTo(0));
+    }  
+
+    [Test]
+    public void JoinTestInner11() {
+        var arg2 = new string[] { "0"};
+        var arg1 = new string[] { "1", "2", "2", "3"};
+        int count = 0;
+        foreach (var val in JoinTransform.GetJoin(JoinTransform.JoinTypes.JoinSymmetric, JoinTransform.ResultTypes.ProjectionExpression, _comparer, _allFields, GenerateHtValue(arg1), _keyExpression, GenerateHtValue(arg2), _keyExpression))
+        {
+            count++;
+        }
+        Assert.That(count, Is.EqualTo(0));
+    }  
+
+    [Test]
+    public void JoinTestInner12() {
+        var arg2 = new string[] { "4" };
+        var arg1 = new string[] { "0", "2", "2", "3"};
+        int count = 0;
+        foreach (var val in JoinTransform.GetJoin(JoinTransform.JoinTypes.JoinSymmetric, JoinTransform.ResultTypes.ProjectionExpression, _comparer, _allFields, GenerateHtValue(arg1), _keyExpression, GenerateHtValue(arg2), _keyExpression))
+        {
+            count++;
+        }
+        Assert.That(count, Is.EqualTo(0));
+    }  
+
+    [Test]
     public void JoinTestIn1() {
         var arg1 = new string[] { "1", "2"};
         var arg2 = new string[] { "2", "2"};
