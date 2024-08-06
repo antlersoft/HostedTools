@@ -1,9 +1,10 @@
-﻿using com.antlersoft.HostedTools.Interface;
+﻿using com.antlersoft.HostedTools.ConditionBuilder.Interface;
+using com.antlersoft.HostedTools.Interface;
 using com.antlersoft.HostedTools.Serialization;
 
 namespace com.antlersoft.HostedTools.ConditionBuilder.Model
 {
-    public class SubscriptExpression : IHtExpression
+    public class SubscriptExpression : IHtExpression, IGroupExpression
     {
         private IHtExpression _subscripted;
         private IHtExpression _subscript;
@@ -13,6 +14,31 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model
             _subscripted = subscripted;
             _subscript = subscript;
         }
+
+        public void AddRow(IHtValue row)
+        {
+            if (_subscripted is IGroupExpression group)
+            {
+                group.AddRow(row);
+            }
+            if (_subscript is IGroupExpression group2)
+            {
+                group2.AddRow(row);
+            }
+        }
+
+        public void EndGroup()
+        {
+            if (_subscripted is IGroupExpression group)
+            {
+                group.EndGroup();
+            }
+            if (_subscript is IGroupExpression group2)
+            {
+                group2.EndGroup();
+            }
+        }
+
         public IHtValue Evaluate(IHtValue data)
         {
             IHtValue subscript = _subscript.Evaluate(data);
@@ -21,6 +47,10 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model
             if (subscript.IsDouble)
             {
                 result = subscripted[(int)subscript.AsDouble];
+            }
+            else if (subscript.IsLong)
+            {
+                result = subscripted[(int)subscript.AsLong];
             }
             else
             {
@@ -31,6 +61,18 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model
                 result = new JsonHtValue();
             }
             return result;
+        }
+
+        public void StartGroup()
+        {
+            if (_subscripted is IGroupExpression group)
+            {
+                group.StartGroup();
+            }
+            if (_subscript is IGroupExpression group2)
+            {
+                group2.StartGroup();
+            }   
         }
     }
 }

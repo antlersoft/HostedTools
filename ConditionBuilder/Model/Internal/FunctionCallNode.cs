@@ -16,10 +16,19 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model.Internal
         /// </summary>
         public static DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
-        private static readonly Dictionary<string, Func<IList<IHtValue>, IHtValue>> AvailableFunctions = new Dictionary<string, Func<IList<IHtValue>, IHtValue>>
+        private static Func<FunctionCallNode,string,Func<object,object>> MinMaxFunctor = (t, n) => (d => {
+            var expressionList = (List<IHtExpression>)t._argumentsNode.GetFunctor()(d);
+            if (expressionList.Count > 1) {
+                throw new ArgumentException($"{n}() group method can only have one argument");
+            }
+            var expression = expressionList.Count == 1 ? expressionList[0] : null;
+            return new MinMax(n == "min", expression);
+        });
+
+        private static readonly Dictionary<string, Func<FunctionCallNode,string,Func<object,object>>> AvailableFunctions = new Dictionary<string, Func<FunctionCallNode,string,Func<object,object>>>
         {
             {
-                "split", arg =>
+                "split", (t,n) => t.GetFF(n, arg =>
                 {
                     var result = new JsonHtValue();
                     int offset = 0;
@@ -28,24 +37,67 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model.Internal
                         result[offset++] = new JsonHtValue(s);
                     }
                     return result;
-                }
+                })
             },
             {
-                "deserialize", arg => JsonConvert.DeserializeObject<IHtValue>(arg[0].AsString,new JsonFactory().GetSettings())
+                "deserialize", (t,n) => t.GetFF(n, arg => JsonConvert.DeserializeObject<IHtValue>(arg[0].AsString,new JsonFactory().GetSettings()))
             },
             {
-                "serialize", arg => new JsonHtValue(JsonConvert.SerializeObject(arg[0],new JsonFactory().GetSettings()))
+                "serialize", (t,n) => t.GetFF(n, arg => new JsonHtValue(JsonConvert.SerializeObject(arg[0],new JsonFactory().GetSettings())))
             },
             {
-                "ifthenelse", arg => arg[0].AsBool ? arg[1] : arg[2]
+                "count", (t,n) => (d => {
+                    var argsList = (List<IHtExpression>)t._argumentsNode.GetFunctor()(d);
+                    if (argsList.Count > 1)
+                    {
+                        throw new ArgumentException($"{n}() group method can only have one argument");
+                    }
+                    if (argsList.Count == 0) {
+                        return new GroupCount();
+                    }
+                    return new GroupCountDistinct(argsList[0]);
+                })
             },
             {
-                "truncate", arg => new JsonHtValue(Math.Truncate(arg[0].AsDouble))
+                "countdistinct", (t,n) => (d => new GroupCountDistinct(((List<IHtExpression>)t._argumentsNode.GetFunctor()(d))[0]))
             },
             {
-                "datetime", arg => new JsonHtValue((DateTime.UtcNow - Epoch).TotalSeconds)
+                "sum", (t,n) => (d => new GroupSum(((List<IHtExpression>)t._argumentsNode.GetFunctor()(d))[0]))
+            },
+            {
+                "ifthenelse", (t,n) => (d => new IfThenElseExpression((List<IHtExpression>) t._argumentsNode.GetFunctor()(d)))
+            },
+            {
+                "min", MinMaxFunctor
+            },
+            {
+                "max", MinMaxFunctor
+            },
+            {
+                "abs", (t,n) => t.GetFF(n, arg => new JsonHtValue(Math.Abs(arg[0].AsDouble)))
+            },
+            {
+                "round", (t,n) => t.GetFF(n, arg => new JsonHtValue(Math.Round(arg[0].AsDouble)))
+            },
+            {
+                "floor", (t,n) => t.GetFF(n, arg => new JsonHtValue(Math.Floor(arg[0].AsDouble)))
+            },
+            {
+                "ceiling", (t,n) => t.GetFF(n, arg => new JsonHtValue(Math.Ceiling(arg[0].AsDouble)))
+            },
+            {
+                "truncate", (t,n) => t.GetFF(n, arg => new JsonHtValue(Math.Truncate(arg[0].AsDouble)))
+            },
+            {
+                "datetime", (t,n) => t.GetFF(n, arg => new JsonHtValue((DateTime.UtcNow - Epoch).TotalSeconds))
             }
         };
+
+        // Returns the functor for a function node that evaluates all its arguments
+        internal Func<object,object> GetFF(string name, Func<IList<IHtValue>, IHtValue> evaluator)
+        {
+            return d => new OperatorExpression(name, evaluator, (List<IHtExpression>) _argumentsNode.GetFunctor()(d));
+        }
 
         internal FunctionCallNode(IParseTreeNode nameNode, IParseTreeNode argumentsNode)
         {
@@ -55,16 +107,16 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model.Internal
 
         public Func<object, object> GetFunctor()
         {
-            Func<IList<IHtValue>, IHtValue> evaluator;
+            Func<FunctionCallNode,string,Func<object,object>> evaluator;
             var name = ((TokenNode)_nameNode).Token.Value;
             if (! AvailableFunctions.TryGetValue(name, out evaluator))
             {
-                evaluator = args => throw new InvalidOperationException($"No evaluator defined for function expression with name [{name}]");
+                return d => new OperatorExpression(name, args => throw new InvalidOperationException($"No evaluator defined for function expression with name [{name}]"),
+                    (IEnumerable<IHtExpression>)_argumentsNode.GetFunctor()(d));
             }
             return
                 d =>
-                    new OperatorExpression(name, evaluator,
-                        (List<IHtExpression>) _argumentsNode.GetFunctor()(d));
+                    evaluator(this, name)(d);
         }
 
         public Type ResultType
