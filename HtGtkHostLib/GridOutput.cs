@@ -74,15 +74,17 @@ namespace com.antlersoft.HostedTools.GtkHostLib
         {
             Gtk.Application.Invoke(delegate
             {
-                foreach (var col in row.Keys)
+                foreach (var key in row.Keys)
                 {
+                    var col = key.Replace("_", "__");
+
                     TreeViewColumn v;
-                    if (! columns.TryGetValue(col, out v))
+                    if (! columns.TryGetValue(key, out v))
                     {
                         v = new TreeViewColumn(col, _renderer);
                         v.SetCellDataFunc(_renderer, DataFunc);
                         _tree.AppendColumn(v);
-                        columns[col] = v;
+                        columns[key] = v;
                      }
                 }
                 _model.AppendValues(row);
@@ -98,7 +100,8 @@ namespace com.antlersoft.HostedTools.GtkHostLib
                 if (row != null)
                 {
                     object obj;
-                    if (row.TryGetValue(column.Title, out obj))
+                    string key = column.Title.Replace("__", "_");
+                    if (row.TryGetValue(key, out obj))
                     {
                         result = obj.ToString();
                         if (obj is String && ((String)obj).IndexOf("Ticks")>0) {
