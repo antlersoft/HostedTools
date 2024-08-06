@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using com.antlersoft.HostedTools.ConditionBuilder.Interface;
+using com.antlersoft.HostedTools.ConditionBuilder.Model;
 using com.antlersoft.HostedTools.Framework.Interface.Plugin;
 using com.antlersoft.HostedTools.Framework.Interface.Setting;
 using com.antlersoft.HostedTools.Framework.Model.Menu;
@@ -237,7 +238,7 @@ namespace com.antlersoft.HostedTools.Pipeline
                         toFilter.MoveNext();
                     }
                 } else if (comparison < 0) {
-                    if (partial && !(filter.IsValidCurrent && comparer.Compare(filter.RewindKey, toFilter.CurrentKey) == 0)) {
+                    if (partial && !(filter.IsValidCurrent && filter.RewindKey!=null && comparer.Compare(filter.RewindKey, toFilter.CurrentKey) == 0)) {
                         returnRow = true;
                         partialStatus = true;
                     }
@@ -295,23 +296,25 @@ namespace com.antlersoft.HostedTools.Pipeline
             switch (rt) {
                 case ResultTypes.AllColumns:
                     result = new JsonHtValue(leftRow);
-                    var keys = result.AsDictionaryElements.Select(e => e.Key).ToArray();
-                    foreach (var kvp in rightRow.AsDictionaryElements)
-                    {
-                        var key = kvp.Key;
-                        var origKey = key;
-                        for (int i=0; true; i++)
+                    var keys = leftRow.IsDictionary ? result.AsDictionaryElements.Select(e => e.Key).ToArray() : new string[0];
+                    if (rightRow.IsDictionary) {
+                        foreach (var kvp in rightRow.AsDictionaryElements)
                         {
-                            if (keys.Contains(key))
+                            var key = kvp.Key;
+                            var origKey = key;
+                            for (int i=0; true; i++)
                             {
-                                key = $"{origKey}-{i}";
+                                if (keys.Contains(key))
+                                {
+                                    key = $"{origKey}-{i}";
+                                }
+                                else
+                                {
+                                    break;
+                                }
                             }
-                            else
-                            {
-                                break;
-                            }
+                            result[key] = kvp.Value;
                         }
-                        result[key] = kvp.Value;
                     }
                     break;
                 case ResultTypes.FilterOnly:

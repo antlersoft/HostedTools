@@ -69,7 +69,7 @@ namespace com.antlersoft.HostedTools.Pipeline
                             writer.Write("\t");
                         }
                         var val = row[name];
-                        if (! val.IsEmpty)
+                        if (val!=null && ! val.IsEmpty)
                         {
                             writer.Write(GridWorker.ValueToSimpleObject(serializer, val));
                         }
