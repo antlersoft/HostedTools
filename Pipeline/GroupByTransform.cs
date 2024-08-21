@@ -20,7 +20,7 @@ namespace com.antlersoft.HostedTools.Pipeline
         [Import] public IConditionBuilder ConditionBuilder;
 
         public static ISettingDefinition GroupByList = new SimpleSettingDefinition("GroupByList", "Pipeline.Transform", "Group by", "Comma-separated list of expressions to group by");
-        public static ISettingDefinition GroupProjectionExpression = new SimpleSettingDefinition("GroupProjectionExpression", "Projection expression with output of grouping");
+        public static ISettingDefinition GroupProjectionExpression = new SimpleSettingDefinition("GroupProjectionExpression", "Pipeline.Transform", "Projection expression with output of grouping");
         public static ISettingDefinition NeedSort = new SimpleSettingDefinition("NeedSort", "Pipeline.Transform", "Need sort", "If checked, sort before grouping", typeof(bool), "true", false, 0);
         public GroupByTransform()
             : base(new MenuItem("DevTools.Pipeline.Transform.OrderBy", "Order by", typeof(OrderByTransform).FullName, "DevTools.Pipeline.Transform"),
