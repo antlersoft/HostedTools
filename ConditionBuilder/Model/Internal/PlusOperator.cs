@@ -28,6 +28,16 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model.Internal
                     {
                     }
                 }
+                else if (arg[0].IsLong || arg[1].IsLong)
+                {
+                    try
+                    {
+                        return new JsonHtValue(arg[0].AsLong + arg[1].AsLong);
+                    }
+                    catch (FormatException)
+                    {
+                    }
+                }
                 return new JsonHtValue(arg[0].AsString + arg[1].AsString);
             },
             new List<IHtExpression> { (IHtExpression)leftOperand(data), (IHtExpression)rightOperand(data) });
