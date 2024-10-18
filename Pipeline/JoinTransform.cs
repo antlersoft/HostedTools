@@ -136,6 +136,8 @@ namespace com.antlersoft.HostedTools.Pipeline
             }
         }
 
+        static ISettingDefinition JoinFile = new PathSettingDefinition("JoinFile", "Pipeline.JoinTransform", "Json data to load", false, false, "json file|*.json|gzip'd json|*.gz", "File containing json data to join with incoming rows");
+        static readonly ISettingDefinition FileIsGzip = new SimpleSettingDefinition("FileIsGzip", "Pipeline.JoinTransform", "Join file is GZipped", "If checked, assumes json join file data is compressed in gzip format", typeof(bool), "false");
         static ISettingDefinition ToFilterJoinKey = new SimpleSettingDefinition("InputJoinKey", "Pipeline.JoinTransform", "Key in input to join on", "Input must be sorted on given key");
         static ISettingDefinition FileFilterJoinKey = new SimpleSettingDefinition("FileJoinKey", "Pipeline.JoinTransform", "Key in file data to join on", "Data file must be sorted on given key");
         static ISettingDefinition JoinType = new SimpleSettingDefinition("JoinType", "Pipeline.JoinTransform", "Join Type", null, typeof(JoinTypes), "In", false, 0);
@@ -151,12 +153,12 @@ namespace com.antlersoft.HostedTools.Pipeline
 
         public JoinTransform()
         : base(new MenuItem("DevTools.Pipeline.Transform.JoinTransform", "Join Transform", typeof(JoinTransform).FullName, "DevTools.Pipeline.Transform"),
-            new [] {Settings.LoadFile.FullKey(), Settings.GZipData.FullKey(), ToFilterJoinKey.FullKey(), FileFilterJoinKey.FullKey(), JoinType.FullKey(), ResultType.FullKey(), ProjectionExpression.FullKey()})
+            new [] {JoinFile.FullKey(), FileIsGzip.FullKey(), ToFilterJoinKey.FullKey(), FileFilterJoinKey.FullKey(), JoinType.FullKey(), ResultType.FullKey(), ProjectionExpression.FullKey()})
         {
 
         }
 
-        public IEnumerable<ISettingDefinition> Definitions => new [] { ToFilterJoinKey, FileFilterJoinKey, JoinType, ResultType, ProjectionExpression};
+        public IEnumerable<ISettingDefinition> Definitions => new [] { JoinFile, FileIsGzip, ToFilterJoinKey, FileFilterJoinKey, JoinType, ResultType, ProjectionExpression};
 
         public string TransformDescription { get { string r= ""; try {
             var scope = SettingManager.Scope(JoinType.ScopeKey);
@@ -164,7 +166,7 @@ namespace com.antlersoft.HostedTools.Pipeline
             var raw = setting.GetRaw();
             var type = JoinType.Type;
             var val = Enum.Parse(type, raw);
-            r=$"join {JoinType.Value<string>(SettingManager)} {Settings.LoadFile.Value<string>(SettingManager)} "+
+            r=$"join {JoinType.Value<string>(SettingManager)} {JoinFile.Value<string>(SettingManager)} "+
             (ResultType.Value<ResultTypes>(SettingManager) == ResultTypes.ProjectionExpression ? "Projection " + ProjectionExpression.Value<string>(SettingManager)
             : ResultType.Value<string>(SettingManager));} catch (Exception e) {} return r; } }
 
@@ -402,8 +404,8 @@ namespace com.antlersoft.HostedTools.Pipeline
 
         public IEnumerable<IHtValue> GetTransformed(IEnumerable<IHtValue> rows, IWorkMonitor monitor)
         {
-            string path = Settings.LoadFile.Value<string>(SettingManager);
-            bool isGzip = Settings.GZipData.Value<bool>(SettingManager);
+            string path = JoinFile.Value<string>(SettingManager);
+            bool isGzip = FileIsGzip.Value<bool>(SettingManager);
             JoinTypes jt = JoinType.Value<JoinTypes>(SettingManager);
             ResultTypes rt = ResultType.Value<ResultTypes>(SettingManager);
             IHtExpression projectionExpression = null;
