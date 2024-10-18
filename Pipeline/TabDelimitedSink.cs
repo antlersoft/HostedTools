@@ -35,7 +35,7 @@ namespace com.antlersoft.HostedTools.Pipeline
                 {
                     new PathSettingDefinition("TabDelimitedOutput", "Pipeline", "Tab-delimited output file", true, false,
                         "Tab-delimited text|*.txt"),
-                    new SimpleSettingDefinition("ColumnTailer", "Pipeline", "Column Names at End of File", "If not set, no column names are written", typeof(bool), "false", false, 1)
+                    new SimpleSettingDefinition("ColumnTailer", "Pipeline", "Column Names as file header", "If not set, no column names are written", typeof(bool), "false", false, 1)
 
                 })
         {
@@ -46,9 +46,11 @@ namespace com.antlersoft.HostedTools.Pipeline
             List<string> columns = new List<string>();
             JsonSerializer serializer = JsonFactory.GetSerializer(false);
             var writeTail = SettingManager["Pipeline.ColumnTailer"].Get<bool>();
+            var destFile = SettingManager["Pipeline.TabDelimitedOutput"].Get<string>();
+            var outputPath = writeTail ? Path.GetTempFileName() : destFile;
 			var cancelable = monitor.Cast<ICancelableMonitor>();
 
-            using (StreamWriter writer = new StreamWriter(SettingManager["Pipeline.TabDelimitedOutput"].Get<string>()))
+            using (StreamWriter writer = new StreamWriter(outputPath))
             {
                 bool first;
                 foreach (var row in rows)
@@ -92,9 +94,12 @@ namespace com.antlersoft.HostedTools.Pipeline
                     }
                     writer.WriteLine();
                 }
-                if (writeTail)
+            }
+            if (writeTail)
+            {
+                using (StreamWriter writer = new StreamWriter(destFile))
                 {
-                    first = true;
+                    bool first = true;
                     foreach (var v in columns)
                     {
                         if (first)
@@ -111,6 +116,14 @@ namespace com.antlersoft.HostedTools.Pipeline
                     {
                         writer.WriteLine();
                     }
+                    using (StreamReader sr = new StreamReader(outputPath))
+                    {
+                        for (string line=sr.ReadLine(); line!=null; line=sr.ReadLine())
+                        {
+                            writer.WriteLine(line);
+                        }
+                    }
+                    File.Delete(outputPath);
                 }
             }
         }
