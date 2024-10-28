@@ -29,30 +29,30 @@
       ],
       "problemMatcher": "$msCompile"
     },
-    { 
-      "label": ".NET Core Test with debugger", 
-      "type": "process", 
-      "isBackground": true, 
-      "command": "dotnet", 
-      "args": [ "test" ], 
-      "options": 
-          { 
-              "cwd": "${workspaceFolder}/tests", 
-              "env": 
-              { 
-                  "VSTEST_HOST_DEBUG": "1" 
-              }, 
-          }, 
-      "group": "test", "presentation": 
-          { 
-              "echo": true,
-              "reveal": "always",
-              "focus": false,
-              "panel": "shared"
-          },
-      "problemMatcher": [] 
-     },
-     {
+    {
+      "label": ".NET Core Test with debugger",
+      "type": "process",
+      "isBackground": true,
+      "command": "dotnet",
+      "args": [
+        "test"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/tests",
+        "env": {
+          "VSTEST_HOST_DEBUG": "1"
+        }
+      },
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
       "label": "watch",
       "command": "dotnet",
       "type": "process",
@@ -64,6 +64,13 @@
         "/consoleloggerparameters:NoSummary"
       ],
       "problemMatcher": "$msCompile"
+    },
+    {
+      "type": "dotnet",
+      "task": "build",
+      "group": "build",
+      "problemMatcher": [],
+      "label": "dotnet: build"
     }
   ]
 }

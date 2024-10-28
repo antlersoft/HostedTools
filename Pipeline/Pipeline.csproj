@@ -20,9 +20,6 @@
     <None Include="Pipeline.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="com.antlersoft.HostedTools.ConditionBuilder">
-      <Version>2.0.0.2</Version>
-    </PackageReference>
     <PackageReference Include="com.antlersoft.HostedTools.Framework">
       <Version>2.0.0.2</Version>
     </PackageReference>
@@ -38,6 +35,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Sql\Sql.csproj" />
+	<ProjectReference Include="..\ConditionBuilder\ConditionBuilder.csproj" />
   </ItemGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DebugType>portable</DebugType>
