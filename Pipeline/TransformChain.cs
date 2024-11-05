@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
-
+using com.antlersoft.HostedTools.Framework.Interface;
 using com.antlersoft.HostedTools.Framework.Interface.Plugin;
 using com.antlersoft.HostedTools.Framework.Interface.Setting;
 using com.antlersoft.HostedTools.Framework.Interface.UI;
@@ -29,6 +29,9 @@ namespace com.antlersoft.HostedTools.Pipeline
         }
 
         [Import]
+        IHasContainer HasContainer { get; set; }
+
+        [Import]
         IJsonFactory JsonFactory { get; set; }
 
         public TransformChain()
@@ -46,6 +49,9 @@ namespace com.antlersoft.HostedTools.Pipeline
 			Type pluginType = compositorPlugin.GetType ();
 			var constructor = compositorPlugin.GetType ().GetConstructor (EmptyTypeList);
 			IPlugin overridePlugin = constructor.Invoke (EmptyParamList) as IPlugin;
+            if (HasContainer != null) {
+                HasContainer.Container.SatisfyImportsOnce(overridePlugin);
+            }
 			foreach (var property in pluginType.GetProperties()) {
 				foreach (var attribute in property.GetCustomAttributes(false)) {
 					if (attribute.GetType () == typeof(ImportAttribute)) {
