@@ -1,5 +1,6 @@
 ﻿using com.antlersoft.HostedTools.Framework.Interface.Setting;
 using com.antlersoft.HostedTools.Framework.Interface.UI;
+using com.antlersoft.HostedTools.Framework.Model.Setting;
 using Gtk;
 using System;
 
@@ -8,6 +9,7 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
     internal class MultiLineView : SettingViewBase
     {
         private HBox _multiViewPanel;
+        private ScrolledWindow _scrolledWindow;
         private TextView _textBox;
         private TextBuffer _buffer;
         private Button _upButton;
@@ -16,6 +18,7 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
 
         public MultiLineView()
         {
+            _scrolledWindow = new ScrolledWindow();
             _buffer = new TextBuffer(new TextTagTable());
             _textBox = new TextView(_buffer);
             _textBox.PopulatePopup += (object source, PopulatePopupArgs args) => {
@@ -28,6 +31,7 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
                     }
                 }
             };
+            _scrolledWindow.Add(_textBox);
             //_textBox.VerticalScrollBarVisibility = ScrollBarVisibility.Visible;
             // _textBox.HorizontalScrollBarVisibility = ScrollBarVisibility.Visible;
             _buffer.Changed += (obj, args) => SetNeedsSave(true);
@@ -40,7 +44,7 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
             buttonPanel.PackStart(_upButton, false, true, 0);
             buttonPanel.PackEnd(_downButton, false, true, 0);
             _multiViewPanel.PackStart(buttonPanel, false, true, 0);
-            _multiViewPanel.PackEnd(_textBox, true, true, 0);
+            _multiViewPanel.PackEnd(_scrolledWindow, true, true, 0);
         }
 
         internal void MoveDown(object sender, EventArgs args)
@@ -72,18 +76,19 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
             set
             {
                 base.Setting = value;
-                IMultiLineValue mlv = value.Definition.Cast<IMultiLineValue>();
-                if (mlv != null)
-                {
-                    //_textBox.MinLines = mlv.DesiredVisibleLinesOfText;
-                    //_textBox.MaxLines = mlv.DesiredVisibleLinesOfText;
-                }
                 Setting.SettingChangedListeners.AddListener(s =>
                 {
                     string text = s.GetRaw();
                     _buffer.Text = text;
                 });
                 _buffer.Text = Setting.GetRaw();
+                IMultiLineValue mlv = value.Definition.Cast<IMultiLineValue>();
+                if (mlv != null && mlv.DesiredVisibleLinesOfText > 0)
+                {
+                    //_textBox.MinLines = mlv.DesiredVisibleLinesOfText;
+                    //_textBox.MaxLines = mlv.DesiredVisibleLinesOfText;
+                    _scrolledWindow.MinContentHeight = 24 * mlv.DesiredVisibleLinesOfText;
+                }
             }
         }
 
