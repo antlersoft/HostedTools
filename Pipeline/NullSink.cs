@@ -9,12 +9,10 @@ using com.antlersoft.HostedTools.Interface;
 
 namespace com.antlersoft.HostedTools.Pipeline
 {
-    [Export(typeof(IHtValueSink))]
-    public class NullSink : EditOnlyPlugin, IHtValueSink
+    [Export(typeof(ILeafNode))]
+    [Export(typeof(IPlugin))]
+    public class NullSink : HostedObjectBase, IHtValueLeaf, IHtValueSink, IPlugin
     {
-        public NullSink()
-            : base(new MenuItem[0], new string[0])
-        { }
         public void ReceiveRows(IEnumerable<IHtValue> rows, IWorkMonitor monitor)
         {
 			var cancelable = monitor.Cast<ICancelableMonitor>();
@@ -27,9 +25,29 @@ namespace com.antlersoft.HostedTools.Pipeline
             }
         }
 
-        public string SinkDescription
+        public IHtValueSink GetHtValueSink(PluginState state)
+        {
+            return this;
+        }
+
+        public string NodeDescription
         {
             get { return "Do nothing"; }
+        }
+        public PluginState GetPluginState()
+        {
+            PluginState result = new PluginState();
+            result.Description = NodeDescription;
+            result.PluginName = Name;
+            result.NestedValues = new Dictionary<string, PluginState>();
+            result.SettingValues = new Dictionary<string, string>();
+
+            return result;
+        }
+
+        public string Name
+        {
+            get { return GetType().FullName; }
         }
     }
 }

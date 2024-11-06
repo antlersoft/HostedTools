@@ -9,7 +9,7 @@ using System.ComponentModel.Composition;
 namespace com.antlersoft.HostedTools.Pipeline
 {
     [Export(typeof(ISettingDefinitionSource))]
-    [Export(typeof(IHtValueSource))]
+    [Export(typeof(IRootNode))]
     public class RedshiftSqlSource : SqlSourceBase, ISettingDefinitionSource
     {
         static ISettingDefinition RedshiftSqlConnectionString = new SimpleSettingDefinition("ConnectionString", "RedshiftSqlSource", "Connection string");

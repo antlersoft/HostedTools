@@ -7,6 +7,7 @@ using System.IO.Compression;
 using System.Linq;
 using com.antlersoft.HostedTools.Framework.Interface.Plugin;
 using com.antlersoft.HostedTools.Framework.Interface.Setting;
+using com.antlersoft.HostedTools.Framework.Model;
 using com.antlersoft.HostedTools.Framework.Model.Menu;
 using com.antlersoft.HostedTools.Framework.Model.Plugin;
 using com.antlersoft.HostedTools.Framework.Model.Setting;
@@ -33,12 +34,11 @@ namespace com.antlersoft.HostedTools.Pipeline
         }
     }
 
-    [Export(typeof (IHtValueSource))]
-    public class JsonFileSource : EditOnlyPlugin, IHtValueSource
+    [Export(typeof (IRootNode))]
+    public class JsonFileSource : AbstractPipelineNode, IHtValueRoot
     {
         [Import]
         public IJsonFactory JsonFactory;
-        private FileStream _stream;
 
         public JsonFileSource()
             : base(new MenuItem("DevTools.Pipeline.Input.JsonFile", "json file", typeof(JsonFileSource).FullName, "DevTools.Pipeline.Input"), new[] { Settings.LoadFile.FullKey(), Settings.DataIsGzip.FullKey(), PipelinePlugin.IsSingleValued.FullKey()})
@@ -46,27 +46,23 @@ namespace com.antlersoft.HostedTools.Pipeline
             
         }
 
-        public IEnumerable<IHtValue> GetRows()
+        public IHtValueSource GetHtValueSource(PluginState state)
         {
-            string loadFile = Settings.LoadFile.Value<string>(SettingManager);
-            if (_stream != null) {
-                _stream.Dispose();
-                _stream = null;
-            }
-            _stream=new FileStream(loadFile, FileMode.Open, FileAccess.Read);
-            return PipelinePlugin.FromJsonStream(_stream, JsonFactory,
-                Settings.DataIsGzip.Value<bool>(SettingManager),
-                PipelinePlugin.IsSingleValued.Value<bool>(SettingManager));
+            string loadFile = state.SettingValues[Settings.LoadFile.FullKey()];
+            var stream=new FileStream(loadFile, FileMode.Open, FileAccess.Read);
+            return PipelinePlugin.FromJsonStream(stream, JsonFactory,
+                new JsonHtValue(state.SettingValues[Settings.DataIsGzip.FullKey()]).AsBool,
+                new JsonHtValue(state.SettingValues[PipelinePlugin.IsSingleValued.FullKey()]).AsBool);
         }
 
-        public string SourceDescription
+        public override string NodeDescription
         {
             get { return "Read json from " + Settings.LoadFile.Value<string>(SettingManager) + (Settings.DataIsGzip.Value<bool>(SettingManager)?" gzip'd":string.Empty); }
         }
     }
 
-    [Export(typeof(IHtValueSink))]
-    public class JsonFileSink : EditOnlyPlugin, IHtValueSink
+    [Export(typeof(ILeafNode))]
+    public class JsonFileSink : AbstractPipelineNode, IHtValueLeaf
     {
         [Import]
         public IJsonFactory JsonFactory;
@@ -77,33 +73,47 @@ namespace com.antlersoft.HostedTools.Pipeline
 
         }
 
-        public string SinkDescription
+        public override string NodeDescription
         {
             get { return "Write json to " + Settings.OutputFile.Value<string>(SettingManager) + (Settings.GZipData.Value<bool>(SettingManager) ? " gzip'd" : String.Empty); }
         }
 
-        public void ReceiveRows(IEnumerable<IHtValue> rows, IWorkMonitor monitor)
+        public IHtValueSink GetHtValueSink(PluginState state)
         {
-            string outputPath = Settings.OutputFile.Value<string>(SettingManager);
-			ICancelableMonitor cancelable = monitor.Cast<ICancelableMonitor> ();
-            using (var sr = Settings.GZipData.Value<bool>(SettingManager) ?
-                new StreamWriter(new GZipStream(new FileStream(outputPath, FileMode.Create), CompressionMode.Compress))
-                : new StreamWriter(outputPath))
+            string outputPath = state.SettingValues[Settings.OutputFile.FullKey()];
+            bool useGzip = new JsonHtValue(state.SettingValues[Settings.GZipData.FullKey()]).AsBool;
+            return new Sink(JsonFactory, outputPath, useGzip);
+        }
+
+        class Sink : HostedObjectBase, IHtValueSink, IDisposable {
+            private IJsonFactory jsonFactory;
+            private JsonTextWriter jr;
+
+            internal Sink(IJsonFactory jf, string outputPath, bool useGzip) {
+                jsonFactory = jf;
+                StreamWriter sr = useGzip ? new StreamWriter(new GZipStream(new FileStream(outputPath, FileMode.Create), CompressionMode.Compress))
+                    : new StreamWriter(outputPath);
+                jr = new JsonTextWriter(sr);
+            }
+            public void Dispose()
             {
-                using (var jr = new JsonTextWriter(sr))
+                (jr as IDisposable).Dispose();
+            }
+
+            public void ReceiveRows(IEnumerable<IHtValue> rows, IWorkMonitor monitor)
+            {
+                ICancelableMonitor cancelable = monitor.Cast<ICancelableMonitor> ();
+                        JsonSerializer serializer = jsonFactory.GetSerializer(true);
+                jr.WriteStartArray();
+                foreach (var v in rows)
                 {
-                    JsonSerializer serializer = JsonFactory.GetSerializer(true);
-                    jr.WriteStartArray();
-                    foreach (var v in rows)
+                    if (cancelable!=null && cancelable.IsCanceled)
                     {
-						if (cancelable!=null && cancelable.IsCanceled)
-                        {
-                            break;
-                        }
-                        serializer.Serialize(jr, v);
+                        break;
                     }
-                    jr.WriteEndArray();
+                    serializer.Serialize(jr, v);
                 }
+                jr.WriteEndArray();
             }
         }
     }

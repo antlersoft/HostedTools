@@ -7,6 +7,7 @@ using System.Net.NetworkInformation;
 using com.antlersoft.HostedTools.Framework.Interface.Plugin;
 using com.antlersoft.HostedTools.Framework.Interface.Setting;
 using com.antlersoft.HostedTools.Framework.Interface.UI;
+using com.antlersoft.HostedTools.Framework.Model;
 using com.antlersoft.HostedTools.Framework.Model.Menu;
 using com.antlersoft.HostedTools.Framework.Model.Plugin;
 using com.antlersoft.HostedTools.Framework.Model.Setting;
@@ -17,8 +18,8 @@ using Newtonsoft.Json;
 namespace com.antlersoft.HostedTools.Pipeline
 {
     [Export(typeof(ISettingDefinitionSource))]
-    [Export(typeof(IHtValueSource))]
-    public class JsonHttpQuery : EditOnlyPlugin, IHtValueSource, ISettingDefinitionSource
+    [Export(typeof(IRootNode))]
+    public class JsonHttpQuery : AbstractPipelineNode, IHtValueRoot, ISettingDefinitionSource
     {
         public static ISettingDefinition QueryUrl = new SimpleSettingDefinition("QueryURL", "JsonHttpQuery", "Query URL");
         public static ISettingDefinition UsePost = new SimpleSettingDefinition("UsePost", "JsonHttpQuery", "Use POST", "If checked, will do POST http query using content from Post Data", typeof(bool), "false");
@@ -32,43 +33,65 @@ namespace com.antlersoft.HostedTools.Pipeline
         {
         }
 
-        public IEnumerable<IHtValue> GetRows()
-        {
-            HttpClient client = new HttpClient();
-            HttpResponseMessage message;
-            var settings = new JsonFactory().GetSettings();
-            if (UsePost.Value<bool>(SettingManager))
+        class Source : HostedObjectBase, IHtValueSource {
+            private readonly string _queryUrl;
+            private readonly string _postData;
+            private readonly string _headerText;
+            private readonly bool _usePost;
+
+            internal Source(string queryUrl, string postData, string headText, bool usePost) {
+                _queryUrl = queryUrl;
+                _postData = postData;
+                _headerText = headText;
+                _usePost = usePost;
+            }
+
+            public IEnumerable<IHtValue> GetRows(IWorkMonitor monitor)
             {
-                HttpRequestMessage request = new HttpRequestMessage
+                HttpClient client = new HttpClient();
+                HttpResponseMessage message;
+                var settings = new JsonFactory().GetSettings();
+                if (_usePost)
                 {
-                    RequestUri = new Uri(QueryUrl.Value<string>(SettingManager)),
-                    Content = new StringContent(PostData.Value<string>(SettingManager)),
-                    Method = HttpMethod.Post,
-                };
-                String headerText = AdditionalHeaders.Value<string>(SettingManager);
-                foreach (string line in headerText.Split(new[] {Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries))
-                {
-                    string[] parts = line.Split(new[] {':'}, 2);
-                    if (parts.Length == 2)
+                    HttpRequestMessage request = new HttpRequestMessage
                     {
-                        request.Headers.Add(parts[0], parts[1]);
+                        RequestUri = new Uri(_queryUrl),
+                        Content = new StringContent(_postData),
+                        Method = HttpMethod.Post,
+                    };
+                    String headerText = _headerText;
+                    foreach (string line in headerText.Split(new[] {Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        string[] parts = line.Split(new[] {':'}, 2);
+                        if (parts.Length == 2)
+                        {
+                            request.Headers.Add(parts[0], parts[1]);
+                        }
                     }
+                    request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+                    message = client.SendAsync(request).Result;
                 }
-                request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-                message = client.SendAsync(request).Result;
-            }
-            else
-            {
-                message = client.GetAsync(QueryUrl.Value<string>(SettingManager)).Result;
-            }
-            message.EnsureSuccessStatusCode();
-            var convert = JsonConvert.DeserializeObject<IHtValue>(message.Content.ReadAsStringAsync().Result, settings);
-            if (convert != null) {
-                yield return convert;
+                else
+                {
+                    message = client.GetAsync(_queryUrl).Result;
+                }
+                message.EnsureSuccessStatusCode();
+                var convert = JsonConvert.DeserializeObject<IHtValue>(message.Content.ReadAsStringAsync().Result, settings);
+                if (convert != null) {
+                    yield return convert;
+                }
             }
         }
 
-        public string SourceDescription
+        public IHtValueSource GetHtValueSource(PluginState state)
+        {
+            return new Source(state.SettingValues[QueryUrl.FullKey()],
+                state.SettingValues[PostData.FullKey()],
+                state.SettingValues[AdditionalHeaders.FullKey()],
+                (bool)Convert.ChangeType(state.SettingValues[UsePost.FullKey()], typeof(bool)));
+        }
+
+        public override string NodeDescription
         {
             get
             {
@@ -83,8 +106,8 @@ namespace com.antlersoft.HostedTools.Pipeline
         }
     }
 
-    [Export(typeof(IHtValueTransform))]
-    public class JsonHttpFilter : EditOnlyPlugin, IHtValueTransform, IExplanation
+    [Export(typeof(IStemNode))]
+    public class JsonHttpFilter : AbstractPipelineNode, IHtValueStem, IExplanation, IHtValueTransform
     {
         public JsonHttpFilter()
             : base(new MenuItem("DevTools.Pipeline.Transform.JsonHttpFilter", "Json Http Filter", typeof(JsonHttpFilter).FullName, "DevTools.Pipeline.Transform"), new String[0])
@@ -104,7 +127,12 @@ namespace com.antlersoft.HostedTools.Pipeline
             }
         }
 
-        public string TransformDescription
+        public IHtValueTransform GetHtValueTransform(PluginState state)
+        {
+            return this;
+        }
+
+        public override string NodeDescription
         {
             get { return Explanation; }
         }

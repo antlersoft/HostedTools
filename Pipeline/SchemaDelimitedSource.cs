@@ -1,6 +1,7 @@
 ﻿using com.antlersoft.HostedTools.ConditionBuilder.Interface;
 using com.antlersoft.HostedTools.Framework.Interface.Plugin;
 using com.antlersoft.HostedTools.Framework.Interface.Setting;
+using com.antlersoft.HostedTools.Framework.Model;
 using com.antlersoft.HostedTools.Framework.Model.Menu;
 using com.antlersoft.HostedTools.Framework.Model.Plugin;
 using com.antlersoft.HostedTools.Framework.Model.Setting;
@@ -16,9 +17,9 @@ using System.Text.RegularExpressions;
 
 namespace com.antlersoft.HostedTools.Pipeline
 {
-    [Export(typeof(IHtValueSource))]
+    [Export(typeof(IRootNode))]
     [Export(typeof(ISettingDefinitionSource))]
-    public class SchemaDelimitedSource : EditOnlyPlugin, IHtValueSource, ISettingDefinitionSource
+    public class SchemaDelimitedSource : AbstractPipelineNode, IHtValueRoot, ISettingDefinitionSource
     {
         static internal ISettingDefinition CommandFile = new PathSettingDefinition("CommandFile", "SchemaDelimited", "File to run data command", false, false, ".exe|*.exe");
         static internal ISettingDefinition CommandArgs = new SimpleSettingDefinition("CommandArgs", "SchemaDelimited", "Command arguments to get delimited data");
@@ -30,91 +31,128 @@ namespace com.antlersoft.HostedTools.Pipeline
 
         public IEnumerable<ISettingDefinition> Definitions => new[] { CommandFile, CommandArgs, SchemaFile };
 
-        public string SourceDescription => $"Schema delimited with schema {SchemaFile.Value<string>(SettingManager)} from {CommandFile.Value<string>(SettingManager)} {CommandArgs.Value<string>(SettingManager)}";
+        public override string NodeDescription => $"Schema delimited with schema {SchemaFile.Value<string>(SettingManager)} from {CommandFile.Value<string>(SettingManager)} {CommandArgs.Value<string>(SettingManager)}";
 
-        public IEnumerable<IHtValue> GetRows()
+        public IHtValueSource GetHtValueSource(PluginState state)
         {
-            string[] fieldNames;
-            using (var reader = new StreamReader(SchemaFile.Value<string>(SettingManager)))
-            {
-                fieldNames = reader.ReadToEnd().Split(',');
-            }
-            var startInfo = new ProcessStartInfo(CommandFile.Value<string>(SettingManager), CommandArgs.Value<string>(SettingManager));
-            startInfo.CreateNoWindow = true;
-            startInfo.RedirectStandardOutput = true;
-            startInfo.UseShellExecute = false;
+            return new Source(
+                state.SettingValues[CommandFile.FullKey()],
+                state.SettingValues[CommandArgs.FullKey()],
+                state.SettingValues[SchemaFile.FullKey()]
+            );
+        }
 
-            var process = Process.Start(startInfo);
-            using (var reader = process.StandardOutput)
+        class Source : HostedObjectBase, IHtValueSource {
+            private readonly string _commandFile;
+            private readonly string _commandArgs;
+            private readonly string _schemaFile;
+
+            internal Source(string commandFile, string commandArgs, string schemaFile) {
+                _commandFile = commandFile;
+                _commandArgs = commandArgs;
+                _schemaFile = schemaFile;
+            }
+            public IEnumerable<IHtValue> GetRows(IWorkMonitor monitor)
             {
-                for (string line = reader.ReadLine(); line != null; line = reader.ReadLine())
+                string[] fieldNames;
+                using (var reader = new StreamReader(_schemaFile))
                 {
-                    var row = new JsonHtValue();
-                    string[] fields = line.Split('\t');
-                    var cols = fields.Length > fieldNames.Length ? fieldNames.Length : fields.Length;
-                    for (int i = 0; i < cols; i++)
+                    fieldNames = reader.ReadToEnd().Split(',');
+                }
+                var startInfo = new ProcessStartInfo(_commandFile, _commandArgs);
+                startInfo.CreateNoWindow = true;
+                startInfo.RedirectStandardOutput = true;
+                startInfo.UseShellExecute = false;
+
+                var process = Process.Start(startInfo);
+                using (var reader = process.StandardOutput)
+                {
+                    for (string line = reader.ReadLine(); line != null; line = reader.ReadLine())
                     {
-                        string txt = fields[i];
-                        string name = fieldNames[i];
-                        long lval;
-                        double dval;
-                        bool bval;
-                        if (long.TryParse(txt, out lval))
+                        var row = new JsonHtValue();
+                        string[] fields = line.Split('\t');
+                        var cols = fields.Length > fieldNames.Length ? fieldNames.Length : fields.Length;
+                        for (int i = 0; i < cols; i++)
                         {
-                            row[name] = new JsonHtValue(lval);
+                            string txt = fields[i];
+                            string name = fieldNames[i];
+                            long lval;
+                            double dval;
+                            bool bval;
+                            if (long.TryParse(txt, out lval))
+                            {
+                                row[name] = new JsonHtValue(lval);
+                            }
+                            else if (double.TryParse(txt, out dval))
+                            {
+                                row[name] = new JsonHtValue(dval);
+                            }
+                            else if (bool.TryParse(txt, out bval))
+                            {
+                                row[name] = new JsonHtValue(bval);
+                            }
+                            else
+                            {
+                                row[name] = new JsonHtValue(txt);
+                            }
                         }
-                        else if (double.TryParse(txt, out dval))
-                        {
-                            row[name] = new JsonHtValue(dval);
-                        }
-                        else if (bool.TryParse(txt, out bval))
-                        {
-                            row[name] = new JsonHtValue(bval);
-                        }
-                        else
-                        {
-                            row[name] = new JsonHtValue(txt);
-                        }
+                        yield return row;
                     }
-                    yield return row;
                 }
             }
         }
     }
 
-    [Export(typeof(IHtValueSource))]
-    public class CommandLineLineSource : EditOnlyPlugin, IHtValueSource
+    [Export(typeof(IRootNode))]
+    public class CommandLineLineSource : AbstractPipelineNode, IHtValueRoot
     {
         internal const string LINE = "line";
         public CommandLineLineSource()
         : base(new MenuItem("DevTools.Pipeline.Input.CommandLineLineSource", "Command line", typeof(CommandLineLineSource).FullName, "DevTools.Pipeline.Input"), new[] { SchemaDelimitedSource.CommandFile.FullKey(), SchemaDelimitedSource.CommandArgs.FullKey() })
         { }
 
-        public string SourceDescription => $"Lines from {SchemaDelimitedSource.CommandFile.Value<string>(SettingManager)} {SchemaDelimitedSource.CommandArgs.Value<string>(SettingManager)}";
+        public override string NodeDescription => $"Lines from {SchemaDelimitedSource.CommandFile.Value<string>(SettingManager)} {SchemaDelimitedSource.CommandArgs.Value<string>(SettingManager)}";
 
-        public IEnumerable<IHtValue> GetRows()
+        public IHtValueSource GetHtValueSource(PluginState state)
         {
-            var startInfo = new ProcessStartInfo(SchemaDelimitedSource.CommandFile.Value<string>(SettingManager), SchemaDelimitedSource.CommandArgs.Value<string>(SettingManager));
-            startInfo.CreateNoWindow = true;
-            startInfo.RedirectStandardOutput = true;
-            startInfo.UseShellExecute = false;
+            return new Source(
+                state.SettingValues[SchemaDelimitedSource.CommandFile.FullKey()],
+                state.SettingValues[SchemaDelimitedSource.CommandArgs.FullKey()]
+            );
+        }
 
-            var process = Process.Start(startInfo);
-            using (var reader = process.StandardOutput)
+        class Source : HostedObjectBase, IHtValueSource {
+            private readonly string _commandFile;
+            private readonly string _commandArgs;
+
+            internal Source(string commandFile, string commandArgs) {
+                _commandFile = commandFile;
+                _commandArgs = commandArgs;
+            }
+            public IEnumerable<IHtValue> GetRows(IWorkMonitor monitor)
             {
-                for (string line = reader.ReadLine(); line != null; line = reader.ReadLine())
+                var startInfo = new ProcessStartInfo(_commandFile, _commandArgs);
+                startInfo.CreateNoWindow = true;
+                startInfo.RedirectStandardOutput = true;
+                startInfo.UseShellExecute = false;
+
+                var process = Process.Start(startInfo);
+                using (var reader = process.StandardOutput)
                 {
-                    var row = new JsonHtValue();
-                    row[LINE] = new JsonHtValue(line);
-                    yield return row;
+                    for (string line = reader.ReadLine(); line != null; line = reader.ReadLine())
+                    {
+                        var row = new JsonHtValue();
+                        row[LINE] = new JsonHtValue(line);
+                        yield return row;
+                    }
                 }
             }
         }
     }
 
-    [Export(typeof(IHtValueTransform))]
+    [Export(typeof(IStemNode))]
     [Export(typeof(ISettingDefinitionSource))]
-    public class RegexLineTransform : EditOnlyPlugin, ISettingDefinitionSource, IHtValueTransform
+    public class RegexLineTransform : AbstractPipelineNode, ISettingDefinitionSource, IHtValueStem
     {
         static ISettingDefinition MatchingRegex = new SimpleSettingDefinition("MatchingRegex", "RegexLineTransform", "Matching regex");
         static ISettingDefinition OutputFormat = new SimpleSettingDefinition("OutputFormat", "RegexLineTransform", "Output format", "(blank to return match)");
@@ -127,53 +165,74 @@ namespace com.antlersoft.HostedTools.Pipeline
         { 
         }
 
-        public string TransformDescription => $"s/{MatchingRegex.Value<string>(SettingManager)}/{OutputFormat.Value<string>(SettingManager)}" + (string.IsNullOrWhiteSpace(OutputFormat.Value<string>(SettingManager)) ? string.Empty : "/");
+        public override string NodeDescription => $"s/{MatchingRegex.Value<string>(SettingManager)}/{OutputFormat.Value<string>(SettingManager)}" + (string.IsNullOrWhiteSpace(OutputFormat.Value<string>(SettingManager)) ? string.Empty : "/");
 
         public IEnumerable<ISettingDefinition> Definitions => new[] { MatchingRegex, OutputFormat };
 
-        public IEnumerable<IHtValue> GetTransformed(IEnumerable<IHtValue> input, IWorkMonitor monitor)
+        public IHtValueTransform GetHtValueTransform(PluginState state)
         {
-            ICancelableMonitor cancelable = monitor.Cast<ICancelableMonitor>();
-            Regex regex = new Regex(MatchingRegex.Value<string>(SettingManager));
-            IHtExpression output = null;
-            var outputExpr = OutputFormat.Value<string>(SettingManager);
-            if (! string.IsNullOrEmpty(outputExpr))
-            {
-                output = ConditionBuilder.ParseCondition(outputExpr);
+            return new Transform(
+                state.SettingValues[MatchingRegex.FullKey()],
+                state.SettingValues[OutputFormat.FullKey()],
+                ConditionBuilder
+            );
+        }
+
+        class Transform : HostedObjectBase, IHtValueTransform {
+            private readonly string _matchingRegex;
+            private readonly string _outputFormat;
+            private readonly IConditionBuilder _conditionBuilder;
+
+            internal Transform(string matchingRegex, string outputFormat, IConditionBuilder builder) {
+                _matchingRegex = matchingRegex;
+                _outputFormat = outputFormat;
+                _conditionBuilder = builder;
             }
 
-            if (!cancelable?.IsCanceled ?? false)
+            public IEnumerable<IHtValue> GetTransformed(IEnumerable<IHtValue> input, IWorkMonitor monitor)
             {
-                foreach (var l in input)
+                ICancelableMonitor cancelable = monitor.Cast<ICancelableMonitor>();
+                Regex regex = new Regex(_matchingRegex);
+                IHtExpression output = null;
+                var outputExpr = _outputFormat;
+                if (! string.IsNullOrEmpty(outputExpr))
                 {
-                    var match = regex.Match(l[CommandLineLineSource.LINE].AsString);
-                    if (match.Success)
+                    output = _conditionBuilder.ParseCondition(outputExpr);
+                }
+
+                if (!cancelable?.IsCanceled ?? false)
+                {
+                    foreach (var l in input)
                     {
-                        IHtValue row = new JsonHtValue();
-                        var groups = new JsonHtValue();
-                        for (int i=0; i<match.Groups.Count; i++)
+                        var match = regex.Match(l[CommandLineLineSource.LINE].AsString);
+                        if (match.Success)
                         {
-                            groups[i] = new JsonHtValue(match.Groups[i].Value);
+                            IHtValue row = new JsonHtValue();
+                            var groups = new JsonHtValue();
+                            for (int i=0; i<match.Groups.Count; i++)
+                            {
+                                groups[i] = new JsonHtValue(match.Groups[i].Value);
+                            }
+                            row[CommandLineLineSource.LINE] = l[CommandLineLineSource.LINE];
+                            row["groups"] = groups;
+                            if (output != null)
+                            {
+                                row = output.Evaluate(row);
+                            }
+                            yield return row;
                         }
-                        row[CommandLineLineSource.LINE] = l[CommandLineLineSource.LINE];
-                        row["groups"] = groups;
-                        if (output != null)
+                        if (cancelable?.IsCanceled ?? false)
                         {
-                            row = output.Evaluate(row);
+                            break;
                         }
-                        yield return row;
-                    }
-                    if (cancelable?.IsCanceled ?? false)
-                    {
-                        break;
                     }
                 }
             }
         }
     }
 
-    [Export(typeof(IHtValueTransform))]
-    public class JsonFromLineTransform : EditOnlyPlugin, IHtValueTransform
+    [Export(typeof(IStemNode))]
+    public class JsonFromLineTransform : AbstractPipelineNode, IHtValueTransform, IHtValueStem
     { 
         private JsonSerializerSettings _settings;
 
@@ -181,7 +240,12 @@ namespace com.antlersoft.HostedTools.Pipeline
         : base(new MenuItem("DevTools.Pipeline.Input.JsonFromLineTransform", "Strings -> Json", typeof(JsonFromLineTransform).FullName, "DevTools.Pipeline.Transform"), new string[0])
         { }
 
-        public string TransformDescription => $"String to json";
+        public override string NodeDescription => $"String to json";
+
+        public IHtValueTransform GetHtValueTransform(PluginState state)
+        {
+            return this;
+        }
 
         public IEnumerable<IHtValue> GetTransformed(IEnumerable<IHtValue> input, IWorkMonitor monitor)
         {

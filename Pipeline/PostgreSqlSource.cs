@@ -9,7 +9,7 @@ using System.ComponentModel.Composition;
 namespace com.antlersoft.HostedTools.Pipeline
 {
     [Export(typeof(ISettingDefinitionSource))]
-    [Export(typeof(IHtValueSource))]
+    [Export(typeof(IRootNode))]
     public class PostgreSqlSource : SqlSourceBase, ISettingDefinitionSource
     {
         static ISettingDefinition PostgreSqlConnectionString = new SimpleSettingDefinition("ConnectionString", "PostgreSqlSource", "Connection string");
