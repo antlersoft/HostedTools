@@ -45,7 +45,6 @@ namespace com.antlersoft.HostedTools.Pipeline
         public PluginState GetPluginState()
         {
             PluginState result = new PluginState();
-            result.Description = NodeDescription;
             result.PluginName = Name;
             result.NestedValues = new Dictionary<string, PluginState>();
             result.SettingValues = new Dictionary<string, string>();

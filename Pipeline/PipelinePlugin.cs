@@ -12,20 +12,23 @@ using com.antlersoft.HostedTools.Framework.Model.Setting;
 using com.antlersoft.HostedTools.ConditionBuilder.Interface;
 using com.antlersoft.HostedTools.Interface;
 using com.antlersoft.HostedTools.Serialization;
+using com.antlersoft.HostedTools.Pipeline.Extensions;
 using Newtonsoft.Json;
 using com.antlersoft.HostedTools.Framework.Model;
 using Newtonsoft.Json.Linq;
 
 namespace com.antlersoft.HostedTools.Pipeline
 {
+    [Export(typeof(IWorkNode))]
     [Export(typeof(ISettingDefinitionSource))]
     [Export(typeof(IAfterComposition))]
-    public class PipelinePlugin : GridWorker, ISettingDefinitionSource, IAfterComposition
+    public class PipelinePlugin : GridWorker, ISettingDefinitionSource, IAfterComposition, IWorkNode
     {
         [ImportMany] public IEnumerable<IRootNode> Sources;
         [ImportMany] public IEnumerable<ILeafNode> Sinks;
         [ImportMany] public IEnumerable<IStemNode> Transforms;
         [Import] public IConditionBuilder ConditionBuilder;
+        [Import] public IPluginManager PluginManager;
         public static readonly PluginSelectionSettingDefinition Source =
             new PluginSelectionSettingDefinition(NodeFunc<IRootNode>, "Source", "Pipeline", "Data Source",
                 "Click edit to change details of source");
@@ -57,56 +60,21 @@ namespace com.antlersoft.HostedTools.Pipeline
 
         public override void Perform(IWorkMonitor monitor)
         {
-            ClearGrid(monitor);
-            IHtValueRoot root = ((PluginSelectionItem)Source.FindMatchingItem(Source.Value<string>(SettingManager))).Plugin.Cast<IHtValueRoot>();
-            IHtValueLeaf leaf = ((PluginSelectionItem)Sink.FindMatchingItem(Sink.Value<string>(SettingManager))).Plugin.Cast<IHtValueLeaf>();
-            IHtValueStem stem = ((PluginSelectionItem)Transform.FindMatchingItem(Transform.Value<string>(SettingManager))).Plugin.Cast<IHtValueStem>();
-            string filter = SettingManager["Pipeline.LocalFilter"].Get<string>();
-            bool gridOutput = GridOutput.Value<bool>(SettingManager);
-            CanBackground(monitor, "Pipe from "+root.NodeDescription+" to "+leaf.NodeDescription);
-
-            var input = root.GetHtValueSource(root.GetPluginState());
-
-            IEnumerable<IHtValue> rows = input.GetRows(monitor);
-            if (! String.IsNullOrWhiteSpace(filter))
-            {
-                IHtExpression expression =
-                    ConditionBuilder.ParseCondition(filter);
-                if (expression != null)
-                {
-                    rows = rows.Where(r => expression.Evaluate(r).AsBool);
-                }
-            }
-            IHtValueTransform transform = null;
-            if (! (stem is NullTransform))
-            {
-                transform = stem.GetHtValueTransform(stem.GetPluginState());
-                rows = transform.GetTransformed(rows, monitor);
-            }
-            if (gridOutput)
-            {
-                rows = rows.Select(r =>
-                {
-                    WriteRecord(monitor, r);
-                    return r;
-                });
-            }
-            var output = leaf.GetHtValueSink(leaf.GetPluginState());
-            output.ReceiveRows(new MonitoredEnumerable<IHtValue>(rows, monitor), monitor);
-            if (output.Cast<IDisposable>() is IDisposable disposable) {
-                disposable.Dispose();
-            }
-            if (transform != null && transform.Cast<IDisposable>() is IDisposable disposable1) {
-                disposable1.Dispose();
-            }
-            if (input.Cast<IDisposable>() is IDisposable disposable2) {
-                disposable2.Dispose();
-            }
+            Perform(GetPluginState(), monitor);
         }
 
         public IEnumerable<ISettingDefinition> Definitions
         {
             get { return new[] {Source, Sink, Transform, GridOutput, IsSingleValued}; }
+        }
+
+        public string NodeDescription {
+            get {
+                IRootNode root = ((PluginSelectionItem)Source.FindMatchingItem(Source.Value<string>(SettingManager))).Plugin.Cast<IRootNode>();
+                ILeafNode leaf = ((PluginSelectionItem)Sink.FindMatchingItem(Sink.Value<string>(SettingManager))).Plugin.Cast<ILeafNode>();
+
+                return "Pipe from "+root.NodeDescription+" to "+leaf.NodeDescription;
+            }
         }
 
         public void AfterComposition()
@@ -197,5 +165,58 @@ namespace com.antlersoft.HostedTools.Pipeline
             return new StreamSource(stream, jsonFactory, isGzip, isSingleValue);
         }
 
+        public void Perform(PluginState state, IWorkMonitor monitor)
+        {
+            ClearGrid(monitor);
+            IHtValueRoot root = PluginManager[state.SettingValues[Source.FullKey()]].Cast<IHtValueRoot>();
+            IHtValueLeaf leaf = PluginManager[state.SettingValues[Sink.FullKey()]].Cast<IHtValueLeaf>();
+            IHtValueStem stem = PluginManager[state.SettingValues[Transform.FullKey()]].Cast<IHtValueStem>();
+            string filter = state.SettingValues["Pipeline.LocalFilter"];
+            bool gridOutput = (bool)Convert.ChangeType(state.SettingValues[GridOutput.FullKey()], typeof(bool));
+            CanBackground(monitor, "Pipe from "+root.NodeDescription+" to "+leaf.NodeDescription);
+
+            var input = root.GetHtValueSource(state.NestedValues[Source.FullKey()]);
+
+            IEnumerable<IHtValue> rows = input.GetRows(monitor);
+            if (! String.IsNullOrWhiteSpace(filter))
+            {
+                IHtExpression expression =
+                    ConditionBuilder.ParseCondition(filter);
+                if (expression != null)
+                {
+                    rows = rows.Where(r => expression.Evaluate(r).AsBool);
+                }
+            }
+            IHtValueTransform transform = null;
+            if (! (stem is NullTransform))
+            {
+                transform = stem.GetHtValueTransform(state.NestedValues[Transform.FullKey()]);
+                rows = transform.GetTransformed(rows, monitor);
+            }
+            if (gridOutput)
+            {
+                rows = rows.Select(r =>
+                {
+                    WriteRecord(monitor, r);
+                    return r;
+                });
+            }
+            var output = leaf.GetHtValueSink(state.NestedValues[Sink.FullKey()]);
+            output.ReceiveRows(new MonitoredEnumerable<IHtValue>(rows, monitor), monitor);
+            if (output.Cast<IDisposable>() is IDisposable disposable) {
+                disposable.Dispose();
+            }
+            if (transform != null && transform.Cast<IDisposable>() is IDisposable disposable1) {
+                disposable1.Dispose();
+            }
+            if (input.Cast<IDisposable>() is IDisposable disposable2) {
+                disposable2.Dispose();
+            }
+        }
+
+        public PluginState GetPluginState()
+        {
+            return this.AssemblePluginState(PluginManager,SettingManager);
+        }
     }
 }

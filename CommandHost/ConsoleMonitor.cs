@@ -11,7 +11,7 @@ using com.antlersoft.HostedTools.Framework.Model;
 
 namespace com.antlersoft.HostedTools.CommandHost
 {
-    class ConsoleMonitor : HostedObjectBase, IWorkMonitor
+    class ConsoleMonitor : HostedObjectBase, ICancelableMonitor
     {
         private CancellationTokenSource _source;
         private bool _isCanceled;

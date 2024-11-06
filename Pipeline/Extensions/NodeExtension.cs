@@ -7,7 +7,6 @@ namespace com.antlersoft.HostedTools.Pipeline.Extensions {
 public static class NodeExtension {
     public static PluginState AssemblePluginState(this IPipelineNode node, IPluginManager pluginManager, ISettingManager settings) {
         PluginState result = new PluginState();
-        result.Description = node.NodeDescription;
         if (node.Cast<IPlugin>() is IPlugin plugin) {
             result.PluginName = plugin.Name;
         } else {
