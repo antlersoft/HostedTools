@@ -9,7 +9,6 @@ namespace com.antlersoft.HostedTools.Pipeline
     public class PluginState
     {
         public string PluginName;
-        public string Description;
         public Dictionary<string, string> SettingValues;
         public Dictionary<string, PluginState> NestedValues;
     }
