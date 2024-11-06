@@ -3,8 +3,10 @@ using com.antlersoft.HostedTools.Framework.Interface.Plugin;
 using com.antlersoft.HostedTools.Framework.Interface.Setting;
 using com.antlersoft.HostedTools.Framework.Model.Menu;
 using com.antlersoft.HostedTools.Framework.Model.Plugin;
+using com.antlersoft.HostedTools.Serialization;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -19,6 +21,9 @@ namespace com.antlersoft.HostedTools.Pipeline
 
         [Import]
         public IMenuManager MenuManager { get; set; }
+
+        [Import]
+        public IJsonFactory JsonFactory;
 
         PluginSelectionSettingDefinition _pluginSelectionDefinition;
 
@@ -49,10 +54,6 @@ namespace com.antlersoft.HostedTools.Pipeline
                         sb.Append('\\');
                         sb.Append('n');
                         break;
-                    case '\\' :
-                        sb.Append('\\');
-                        sb.Append('\\');
-                        break;
                     case '\'':
                         sb.Append('\\');
                         sb.Append('\'');
@@ -71,7 +72,14 @@ namespace com.antlersoft.HostedTools.Pipeline
             monitor.Writer.Write($"dotnet CommandHost.dll ");
             string pluginName = _pluginSelectionDefinition.Value<string>(SettingManager);
             IPlugin plugin = PluginManager.Plugins.First(p => p.Name == pluginName);
-            if (plugin.Cast<ISettingEditList>() is ISettingEditList list)
+            if (plugin.Cast<IWorkNode>() is IWorkNode workNode) {
+                monitor.Writer.Write($"--workNode ");
+                StringWriter sw = new StringWriter();
+                JsonFactory.GetSerializer().Serialize(sw, workNode.GetPluginState());
+                monitor.Writer.Write(EscapeString(sw.ToString()));
+                monitor.Writer.Write(" ");
+            }
+            else if (plugin.Cast<ISettingEditList>() is ISettingEditList list)
             {
                 foreach (var setting in list.KeysToEdit.Select(k => SettingManager[k]))
                 {

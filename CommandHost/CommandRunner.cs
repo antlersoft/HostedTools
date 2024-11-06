@@ -2,12 +2,16 @@
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
+using System.IO;
 using System.Linq;
 using com.antlersoft.HostedTools.Framework.Interface;
 using com.antlersoft.HostedTools.Framework.Interface.Plugin;
 using com.antlersoft.HostedTools.Framework.Interface.Setting;
 using com.antlersoft.HostedTools.Framework.Interface.UI;
 using com.antlersoft.HostedTools.Framework.Model;
+using com.antlersoft.HostedTools.Pipeline;
+using com.antlersoft.HostedTools.Serialization;
+using Newtonsoft.Json;
 
 namespace com.antlersoft.HostedTools.CommandHost
 {
@@ -18,6 +22,8 @@ namespace com.antlersoft.HostedTools.CommandHost
         public IPluginManager PluginManager { get; set; }
         [Import]
         public ISettingManager SettingManager { get; set; }
+        [Import]
+        public IJsonFactory JsonFactory { get; set; }
 
       [ImportMany]
       public IEnumerable<IAfterComposition> NeedAfterComposition { get; set; }
@@ -135,6 +141,34 @@ namespace com.antlersoft.HostedTools.CommandHost
             if (command.StartsWith("--"))
             {
                 string settingKey = command.Substring(2);
+                if (settingKey == "workNode") {
+                    if (i+2 >= args.Length) {
+                        monitor.Writer.WriteLine("Too few arguments for workNode");
+                        return i+1;
+                    }
+                    IWorkNode workNode = PluginManager[args[i+2]]?.Cast<IWorkNode>();
+                    if (workNode == null) {
+                        monitor.Writer.WriteLine($"Can't interpret {args[i+2]} as IWorkNode");
+                        return i+3;
+                    }
+                    try {
+                        PluginState pluginState = null;
+                        using (var sr = new StringReader(args[i+1]))
+                        using (var jr = new JsonTextReader(sr))
+                        {
+                            pluginState = JsonFactory.GetSerializer().Deserialize<PluginState>(jr);
+                            if (pluginState == null) {
+                                monitor.Writer.WriteLine("Can't interpret argument as PluginState");
+                                return i+3;
+                            }
+                        }
+                        workNode.Perform(pluginState, monitor);
+                    }
+                    catch (Exception ex) {
+                        monitor.Writer.WriteLine(ex.ToString());
+                    }
+                    return i+3;
+                }
                 try
                 {
                     var setting = SettingManager[settingKey];
