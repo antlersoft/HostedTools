@@ -3,13 +3,16 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
 using System.Linq;
+using com.antlersoft.HostedTools.Framework.Interface;
 using com.antlersoft.HostedTools.Framework.Interface.Plugin;
 using com.antlersoft.HostedTools.Framework.Interface.Setting;
 using com.antlersoft.HostedTools.Framework.Interface.UI;
+using com.antlersoft.HostedTools.Framework.Model;
 
 namespace com.antlersoft.HostedTools.CommandHost
 {
-    public class CommandRunner
+    [Export(typeof(IHasContainer))]
+    public class CommandRunner : HostedObjectBase, IHasContainer
     {
         [Import]
         public IPluginManager PluginManager { get; set; }

@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using com.antlersoft.HostedTools.Framework.Interface.Plugin;
 using com.antlersoft.HostedTools.Framework.Interface.Setting;
+using com.antlersoft.HostedTools.Framework.Model;
 using com.antlersoft.HostedTools.Framework.Model.Menu;
 using com.antlersoft.HostedTools.Framework.Model.Plugin;
 using com.antlersoft.HostedTools.Framework.Model.Setting;
@@ -19,11 +20,16 @@ using Newtonsoft.Json;
 
 namespace com.antlersoft.HostedTools.Pipeline
 {
-    [Export(typeof(IHtValueSink))]
-    public class TabDelimitedSink : EditingSettingDeclarer, IHtValueSink
+    [Export(typeof(ISettingDefinitionSource))]
+    [Export(typeof(ILeafNode))]
+    public class TabDelimitedSink : AbstractPipelineNode, IHtValueLeaf, ISettingDefinitionSource
     {
-        [Import] public ISettingManager SettingManager;
         [Import] public IJsonFactory JsonFactory;
+
+        static ISettingDefinition TabDelimitedOutput = new PathSettingDefinition("TabDelimitedOutput", "Pipeline", "Tab-delimited output file", true, false,
+                        "Tab-delimited text|*.txt");
+        static ISettingDefinition ColumnHeader = new SimpleSettingDefinition("ColumnTailer", "Pipeline", "Column Names as file header", "If not set, no column names are written", typeof(bool), "false", false, 1);
+
         public TabDelimitedSink()
             : base(
                 new []
@@ -33,54 +39,41 @@ namespace com.antlersoft.HostedTools.Pipeline
                 },
                 new[]
                 {
-                    new PathSettingDefinition("TabDelimitedOutput", "Pipeline", "Tab-delimited output file", true, false,
-                        "Tab-delimited text|*.txt"),
-                    new SimpleSettingDefinition("ColumnTailer", "Pipeline", "Column Names as file header", "If not set, no column names are written", typeof(bool), "false", false, 1)
-
+                    TabDelimitedOutput.FullKey(),
+                    ColumnHeader.FullKey()
                 })
         {
         }
 
-        public void ReceiveRows(IEnumerable<IHtValue> rows, IWorkMonitor monitor)
-        {
-            List<string> columns = new List<string>();
-            JsonSerializer serializer = JsonFactory.GetSerializer(false);
-            var writeTail = SettingManager["Pipeline.ColumnTailer"].Get<bool>();
-            var destFile = SettingManager["Pipeline.TabDelimitedOutput"].Get<string>();
-            var outputPath = writeTail ? Path.GetTempFileName() : destFile;
-			var cancelable = monitor.Cast<ICancelableMonitor>();
+        class Sink : HostedObjectBase, IHtValueSink {
+            private readonly bool writeTail;
+            private readonly string destFile;
+            private readonly JsonSerializer serializer;
 
-            using (StreamWriter writer = new StreamWriter(outputPath))
+            internal Sink(string outputPath, bool wt, JsonSerializer ser) {
+                destFile = outputPath;
+                writeTail = wt;
+                serializer = ser;
+            }
+
+            public void ReceiveRows(IEnumerable<IHtValue> rows, IWorkMonitor monitor)
             {
-                bool first;
-                foreach (var row in rows)
+                List<string> columns = new List<string>();
+                var outputPath = writeTail ? Path.GetTempFileName() : destFile;
+                var cancelable = monitor.Cast<ICancelableMonitor>();
+
+                using (StreamWriter writer = new StreamWriter(outputPath))
                 {
-                    if (cancelable!=null && cancelable.IsCanceled)
+                    bool first;
+                    foreach (var row in rows)
                     {
-                        break;
-                    }
-                    first = true;
-                    foreach (var name in columns)
-                    {
-                        if (first)
+                        if (cancelable!=null && cancelable.IsCanceled)
                         {
-                            first = false;
+                            break;
                         }
-                        else
+                        first = true;
+                        foreach (var name in columns)
                         {
-                            writer.Write("\t");
-                        }
-                        var val = row[name];
-                        if (val!=null && ! val.IsEmpty)
-                        {
-                            writer.Write(GridWorker.ValueToSimpleObject(serializer, val));
-                        }
-                    }
-                    foreach (var kvp in row.AsDictionaryElements)
-                    {
-                        if (!columns.Contains(kvp.Key) && ! kvp.Value.IsEmpty)
-                        {
-                            columns.Add(kvp.Key);
                             if (first)
                             {
                                 first = false;
@@ -89,48 +82,77 @@ namespace com.antlersoft.HostedTools.Pipeline
                             {
                                 writer.Write("\t");
                             }
-                            writer.Write(GridWorker.ValueToSimpleObject(serializer, kvp.Value));
+                            var val = row[name];
+                            if (val!=null && ! val.IsEmpty)
+                            {
+                                writer.Write(GridWorker.ValueToSimpleObject(serializer, val));
+                            }
                         }
-                    }
-                    writer.WriteLine();
-                }
-            }
-            if (writeTail)
-            {
-                using (StreamWriter writer = new StreamWriter(destFile))
-                {
-                    bool first = true;
-                    foreach (var v in columns)
-                    {
-                        if (first)
+                        foreach (var kvp in row.AsDictionaryElements)
                         {
-                            first = false;
+                            if (!columns.Contains(kvp.Key) && ! kvp.Value.IsEmpty)
+                            {
+                                columns.Add(kvp.Key);
+                                if (first)
+                                {
+                                    first = false;
+                                }
+                                else
+                                {
+                                    writer.Write("\t");
+                                }
+                                writer.Write(GridWorker.ValueToSimpleObject(serializer, kvp.Value));
+                            }
                         }
-                        else
-                        {
-                            writer.Write("\t");
-                        }
-                        writer.Write(v);
-                    }
-                    if (! first)
-                    {
                         writer.WriteLine();
                     }
-                    using (StreamReader sr = new StreamReader(outputPath))
+                }
+                if (writeTail)
+                {
+                    using (StreamWriter writer = new StreamWriter(destFile))
                     {
-                        for (string line=sr.ReadLine(); line!=null; line=sr.ReadLine())
+                        bool first = true;
+                        foreach (var v in columns)
                         {
-                            writer.WriteLine(line);
+                            if (first)
+                            {
+                                first = false;
+                            }
+                            else
+                            {
+                                writer.Write("\t");
+                            }
+                            writer.Write(v);
                         }
+                        if (! first)
+                        {
+                            writer.WriteLine();
+                        }
+                        using (StreamReader sr = new StreamReader(outputPath))
+                        {
+                            for (string line=sr.ReadLine(); line!=null; line=sr.ReadLine())
+                            {
+                                writer.WriteLine(line);
+                            }
+                        }
+                        File.Delete(outputPath);
                     }
-                    File.Delete(outputPath);
                 }
             }
         }
 
-        public string SinkDescription
+        public IHtValueSink GetHtValueSink(PluginState state)
+        {
+            var writeTail = (bool)Convert.ChangeType(state.SettingValues[ColumnHeader.FullKey()], typeof(bool));
+            var destFile = state.SettingValues[TabDelimitedOutput.FullKey()];
+            return new Sink(destFile, writeTail, JsonFactory.GetSerializer(false));
+        }
+
+        public override string NodeDescription
         {
             get { return "Write to tab-delimited "+SettingManager["Pipeline.TabDelimitedOutput"].Get<string>(); }
         }
+
+        public IEnumerable<ISettingDefinition> Definitions => new ISettingDefinition[] { TabDelimitedOutput, ColumnHeader};
     }
 }

@@ -10,12 +10,13 @@ using com.antlersoft.HostedTools.Framework.Model.Setting;
 using com.antlersoft.HostedTools.ConditionBuilder.Interface;
 using com.antlersoft.HostedTools.Interface;
 using com.antlersoft.HostedTools.ConditionBuilder.Model;
+using com.antlersoft.HostedTools.Framework.Model;
 
 namespace com.antlersoft.HostedTools.Pipeline
 {
     [Export(typeof(ISettingDefinitionSource))]
-    [Export(typeof(IHtValueTransform))]
-    public class OrderByTransform : EditOnlyPlugin, IHtValueTransform, ISettingDefinitionSource
+    [Export(typeof(IStemNode))]
+    public class OrderByTransform : AbstractPipelineNode, IHtValueStem, ISettingDefinitionSource
     {
         [Import] public IConditionBuilder ConditionBuilder;
 
@@ -29,26 +30,49 @@ namespace com.antlersoft.HostedTools.Pipeline
             
         }
 
-        public IEnumerable<IHtValue> GetTransformed(IEnumerable<IHtValue> input, IWorkMonitor monitor)
-        {
-            string s = OrderByList.Value<string>(SettingManager);
-            if (String.IsNullOrWhiteSpace(s))
-            {
-                return input;
-            }
-            List<IHtExpression> sortExpressions = new List<IHtExpression>();
-            foreach (string exprStr in s.Split(','))
-            {
-                sortExpressions.Add(ConditionBuilder.ParseCondition(exprStr));
+        class Transform : HostedObjectBase, IHtValueTransform {
+            private readonly string _orderByList;
+            private readonly bool _descending;
+            private readonly bool _nullsLast;
+            private readonly IConditionBuilder _conditionBuilder;
+
+            internal Transform(string orderByList, bool descending, bool nullsLast, IConditionBuilder conditionBuilder) {
+                _orderByList = orderByList;
+                _descending = descending;
+                _nullsLast = nullsLast;
+                _conditionBuilder = conditionBuilder;
             }
 
-            return input.OrderBy(row => row,
-                new OrderByComparer(
-                    new ValueComparer(Descending.Value<bool>(SettingManager), NullsLast.Value<bool>(SettingManager)),
-                    sortExpressions));
+            public IEnumerable<IHtValue> GetTransformed(IEnumerable<IHtValue> input, IWorkMonitor monitor)
+            {
+                if (String.IsNullOrWhiteSpace(_orderByList))
+                {
+                    return input;
+                }
+                List<IHtExpression> sortExpressions = new List<IHtExpression>();
+                foreach (string exprStr in _orderByList.Split(','))
+                {
+                    sortExpressions.Add(_conditionBuilder.ParseCondition(exprStr));
+                }
+
+                return input.OrderBy(row => row,
+                    new OrderByComparer(
+                        new ValueComparer(_descending, _nullsLast),
+                        sortExpressions));
+            }
         }
 
-        public string TransformDescription
+        public IHtValueTransform GetHtValueTransform(PluginState state)
+        {
+            return new Transform(
+                state.SettingValues[OrderByList.FullKey()],
+                (bool)Convert.ChangeType(state.SettingValues[Descending.FullKey()], typeof(bool)),
+                (bool)Convert.ChangeType(state.SettingValues[NullsLast.FullKey()], typeof(bool)),
+                ConditionBuilder
+            );
+        }
+
+        public override string NodeDescription
         {
             get
             {

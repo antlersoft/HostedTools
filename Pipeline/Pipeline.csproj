@@ -36,6 +36,7 @@
   <ItemGroup>
     <ProjectReference Include="..\ConditionBuilder\ConditionBuilder.csproj" />
     <ProjectReference Include="..\Sql\Sql.csproj" />
+	<ProjectReference Include="..\ConditionBuilder\ConditionBuilder.csproj" />
   </ItemGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DebugType>portable</DebugType>

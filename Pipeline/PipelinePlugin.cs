@@ -13,6 +13,8 @@ using com.antlersoft.HostedTools.ConditionBuilder.Interface;
 using com.antlersoft.HostedTools.Interface;
 using com.antlersoft.HostedTools.Serialization;
 using Newtonsoft.Json;
+using com.antlersoft.HostedTools.Framework.Model;
+using Newtonsoft.Json.Linq;
 
 namespace com.antlersoft.HostedTools.Pipeline
 {
@@ -20,18 +22,18 @@ namespace com.antlersoft.HostedTools.Pipeline
     [Export(typeof(IAfterComposition))]
     public class PipelinePlugin : GridWorker, ISettingDefinitionSource, IAfterComposition
     {
-        [ImportMany] public IEnumerable<IHtValueSource> Sources;
-        [ImportMany] public IEnumerable<IHtValueSink> Sinks;
-        [ImportMany] public IEnumerable<IHtValueTransform> Transforms;
+        [ImportMany] public IEnumerable<IRootNode> Sources;
+        [ImportMany] public IEnumerable<ILeafNode> Sinks;
+        [ImportMany] public IEnumerable<IStemNode> Transforms;
         [Import] public IConditionBuilder ConditionBuilder;
         public static readonly PluginSelectionSettingDefinition Source =
-            new PluginSelectionSettingDefinition(SourceFunc, "Source", "Pipeline", "Data Source",
+            new PluginSelectionSettingDefinition(NodeFunc<IRootNode>, "Source", "Pipeline", "Data Source",
                 "Click edit to change details of source");
         public static readonly PluginSelectionSettingDefinition Sink =
-            new PluginSelectionSettingDefinition(SinkFunc, "Sink", "Pipeline", "Data Sink",
+            new PluginSelectionSettingDefinition(NodeFunc<ILeafNode>, "Sink", "Pipeline", "Data Sink",
                 "Click edit to change details of data destination");
         public static readonly PluginSelectionSettingDefinition Transform =
-            new PluginSelectionSettingDefinition(TransformFunc, "Transform", "Pipeline", "Data Transform",
+            new PluginSelectionSettingDefinition(NodeFunc<IStemNode>, "Transform", "Pipeline", "Data Transform",
                 "Click edit to change details of data transform");
         public static readonly SimpleSettingDefinition GridOutput = new SimpleSettingDefinition("GridOutput", "Pipeline", "Display in Grid", "May want to leave unchecked for large data", typeof(bool), "false", false, 0);
         public static readonly ISettingDefinition IsSingleValued = new SimpleSettingDefinition("IsSingleValued", "Pipeline", "Is single values", "If checked, assumes data is a single JSON object instead of an array", typeof(bool), "false");
@@ -56,13 +58,16 @@ namespace com.antlersoft.HostedTools.Pipeline
         public override void Perform(IWorkMonitor monitor)
         {
             ClearGrid(monitor);
-            IHtValueSource input = ((PluginSelectionItem)Source.FindMatchingItem(Source.Value<string>(SettingManager))).Plugin.Cast<IHtValueSource>();
-            IHtValueSink output = ((PluginSelectionItem)Sink.FindMatchingItem(Sink.Value<string>(SettingManager))).Plugin.Cast<IHtValueSink>();
-            IHtValueTransform transform = ((PluginSelectionItem)Transform.FindMatchingItem(Transform.Value<string>(SettingManager))).Plugin.Cast<IHtValueTransform>();
+            IHtValueRoot root = ((PluginSelectionItem)Source.FindMatchingItem(Source.Value<string>(SettingManager))).Plugin.Cast<IHtValueRoot>();
+            IHtValueLeaf leaf = ((PluginSelectionItem)Sink.FindMatchingItem(Sink.Value<string>(SettingManager))).Plugin.Cast<IHtValueLeaf>();
+            IHtValueStem stem = ((PluginSelectionItem)Transform.FindMatchingItem(Transform.Value<string>(SettingManager))).Plugin.Cast<IHtValueStem>();
             string filter = SettingManager["Pipeline.LocalFilter"].Get<string>();
             bool gridOutput = GridOutput.Value<bool>(SettingManager);
-            CanBackground(monitor, "Pipe from "+input.SourceDescription+" to "+output.SinkDescription);
-            IEnumerable<IHtValue> rows = input.GetRows();
+            CanBackground(monitor, "Pipe from "+root.NodeDescription+" to "+leaf.NodeDescription);
+
+            var input = root.GetHtValueSource(root.GetPluginState());
+
+            IEnumerable<IHtValue> rows = input.GetRows(monitor);
             if (! String.IsNullOrWhiteSpace(filter))
             {
                 IHtExpression expression =
@@ -72,8 +77,10 @@ namespace com.antlersoft.HostedTools.Pipeline
                     rows = rows.Where(r => expression.Evaluate(r).AsBool);
                 }
             }
-            if (! (transform is NullTransform))
+            IHtValueTransform transform = null;
+            if (! (stem is NullTransform))
             {
+                transform = stem.GetHtValueTransform(stem.GetPluginState());
                 rows = transform.GetTransformed(rows, monitor);
             }
             if (gridOutput)
@@ -84,7 +91,17 @@ namespace com.antlersoft.HostedTools.Pipeline
                     return r;
                 });
             }
+            var output = leaf.GetHtValueSink(leaf.GetPluginState());
             output.ReceiveRows(new MonitoredEnumerable<IHtValue>(rows, monitor), monitor);
+            if (output.Cast<IDisposable>() is IDisposable disposable) {
+                disposable.Dispose();
+            }
+            if (transform != null && transform.Cast<IDisposable>() is IDisposable disposable1) {
+                disposable1.Dispose();
+            }
+            if (input.Cast<IDisposable>() is IDisposable disposable2) {
+                disposable2.Dispose();
+            }
         }
 
         public IEnumerable<ISettingDefinition> Definitions
@@ -99,43 +116,45 @@ namespace com.antlersoft.HostedTools.Pipeline
             Transform.SetPlugins(Transforms.Select(s => s.Cast<IPlugin>()).Where(s => s!=null).ToList(), SettingManager);
         }
 
-        private static string SourceFunc(IPlugin sourcePlugin)
+        private static string NodeFunc<T>(IPlugin sourcePlugin) where T : class
         {
-            IHtValueSource source = sourcePlugin.Cast<IHtValueSource>();
+            T source = sourcePlugin.Cast<T>();
             if (source == null)
             {
                 return sourcePlugin.Name;
             }
-            return source.SourceDescription;
+            return (source as IPipelineNode).NodeDescription;
         }
 
-        private static string SinkFunc(IPlugin sinkPlugin)
+        class StreamSource : HostedObjectBase, IHtValueSource, IDisposable
         {
-            IHtValueSink sink = sinkPlugin.Cast<IHtValueSink>();
-            if (sink == null)
-            {
-                return sinkPlugin.Name;
-            }
-            return sink.SinkDescription;
-        }
+            Stream _str;
+            Stream stream;
+            JsonTextReader jr;
+            IJsonFactory jsonFactory;
+            bool isSingleValue;
 
-        private static string TransformFunc(IPlugin plugin)
-        {
-            IHtValueTransform transform = plugin.Cast<IHtValueTransform>();
-            if (transform == null)
-            {
-                return plugin.Name;
+            internal StreamSource(Stream str, IJsonFactory jf, bool isGz, bool isSv) {
+                isSingleValue = isSv;
+                _str = str;
+                jsonFactory = jf;
+                if (isGz) {
+                    stream = new GZipStream(stream, CompressionMode.Decompress);
+                } else {
+                    stream = _str;
+                }
+                jr = new JsonTextReader(new StreamReader(stream));
             }
-            return transform.TransformDescription;
-        }
+            public void Dispose()
+            {
+                (jr as IDisposable)?.Dispose();
+                stream?.Dispose();
+                if (_str != stream) {
+                    _str?.Dispose();
+                }
+            }
 
-        public static IEnumerable<IHtValue> FromJsonStream(Stream stream, IJsonFactory jsonFactory, bool isGzip, bool isSingleValue)
-        {
-            if (isGzip)
-            {
-                stream = new GZipStream(stream, CompressionMode.Decompress);
-            }
-            try
+            public IEnumerable<IHtValue> GetRows(IWorkMonitor monitor)
             {
                 bool sentRow = false;
                 using (StreamReader sw = new StreamReader(stream))
@@ -172,10 +191,10 @@ namespace com.antlersoft.HostedTools.Pipeline
                     }
                 }
             }
-            finally
-            {
-                stream.Dispose();
-            }
+        }
+        public static IHtValueSource FromJsonStream(Stream stream, IJsonFactory jsonFactory, bool isGzip, bool isSingleValue)
+        {
+            return new StreamSource(stream, jsonFactory, isGzip, isSingleValue);
         }
 
     }

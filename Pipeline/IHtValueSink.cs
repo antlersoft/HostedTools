@@ -8,6 +8,5 @@ namespace com.antlersoft.HostedTools.Pipeline
     public interface IHtValueSink : IHostedObject
     {
         void ReceiveRows(IEnumerable<IHtValue> rows, IWorkMonitor monitor);
-        string SinkDescription { get; }
     }
 }

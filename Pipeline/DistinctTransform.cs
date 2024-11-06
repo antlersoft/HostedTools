@@ -13,8 +13,8 @@ using Newtonsoft.Json;
 namespace com.antlersoft.HostedTools.Pipeline
 {
     [Export(typeof(IPlugin))]
-    [Export(typeof(IHtValueTransform))]
-    public class DistinctTransform : HostedObjectBase, IPlugin, IHtValueTransform
+    [Export(typeof(IStemNode))]
+    public class DistinctTransform : HostedObjectBase, IPlugin, IHtValueTransform, IHtValueStem
     {
         [Import] public IJsonFactory JsonFactory { get; set; }
 
@@ -37,7 +37,23 @@ namespace com.antlersoft.HostedTools.Pipeline
             }
         }
 
-        public string TransformDescription
+        public IHtValueTransform GetHtValueTransform(PluginState state)
+        {
+            return this;
+        }
+
+        public PluginState GetPluginState()
+        {
+            PluginState result = new PluginState();
+            result.Description = NodeDescription;
+            result.PluginName = Name;
+            result.NestedValues = new Dictionary<string, PluginState>();
+            result.SettingValues = new Dictionary<string, string>();
+
+            return result;
+        }
+
+        public string NodeDescription
         {
             get { return "distinct"; }
         }
@@ -46,5 +62,6 @@ namespace com.antlersoft.HostedTools.Pipeline
         {
             get { return GetType().FullName; }
         }
+
     }
 }

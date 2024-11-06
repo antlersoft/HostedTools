@@ -12,6 +12,5 @@ namespace com.antlersoft.HostedTools.Pipeline
     public interface IHtValueTransform : IHostedObject
     {
         IEnumerable<IHtValue> GetTransformed(IEnumerable<IHtValue> input, IWorkMonitor monitor);
-        string TransformDescription { get; }
     }
 }

@@ -11,6 +11,7 @@ using com.antlersoft.HostedTools.ConditionBuilder.Interface;
 using com.antlersoft.HostedTools.ConditionBuilder.Model;
 using com.antlersoft.HostedTools.Framework.Interface.Plugin;
 using com.antlersoft.HostedTools.Framework.Interface.Setting;
+using com.antlersoft.HostedTools.Framework.Model;
 using com.antlersoft.HostedTools.Framework.Model.Menu;
 using com.antlersoft.HostedTools.Framework.Model.Plugin;
 using com.antlersoft.HostedTools.Framework.Model.Setting;
@@ -20,9 +21,9 @@ using Newtonsoft.Json.Linq;
 
 namespace com.antlersoft.HostedTools.Pipeline
 {
-    [Export(typeof(IHtValueTransform))]
+    [Export(typeof(IStemNode))]
     [Export(typeof(ISettingDefinitionSource))]
-    public class JoinTransform : EditOnlyPlugin, IHtValueTransform, ISettingDefinitionSource
+    public class JoinTransform : AbstractPipelineNode, IHtValueStem, ISettingDefinitionSource
     {
         public enum JoinTypes {
             In,
@@ -160,7 +161,7 @@ namespace com.antlersoft.HostedTools.Pipeline
 
         public IEnumerable<ISettingDefinition> Definitions => new [] { JoinFile, FileIsGzip, ToFilterJoinKey, FileFilterJoinKey, JoinType, ResultType, ProjectionExpression};
 
-        public string TransformDescription { get { string r= ""; try {
+        public override string NodeDescription { get { string r= ""; try {
             var scope = SettingManager.Scope(JoinType.ScopeKey);
             var setting = scope[JoinType.Name];
             var raw = setting.GetRaw();
@@ -402,22 +403,59 @@ namespace com.antlersoft.HostedTools.Pipeline
             }
         }
 
-        public IEnumerable<IHtValue> GetTransformed(IEnumerable<IHtValue> rows, IWorkMonitor monitor)
+        class Transform : HostedObjectBase, IHtValueTransform, IDisposable {
+            private readonly IComparer<IHtValue> _comparer;
+            private readonly string path;
+            private readonly string isGzip;
+            private readonly JoinTypes jt;
+            private readonly ResultTypes rt;
+            private readonly IHtExpression projectionExpression;
+            private readonly IHtExpression filteredKey;
+            private readonly IHtExpression fileKey;
+            private IHtValueSource fileSource;
+
+            internal Transform(IComparer<IHtValue> comparer, IJsonFactory jsonFactory, string path, bool isGzip,
+                JoinTypes _jt, ResultTypes _rt, IHtExpression _projectExpression, IHtExpression _filteredKey,
+                IHtExpression _fileKey) {
+                _comparer = comparer;
+                jt = _jt;
+                rt = _rt;
+                projectionExpression = _projectExpression;
+                filteredKey = _filteredKey;
+                fileKey = _fileKey;
+                fileSource = PipelinePlugin.FromJsonStream(new FileStream(path, FileMode.Open, FileAccess.Read), jsonFactory, isGzip, false);
+            }
+
+            public void Dispose()
+            {
+                if (fileSource.Cast<IDisposable>() is IDisposable disposable) {
+                    disposable.Dispose();
+                }
+            }
+
+            public IEnumerable<IHtValue> GetTransformed(IEnumerable<IHtValue> rows, IWorkMonitor monitor)
+            {
+                return GetJoin(jt, rt, _comparer, projectionExpression, rows, filteredKey, fileSource.GetRows(monitor), fileKey);
+            }
+        }
+
+        public IHtValueTransform GetHtValueTransform(PluginState state)
         {
-            string path = JoinFile.Value<string>(SettingManager);
-            bool isGzip = FileIsGzip.Value<bool>(SettingManager);
-            JoinTypes jt = JoinType.Value<JoinTypes>(SettingManager);
-            ResultTypes rt = ResultType.Value<ResultTypes>(SettingManager);
+            string path = state.SettingValues[JoinFile.FullKey()];
+            bool isGzip = (bool)Convert.ChangeType(state.SettingValues[FileIsGzip.FullKey()], typeof(bool));
+            JoinTypes jt =(JoinTypes)Convert.ChangeType(state.SettingValues[JoinType.FullKey()], typeof(JoinTypes));
+            ResultTypes rt =(ResultTypes)Convert.ChangeType(state.SettingValues[ResultType.FullKey()], typeof(ResultTypes));
             IHtExpression projectionExpression = null;
             if (rt == ResultTypes.ProjectionExpression)
             {
-                projectionExpression = _expressionBuilder.ParseCondition(ProjectionExpression.Value<string>(SettingManager));
+                projectionExpression = _expressionBuilder.ParseCondition(state.SettingValues[ProjectionExpression.FullKey()]);
             }
             
-            IHtExpression filteredKey = GetKeyFromExpression(ToFilterJoinKey.Value<string>(SettingManager));
-            IHtExpression fileKey = GetKeyFromExpression(FileFilterJoinKey.Value<string>(SettingManager));
+            IHtExpression filteredKey = GetKeyFromExpression(state.SettingValues[ToFilterJoinKey.FullKey()]);
+            IHtExpression fileKey = GetKeyFromExpression(state.SettingValues[FileFilterJoinKey.FullKey()]);
 
-            return GetJoin(jt, rt, _comparer, projectionExpression, rows, filteredKey, PipelinePlugin.FromJsonStream(new FileStream(path, FileMode.Open, FileAccess.Read), _jsonFactory, isGzip, false), fileKey);
+            return new Transform(_comparer, _jsonFactory, path, isGzip, jt, rt,
+                projectionExpression, filteredKey, fileKey);
         }
     }
 }

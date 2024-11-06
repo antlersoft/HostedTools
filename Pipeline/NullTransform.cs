@@ -6,8 +6,8 @@ using com.antlersoft.HostedTools.Interface;
 namespace com.antlersoft.HostedTools.Pipeline
 {
     [Export(typeof(IPlugin))]
-    [Export(typeof(IHtValueTransform))]
-    public class NullTransform : IPlugin, IHtValueTransform
+    [Export(typeof(IStemNode))]
+    public class NullTransform : IPlugin, IHtValueStem, IHtValueTransform
     {
         public string Name
         {
@@ -24,7 +24,23 @@ namespace com.antlersoft.HostedTools.Pipeline
             return input;
         }
 
-        public string TransformDescription
+        public IHtValueTransform GetHtValueTransform(PluginState state)
+        {
+            return this;
+        }
+
+        public PluginState GetPluginState()
+        {
+            PluginState result = new PluginState();
+            result.Description = NodeDescription;
+            result.PluginName = Name;
+            result.NestedValues = new Dictionary<string, PluginState>();
+            result.SettingValues = new Dictionary<string, string>();
+
+            return result;
+        }
+
+        public string NodeDescription
         {
             get { return "Does nothing"; }
         }

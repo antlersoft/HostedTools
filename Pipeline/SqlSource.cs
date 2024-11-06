@@ -1,13 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Data;
 using System.Data.Common;
 
 using com.antlersoft.HostedTools.Framework.Interface.Menu;
+using com.antlersoft.HostedTools.Framework.Interface.Plugin;
 using com.antlersoft.HostedTools.Framework.Interface.Setting;
 using com.antlersoft.HostedTools.Framework.Model;
 using com.antlersoft.HostedTools.Framework.Model.Menu;
-using com.antlersoft.HostedTools.Framework.Model.Plugin;
 using com.antlersoft.HostedTools.Framework.Model.Setting;
 using com.antlersoft.HostedTools.Interface;
 using com.antlersoft.HostedTools.Sql;
@@ -15,7 +16,7 @@ using com.antlersoft.HostedTools.Sql.Interface;
 
 namespace com.antlersoft.HostedTools.Pipeline
 {
-    public abstract class SqlSourceBase : EditOnlyPlugin, IHtValueSource
+    public abstract class SqlSourceBase : AbstractPipelineNode, IHtValueRoot
     {
         protected SqlSourceBase(IEnumerable<IMenuItem> menuEntries, IEnumerable<string> keys)
         : base(menuEntries, keys)
@@ -37,12 +38,30 @@ namespace com.antlersoft.HostedTools.Pipeline
         /// <returns>A new instance of an ISQLConnectionSource</returns>
         public abstract ISqlConnectionSource GetConnectionSource();
 
-        public virtual IEnumerable<IHtValue> GetRows()
-        {
-            return SqlUtil.GetRows(GetConnectionSource(), SqlCommand.Value<string>(SettingManager), CommandTimeout.Value<int>(SettingManager), GetColumnValue);
+        class Source : HostedObjectBase, IHtValueSource {
+            private readonly ISqlConnectionSource _connectionSource;
+            private readonly string _sqlCommand;
+            private readonly int _commandTimeout;
+            private readonly Func<IDataReader,int,IHtValue> _columnReader;
+
+            internal Source(ISqlConnectionSource connectionSource, string sqlCommand, int commandTimeout, Func<IDataReader,int,IHtValue> columnReader) {
+                _connectionSource = connectionSource;
+                _sqlCommand = sqlCommand;
+                _commandTimeout = commandTimeout;
+                _columnReader = columnReader;
+            }
+            public IEnumerable<IHtValue> GetRows(IWorkMonitor monitor)
+            {
+                return SqlUtil.GetRows(_connectionSource, _sqlCommand, _commandTimeout, _columnReader);
+            }
         }
 
-        public virtual string SourceDescription
+        public IHtValueSource GetHtValueSource(PluginState state)
+        {
+            return new Source(GetConnectionSource(), SqlCommand.Value<string>(SettingManager), CommandTimeout.Value<int>(SettingManager), GetColumnValue);
+        }
+
+        public override string NodeDescription
         {
             get
             {
@@ -61,8 +80,8 @@ namespace com.antlersoft.HostedTools.Pipeline
     }
 
     [Export(typeof(ISettingDefinitionSource))]
-    [Export(typeof(IHtValueSource))]
-    public class SqlSource : SqlSourceBase, ISettingDefinitionSource, IHtValueSource
+    [Export(typeof(IRootNode))]
+    public class SqlSource : SqlSourceBase, ISettingDefinitionSource
     {
 
         public SqlSource()

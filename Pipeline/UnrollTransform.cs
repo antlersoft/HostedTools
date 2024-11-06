@@ -9,12 +9,13 @@ using com.antlersoft.HostedTools.Framework.Model.Setting;
 using com.antlersoft.HostedTools.ConditionBuilder.Interface;
 using com.antlersoft.HostedTools.Interface;
 using com.antlersoft.HostedTools.Serialization;
+using com.antlersoft.HostedTools.Framework.Model;
 
 namespace com.antlersoft.HostedTools.Pipeline
 {
     [Export(typeof(ISettingDefinitionSource))]
-    [Export(typeof(IHtValueTransform))]
-    public class UnrollTransform : EditOnlyPlugin, ISettingDefinitionSource, IHtValueTransform
+    [Export(typeof(IStemNode))]
+    public class UnrollTransform : AbstractPipelineNode, ISettingDefinitionSource, IHtValueStem
     {
         public static ISettingDefinition UnrollExpression = new SimpleSettingDefinition("UnrollExpression", "UnrollTransform", "Unroll Expression", "Expression that returns an array to unroll to multiple rows");
         public static ISettingDefinition UseAB = new SimpleSettingDefinition("UseAB", "UnrollTransform", "Output as A B", "If checked, value returned is dictionary with the original value as A and the unrolled value as B", typeof(bool), "false");
@@ -31,58 +32,78 @@ namespace com.antlersoft.HostedTools.Pipeline
             get { return new[] {UnrollExpression, UseAB}; }
         }
 
-        public IEnumerable<IHtValue> GetTransformed(IEnumerable<IHtValue> input, IWorkMonitor monitor)
-        {
-            IHtExpression unrollExpression = null;
-            string unrollText = UnrollExpression.Value<string>(SettingManager);
-            if (unrollText.Length > 0)
-            {
-                unrollExpression = ConditionBuilder.ParseCondition(unrollText);
+        class Transform : HostedObjectBase, IHtValueTransform {
+            private readonly string _unrollExpression;
+            private readonly bool _useAB;
+            private readonly IConditionBuilder _conditionBuilder;
+
+            internal Transform(string unrollExpression, bool useAB, IConditionBuilder conditionBuilder) {
+                _unrollExpression = unrollExpression;
+                _useAB = useAB;
+                _conditionBuilder = conditionBuilder;
             }
-            bool useAB = UseAB.Value<bool>(SettingManager);
-			var cancelable = monitor.Cast<ICancelableMonitor>();
-            foreach (var row in input)
+            public IEnumerable<IHtValue> GetTransformed(IEnumerable<IHtValue> input, IWorkMonitor monitor)
             {
-                if (cancelable!=null && cancelable.IsCanceled)
+                IHtExpression unrollExpression = null;
+                if (_unrollExpression.Length > 0)
                 {
-                    break;
+                    unrollExpression = _conditionBuilder.ParseCondition(_unrollExpression);
                 }
-                IHtValue array;
-                if (unrollExpression != null)
+                var cancelable = monitor.Cast<ICancelableMonitor>();
+                foreach (var row in input)
                 {
-                    array = unrollExpression.Evaluate(row);
-                }
-                else
-                {
-                    array = row;
-                }
-                if (array.IsArray)
-                {
-                    foreach (var element in array.AsArrayElements)
+                    if (cancelable!=null && cancelable.IsCanceled)
                     {
-                        yield return GetOutput(element, row, useAB);
+                        break;
+                    }
+                    IHtValue array;
+                    if (unrollExpression != null)
+                    {
+                        array = unrollExpression.Evaluate(row);
+                    }
+                    else
+                    {
+                        array = row;
+                    }
+                    if (array.IsArray)
+                    {
+                        foreach (var element in array.AsArrayElements)
+                        {
+                            yield return GetOutput(element, row, _useAB);
+                        }
+                    }
+                    else
+                    {
+                        yield return GetOutput(array, row, _useAB);
                     }
                 }
-                else
-                {
-                    yield return GetOutput(array, row, useAB);
-                }
             }
-        }
 
-        private IHtValue GetOutput(IHtValue element, IHtValue originalRow, bool useAB)
-        {
-            if (! useAB)
+            private IHtValue GetOutput(IHtValue element, IHtValue originalRow, bool useAB)
             {
-                return element;
+                if (! useAB)
+                {
+                    return element;
+                }
+                var result = new JsonHtValue();
+                result["A"] = originalRow;
+                result["B"] = element;
+                return result;
             }
-            var result = new JsonHtValue();
-            result["A"] = originalRow;
-            result["B"] = element;
-            return result;
+
         }
 
-        public string TransformDescription
+
+        public IHtValueTransform GetHtValueTransform(PluginState state)
+        {
+            return new Transform(
+                state.SettingValues[UnrollExpression.FullKey()],
+                (bool)Convert.ChangeType(state.SettingValues[UseAB.FullKey()], typeof(bool)),
+                ConditionBuilder
+            );
+        }
+
+        public override string NodeDescription
         {
             get { return "Unroll "+UnrollExpression.Value<string>(SettingManager)+(UseAB.Value<bool>(SettingManager) ? " as A B" : String.Empty); }
         }

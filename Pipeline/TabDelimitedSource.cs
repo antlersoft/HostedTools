@@ -10,13 +10,19 @@ using com.antlersoft.HostedTools.Framework.Model.Setting;
 using com.antlersoft.HostedTools.ConditionBuilder.Model;
 using com.antlersoft.HostedTools.Interface;
 using com.antlersoft.HostedTools.Serialization;
+using com.antlersoft.HostedTools.Framework.Interface.Plugin;
+using com.antlersoft.HostedTools.Framework.Model;
 
 namespace com.antlersoft.HostedTools.Pipeline
 {
-    [Export(typeof(IHtValueSource))]
-    public class TabDelimitedSource : EditingSettingDeclarer, IHtValueSource
+    [Export(typeof(IRootNode))]
+    [Export(typeof(ISettingDefinitionSource))]
+    public class TabDelimitedSource : AbstractPipelineNode, IHtValueRoot, ISettingDefinitionSource
     {
-        [Import] public ISettingManager SettingManager;
+        static ISettingDefinition TabDelimitedInput = new PathSettingDefinition("TabDelimitedInput", "Pipeline", "Tab-delimited input file", false, false,
+                        "Tab-delimited text|*.txt");
+        static ISettingDefinition ColumnsToRowExpression = new MultiLineSettingDefinition("ColumnsToRowExpression", "Pipeline", 8, "Projection expression", "Convert from object with rownum, c[] array fields to output object");
+        static ISettingDefinition SkipInitialLines = new SimpleSettingDefinition("SkipInitialLines", "Pipeline", "Number of leading rows to skip", "Skip this many rows into the file before starting", typeof(int), "0", false);
         public TabDelimitedSource()
             : base(
                 new []
@@ -26,57 +32,75 @@ namespace com.antlersoft.HostedTools.Pipeline
                 },
                 new[]
                 {
-                    new PathSettingDefinition("TabDelimitedInput", "Pipeline", "Tab-delimited input file", false, false,
-                        "Tab-delimited text|*.txt"),
-                    new MultiLineSettingDefinition("ColumnsToRowExpression", "Pipeline", 8, "Projection expression", "Convert from object with rownum, c[] array fields to output object"), 
-                    new SimpleSettingDefinition("SkipInitialLines", "Pipeline", "Number of leading rows to skip", "Skip this many rows into the file before starting", typeof(int), "0", false)
+                    TabDelimitedInput.FullKey(),
+                    ColumnsToRowExpression.FullKey(),
+                    SkipInitialLines.FullKey()
                 })
         {
         }
 
-        public IEnumerable<IHtValue> GetRows()
-        {
-            string file = SettingManager["Pipeline.TabDelimitedInput"].Get<string>();
-            string exprString = SettingManager["Pipeline.ColumnsToRowExpression"].Get<string>();
-            int rowsToSkip = SettingManager["Pipeline.SkipInitialLines"].Get<int>();
-            IHtExpression expr=null;
-            if (! String.IsNullOrWhiteSpace(exprString))
+        class Source : HostedObjectBase, IHtValueSource {
+            private readonly string _filePath;
+            private readonly int _rowsToSkip;
+            private readonly string _expr;
+
+            internal Source(string filePath, int rowsToSkip, string expr)
             {
-                expr = new com.antlersoft.HostedTools.ConditionBuilder.Model.ConditionBuilder().ParseCondition(exprString);
+                _filePath = filePath;
+                _rowsToSkip = rowsToSkip;
+                _expr = expr;
             }
-            using (var sr = new StreamReader(file))
+
+            public IEnumerable<IHtValue> GetRows(IWorkMonitor monitor)
             {
-                int rowNum = 0;
-                for (string line=sr.ReadLine(); line!=null; line=sr.ReadLine())
+                IHtExpression expr=null;
+                if (! String.IsNullOrWhiteSpace(_expr))
                 {
-                    if (rowNum++ < rowsToSkip)
+                    expr = new com.antlersoft.HostedTools.ConditionBuilder.Model.ConditionBuilder().ParseCondition(_expr);
+                }
+                using (var sr = new StreamReader(_filePath))
+                {
+                    int rowNum = 0;
+                    for (string line=sr.ReadLine(); line!=null; line=sr.ReadLine())
                     {
-                        continue;
-                    }
-                    var columns = new JsonHtValue();
-                    int columnNum = 0;
-                    foreach (var col in line.Split('\t'))
-                    {
-                        columns[columnNum++] = new JsonHtValue(col);
-                    }
-                    var row = new JsonHtValue();
-                    row["rownum"] = new JsonHtValue(rowNum - rowsToSkip);
-                    row["c"] = columns;
-                    if (expr == null)
-                    {
-                        yield return row;
-                    }
-                    else
-                    {
-                        yield return expr.Evaluate(row);
+                        if (rowNum++ < _rowsToSkip)
+                        {
+                            continue;
+                        }
+                        var columns = new JsonHtValue();
+                        int columnNum = 0;
+                        foreach (var col in line.Split('\t'))
+                        {
+                            columns[columnNum++] = new JsonHtValue(col);
+                        }
+                        var row = new JsonHtValue();
+                        row["rownum"] = new JsonHtValue(rowNum - _rowsToSkip);
+                        row["c"] = columns;
+                        if (expr == null)
+                        {
+                            yield return row;
+                        }
+                        else
+                        {
+                            yield return expr.Evaluate(row);
+                        }
                     }
                 }
             }
         }
 
-        public string SourceDescription
+        public IHtValueSource GetHtValueSource(PluginState state)
+        {
+            return new Source(state.SettingValues[TabDelimitedInput.FullKey()],
+                (int)Convert.ChangeType(state.SettingValues[SkipInitialLines.FullKey()], typeof(int)),
+                state.SettingValues[ColumnsToRowExpression.FullKey()]);
+        }
+
+        public override string NodeDescription
         {
             get { return "Read tab-delimited lines from "+SettingManager["Pipeline.TabDelimitedInput"].Get<string>(); }
         }
+
+        public IEnumerable<ISettingDefinition> Definitions => new [] { TabDelimitedInput, ColumnsToRowExpression, SkipInitialLines};
     }
 }
