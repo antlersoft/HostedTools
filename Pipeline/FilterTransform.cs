@@ -43,7 +43,7 @@ namespace com.antlersoft.HostedTools.Pipeline
 
         public override string NodeDescription
         {
-            get { return FilterExpression.Value<string>(SettingManager); }
+            get { return $"Filter: {FilterExpression.Value<string>(SettingManager)}"; }
         }
 
         public IEnumerable<ISettingDefinition> Definitions
