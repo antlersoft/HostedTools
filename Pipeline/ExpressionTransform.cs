@@ -45,7 +45,7 @@ namespace com.antlersoft.HostedTools.Pipeline
 
         public override string NodeDescription
         {
-            get { return ProjectionExpression.Value<string>(SettingManager); }
+            get { return $"Projection: {ProjectionExpression.Value<string>(SettingManager)}"; }
         }
 
         public IEnumerable<ISettingDefinition> Definitions

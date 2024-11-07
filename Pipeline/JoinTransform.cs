@@ -161,13 +161,16 @@ namespace com.antlersoft.HostedTools.Pipeline
 
         public IEnumerable<ISettingDefinition> Definitions => new [] { JoinFile, FileIsGzip, ToFilterJoinKey, FileFilterJoinKey, JoinType, ResultType, ProjectionExpression};
 
-        public override string NodeDescription { get { string r= ""; try {
+        public override string NodeDescription { get { string r= "unspecified join"; try {
             var scope = SettingManager.Scope(JoinType.ScopeKey);
             var setting = scope[JoinType.Name];
             var raw = setting.GetRaw();
             var type = JoinType.Type;
-            var val = Enum.Parse(type, raw);
-            r=$"join {JoinType.Value<string>(SettingManager)} {JoinFile.Value<string>(SettingManager)} "+
+            object val = "[unspecified]";
+            try {
+                val = Enum.Parse(type, raw);
+            } catch {}
+            r=$"join {val} {JoinFile.Value<string>(SettingManager)} "+
             (ResultType.Value<ResultTypes>(SettingManager) == ResultTypes.ProjectionExpression ? "Projection " + ProjectionExpression.Value<string>(SettingManager)
             : ResultType.Value<string>(SettingManager));} catch (Exception e) {} return r; } }
 
