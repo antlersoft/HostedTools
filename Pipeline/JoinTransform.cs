@@ -446,8 +446,8 @@ namespace com.antlersoft.HostedTools.Pipeline
         {
             string path = state.SettingValues[JoinFile.FullKey()];
             bool isGzip = (bool)Convert.ChangeType(state.SettingValues[FileIsGzip.FullKey()], typeof(bool));
-            JoinTypes jt =(JoinTypes)Convert.ChangeType(state.SettingValues[JoinType.FullKey()], typeof(JoinTypes));
-            ResultTypes rt =(ResultTypes)Convert.ChangeType(state.SettingValues[ResultType.FullKey()], typeof(ResultTypes));
+            JoinTypes jt =Enum.Parse<JoinTypes>(state.SettingValues[JoinType.FullKey()]);
+            ResultTypes rt =Enum.Parse<ResultTypes>(state.SettingValues[ResultType.FullKey()]);
             IHtExpression projectionExpression = null;
             if (rt == ResultTypes.ProjectionExpression)
             {
