@@ -107,7 +107,7 @@ namespace com.antlersoft.HostedTools.Pipeline
                 _str = str;
                 jsonFactory = jf;
                 if (isGz) {
-                    stream = new GZipStream(stream, CompressionMode.Decompress);
+                    stream = new GZipStream(_str, CompressionMode.Decompress);
                 } else {
                     stream = _str;
                 }
