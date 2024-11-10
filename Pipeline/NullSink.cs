@@ -34,7 +34,7 @@ namespace com.antlersoft.HostedTools.Pipeline
         {
             get { return "Do nothing"; }
         }
-        public PluginState GetPluginState()
+        public PluginState GetPluginState(ISet<string> visited = null)
         {
             PluginState result = new PluginState();
             result.PluginName = Name;
@@ -43,6 +43,12 @@ namespace com.antlersoft.HostedTools.Pipeline
 
             return result;
         }
+
+        public void SetPluginState(PluginState state, ISet<string> visited = null)
+        {
+            
+        }
+
 
         public string Name
         {

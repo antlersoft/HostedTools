@@ -23,9 +23,14 @@ namespace com.antlersoft.HostedTools.Pipeline {
 
         public abstract string NodeDescription { get; }
 
-        public PluginState GetPluginState()
+        public PluginState GetPluginState(ISet<string> visited = null)
         {
-            return this.AssemblePluginState(PluginManager, SettingManager);
+            return this.AssemblePluginState(PluginManager, SettingManager, visited);
+        }
+
+        public void SetPluginState(PluginState state, ISet<string> visited = null)
+        {
+            this.DeployPluginState(state, PluginManager, SettingManager, visited);
         }
     }
 }
