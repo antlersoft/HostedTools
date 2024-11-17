@@ -42,7 +42,7 @@ namespace com.antlersoft.HostedTools.Pipeline
             return this;
         }
 
-        public PluginState GetPluginState()
+        public PluginState GetPluginState(ISet<string> visited = null)
         {
             PluginState result = new PluginState();
             result.PluginName = Name;
@@ -50,6 +50,11 @@ namespace com.antlersoft.HostedTools.Pipeline
             result.SettingValues = new Dictionary<string, string>();
 
             return result;
+        }
+
+        public void SetPluginState(PluginState state, ISet<string> visited = null)
+        {
+            
         }
 
         public string NodeDescription

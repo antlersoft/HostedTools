@@ -22,7 +22,7 @@ namespace com.antlersoft.HostedTools.Pipeline
     [Export(typeof(IWorkNode))]
     [Export(typeof(ISettingDefinitionSource))]
     [Export(typeof(IAfterComposition))]
-    public class PipelinePlugin : GridWorker, ISettingDefinitionSource, IAfterComposition, IWorkNode
+    public class PipelinePlugin : GridWorker, ISettingDefinitionSource, IAfterComposition, IWorkNode, IHasSaveKey
     {
         [ImportMany] public IEnumerable<IRootNode> Sources;
         [ImportMany] public IEnumerable<ILeafNode> Sinks;
@@ -77,6 +77,8 @@ namespace com.antlersoft.HostedTools.Pipeline
             }
         }
 
+        public string SaveKey { get; set; }
+
         public void AfterComposition()
         {
             Source.SetPlugins(Sources.Select(s => s.Cast<IPlugin>()).Where(s => s!=null).ToList(), SettingManager);
@@ -84,7 +86,7 @@ namespace com.antlersoft.HostedTools.Pipeline
             Transform.SetPlugins(Transforms.Select(s => s.Cast<IPlugin>()).Where(s => s!=null).ToList(), SettingManager);
         }
 
-        private static string NodeFunc<T>(IPlugin sourcePlugin) where T : class
+        internal static string NodeFunc<T>(IPlugin sourcePlugin) where T : class
         {
             T source = sourcePlugin.Cast<T>();
             if (source == null)
@@ -214,9 +216,15 @@ namespace com.antlersoft.HostedTools.Pipeline
             }
         }
 
-        public PluginState GetPluginState()
+        public PluginState GetPluginState(ISet<string> visited = null)
         {
-            return this.AssemblePluginState(PluginManager,SettingManager);
+            return this.AssemblePluginState(PluginManager,SettingManager,visited);
         }
+
+        public void SetPluginState(PluginState state, ISet<string> visited = null)
+        {
+            this.DeployPluginState(state, PluginManager, SettingManager, visited);
+        }
+
     }
 }

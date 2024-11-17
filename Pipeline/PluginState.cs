@@ -11,5 +11,6 @@ namespace com.antlersoft.HostedTools.Pipeline
         public string PluginName;
         public Dictionary<string, string> SettingValues;
         public Dictionary<string, PluginState> NestedValues;
+        public string Key;
     }
 }

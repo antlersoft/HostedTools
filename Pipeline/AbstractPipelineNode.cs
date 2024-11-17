@@ -6,7 +6,7 @@ using com.antlersoft.HostedTools.Framework.Model.Plugin;
 using com.antlersoft.HostedTools.Pipeline.Extensions;
 
 namespace com.antlersoft.HostedTools.Pipeline {
-    public abstract class AbstractPipelineNode : EditOnlyPlugin, IPipelineNode {
+    public abstract class AbstractPipelineNode : EditOnlyPlugin, IPipelineNode, IHasSaveKey {
         [Import]
         public IPluginManager PluginManager {get; set;}
         
@@ -23,9 +23,16 @@ namespace com.antlersoft.HostedTools.Pipeline {
 
         public abstract string NodeDescription { get; }
 
-        public PluginState GetPluginState()
+        public string SaveKey { get; set;}
+
+        public PluginState GetPluginState(ISet<string> visited = null)
         {
-            return this.AssemblePluginState(PluginManager, SettingManager);
+            return this.AssemblePluginState(PluginManager, SettingManager, visited);
+        }
+
+        public void SetPluginState(PluginState state, ISet<string> visited = null)
+        {
+            this.DeployPluginState(state, PluginManager, SettingManager, visited);
         }
     }
 }

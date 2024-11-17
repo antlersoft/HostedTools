@@ -43,7 +43,7 @@ namespace com.antlersoft.HostedTools.GtkHostLib
                         {
                             _savables.Add(savable);
                         }
-                        var label = new Label { Text = def.Prompt + ":" };
+                        var label = new Label { Text = string.IsNullOrEmpty(def.Prompt) ? string.Empty : def.Prompt + ":" };
                         label.TooltipText = def.FullKey();
                         _panel.Attach(label, 0, 1, row, row+1, 0, AttachOptions.Fill, 2, 2);
                         var elem = elemSource.GetElement(_panel);
