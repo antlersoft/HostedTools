@@ -38,7 +38,13 @@ namespace com.antlersoft.HostedTools.Pipeline
 
         public override string ItemDescription
         {
-            get { return _toStringFunc(Plugin); }
+            get {
+                string result = _toStringFunc(Plugin);
+                if (result.Length > 100) {
+                    result = result.Substring(0,97)+"...";
+                }
+                return result;
+            }
         }
     }
 

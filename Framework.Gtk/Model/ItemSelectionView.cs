@@ -43,7 +43,10 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
             var data = _combobox.ActiveText;
             if (data != null)
             {
-                Setting.SetRaw(ItemSelection.GetRawTextForItem(_collection[_combobox.Active]));
+                var raw = ItemSelection.GetRawTextForItem(_collection[_combobox.Active]);
+                if (Setting.GetRaw() != raw) {
+                    Setting.SetRaw(ItemSelection.GetRawTextForItem(_collection[_combobox.Active]));
+                }
                 SetNeedsSave(false);
             }
             return true;
@@ -54,7 +57,7 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
             int index = 0;
             foreach (var item in ItemSelection.GetAllItems())
             {
-                if (item == toMatch)
+                if (item.Equals(toMatch))
                 {
                     return index;
                 }

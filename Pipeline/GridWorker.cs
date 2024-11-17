@@ -16,7 +16,7 @@ namespace com.antlersoft.HostedTools.Pipeline
 {
     public abstract class GridWorker : SimpleWorker, IOutputPaneList
     {
-        private static readonly IOutputPaneList PaneList = new OutputPaneList(EPaneListOrientation.Vertical,
+        internal static readonly IOutputPaneList PaneList = new OutputPaneList(EPaneListOrientation.Vertical,
                                                                               new[]
                                                                                   {
                                                                                       new OutputPaneSpecifier(

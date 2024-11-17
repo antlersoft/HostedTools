@@ -16,6 +16,9 @@ public static class NodeExtension {
         if (visitedPlugins == null) {
             visitedPlugins = new HashSet<string>();
         }
+        if (node.Cast<IHasSaveKey>() is IHasSaveKey saveKey) {
+            result.Key = saveKey.SaveKey;
+        }
         visitedPlugins.Add(result.PluginName);
         result.NestedValues = new Dictionary<string,PluginState>();
         result.SettingValues = new Dictionary<string, string>();
@@ -48,6 +51,9 @@ public static class NodeExtension {
     public static void DeployPluginState(this IPipelineNode node, PluginState state, IPluginManager pluginManager,
         ISettingManager settings, ISet<string> visitedNodes = null) {
 
+        if (node.Cast<IHasSaveKey>() is IHasSaveKey saveKey) {
+            saveKey.SaveKey = state.Key;
+        }
         foreach (var setting in state.SettingValues) {
             settings[setting.Key].SetRaw(setting.Value);
         }
