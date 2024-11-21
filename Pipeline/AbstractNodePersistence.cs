@@ -25,8 +25,8 @@ namespace com.antlersoft.HostedTools.Pipeline {
                 _plugin.SetPluginState(_node.State);
                 string text = $"{_node.Name} - {_plugin.NodeDescription}";
                 _plugin.SetPluginState(origState);
-                if (text.Length > 100) {
-                    text = text.Substring(0,97)+"...";
+                if (text.Length > 190) {
+                    text = text.Substring(0,187)+"...";
                 }
                 return text;
             }
