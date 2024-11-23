@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="com.antlersoft.HostedTools.Framework" Version="2.0.0.2" />
+    <PackageReference Include="com.antlersoft.HostedTools.Framework" Version="2.1.0.1" />
     <PackageReference Include="com.antlersoft.HostedTools.Serialization" Version="2.0.0.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.1" />
     <PackageReference Include="NUnit" Version="3.13.3" />

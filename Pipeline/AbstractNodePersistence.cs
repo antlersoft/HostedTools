@@ -12,6 +12,7 @@ using com.antlersoft.HostedTools.Framework.Interface.UI;
 using com.antlersoft.HostedTools.Framework.Model;
 using com.antlersoft.HostedTools.Framework.Model.Menu;
 using com.antlersoft.HostedTools.Framework.Model.Setting;
+using com.antlersoft.HostedTools.Framework.Model.UI;
 using com.antlersoft.HostedTools.Serialization;
 using Newtonsoft.Json;
 
@@ -186,6 +187,7 @@ namespace com.antlersoft.HostedTools.Pipeline {
                     _itemButtons = new ButtonsDefinition("ItemButtons", _scopeName, new [] { EditButton, RenameSelected, DeleteButton});
                     _savedItems = new SavedItemSelection<T>(this, "SavedItems", _scopeName);
                     _description = new SimpleSettingDefinition("Description", _scopeName, "Selected", "Description of Currently Selected "+NodeName, null, null, false, 0);
+                    _description.InjectImplementation(typeof(IReadOnly),new CanBeReadOnly(true));
                     _settingDefinitions=new ISettingDefinition[] {
                         _pluginSelection, _nameSetting, _existing, _editorButtons, _itemButtons, _savedItems, _description
                     };
