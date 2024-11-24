@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.Text;
 using com.antlersoft.HostedTools.Framework.Interface;
 using com.antlersoft.HostedTools.Framework.Interface.Plugin;
 using com.antlersoft.HostedTools.Framework.Interface.Setting;
@@ -10,6 +11,7 @@ using com.antlersoft.HostedTools.Framework.Model.Menu;
 using com.antlersoft.HostedTools.Framework.Model.Plugin;
 using com.antlersoft.HostedTools.Framework.Model.Plugin.Internal;
 using com.antlersoft.HostedTools.Framework.Model.Setting;
+using com.antlersoft.HostedTools.Framework.Model.UI;
 using com.antlersoft.HostedTools.Interface;
 using com.antlersoft.HostedTools.Serialization;
 using Newtonsoft.Json;
@@ -18,19 +20,22 @@ namespace com.antlersoft.HostedTools.Pipeline
 {
     [Export(typeof(IStemNode))]
     [Export(typeof(ISettingDefinitionSource))]
-    public class TransformChain : AbstractPipelineNode, IHtValueStem, ISettingDefinitionSource, IHasSettingChangeActions, IRuntimeStateSettings
+    [Export(typeof(IAfterComposition))]
+    public class TransformChain : AbstractPipelineNode, IHtValueStem, ISettingDefinitionSource, IHasSettingChangeActions, IRuntimeStateSettings,
+        IAfterComposition
     {
         private static ISettingDefinition ChainDefinition = new MultiLineSettingDefinition("ChainDefinition", "Pipeline",
-            8, "Chain Definition", "Serialized version of transforms in the chain", null, null, false);
+            10, "Chain Definition", "Serialized version of transforms in the chain", null, null, false);
         private static ISettingDefinition ChainButtons = new ButtonsDefinition("ChainButtons", "Pipeline", new[] {"Add transform", "Remove last transform"});
+        private static ISettingDefinition ChainDescription = new MultiLineSettingDefinition("ChainDescription", "Pipeline", 10, "Description");
 
         [Import]
         IJsonFactory JsonFactory { get; set; }
 
         public TransformChain()
-            : base(new MenuItem("DevTools.Pipeline.Transform.Chain", "Chain transforms", typeof(TransformChain).FullName, "DevTools.Pipeline.Transform"), new[] { ChainDefinition.FullKey(), PipelinePlugin.Transform.FullKey(), ChainButtons.FullKey() })
+            : base(new MenuItem("DevTools.Pipeline.Transform.Chain", "Chain transforms", typeof(TransformChain).FullName, "DevTools.Pipeline.Transform"), new[] { ChainDefinition.FullKey(), PipelinePlugin.Transform.FullKey(), ChainButtons.FullKey(), ChainDescription.FullKey() })
         {
-            
+            ChainDescription.InjectImplementation(typeof(IReadOnly), new CanBeReadOnly(true));            
         }
 
         static readonly Type[] EmptyTypeList = new Type[0];
@@ -99,14 +104,39 @@ namespace com.antlersoft.HostedTools.Pipeline
             }
         }
 
+        private void UpdateChainDescription()
+        {
+            int i = 0;
+            StringBuilder sb=new StringBuilder();
+            foreach (var state in GetExisting()) {
+                var node = PluginManager[state.PluginName]?.Cast<IPipelineNode>();
+                if (node != null) {
+                    var existingState = node.GetPluginState();
+                    node.SetPluginState(state);
+                    sb.Append($"{++i}. {node.NodeDescription}\n");
+                    node.SetPluginState(existingState);
+                }
+            }
+            if (sb.Length == 0) {
+                sb.Append("Empty transform chain");
+            }
+
+            SettingManager[ChainDescription.FullKey()].SetRaw(sb.ToString());
+        }
+
         public IHtValueTransform GetHtValueTransform(PluginState state)
         {
             return new Transform(GetExisting(state.SettingValues[ChainDefinition.FullKey()]), PluginManager);
         }
 
+        public void AfterComposition()
+        {
+            UpdateChainDescription();
+        }
+
         public IEnumerable<ISettingDefinition> Definitions
         {
-	        get { return new[] {ChainDefinition, ChainButtons}; }
+	        get { return new[] {ChainDefinition, ChainButtons, ChainDescription}; }
         }
 
         public Dictionary<string, Action<IWorkMonitor, ISetting>> ActionsBySettingKey
@@ -144,6 +174,11 @@ namespace com.antlersoft.HostedTools.Pipeline
                                             JsonFactory.GetSettings(true)));
                                 }
                             }
+                        }
+                    },
+                    {
+                        ChainDefinition.FullKey(), (m,s) => {
+                            UpdateChainDescription();
                         }
                     }
                 };
