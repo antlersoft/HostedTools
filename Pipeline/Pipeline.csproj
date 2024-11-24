@@ -21,7 +21,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="com.antlersoft.HostedTools.Framework">
-      <Version>2.0.0.2</Version>
+      <Version>2.1.0.1</Version>
     </PackageReference>
     <PackageReference Include="com.antlersoft.HostedTools.Serialization">
       <Version>2.0.0.1</Version>

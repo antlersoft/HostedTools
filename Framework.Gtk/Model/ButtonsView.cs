@@ -20,6 +20,7 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
                 base.Setting = value;
                 ISettingDefinition sd = value.Definition;
                 IButtonArray ba = sd.Cast<IButtonArray>();
+                IReadOnly ro = sd.Cast<IReadOnly>();
                 if (ba != null)
                 {
                     foreach (string id in ba.ButtonIdentifiers)
@@ -33,6 +34,14 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
                         string buttonLabel = splits.Length > 1 ? splits[1] : buttonId;
                         Button button = new Button() { Label = buttonLabel };
                         button.Clicked += (obj, args) => Setting.SetRaw(buttonId);
+                        if (ro != null) {
+                            button.Sensitive = ! ro.IsReadOnly(buttonId);
+                            ro.ReadOnlyChangeListeners.AddListener(
+                                (a) => { Application.Invoke(
+                                    delegate { button.Sensitive = ! a.IsReadOnly(buttonId); }
+                            );}
+                            );
+                        }
                         _grid.PackStart(button, false, false, 0);
                     }
                 }

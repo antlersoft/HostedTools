@@ -40,8 +40,8 @@ namespace com.antlersoft.HostedTools.Pipeline
         {
             get {
                 string result = _toStringFunc(Plugin);
-                if (result.Length > 100) {
-                    result = result.Substring(0,97)+"...";
+                if (result.Length >190) {
+                    result = result.Substring(0,187)+"...";
                 }
                 return result;
             }

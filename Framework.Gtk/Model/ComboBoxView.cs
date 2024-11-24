@@ -1,4 +1,6 @@
 ﻿using System;
+using com.antlersoft.HostedTools.Framework.Interface.Setting;
+using com.antlersoft.HostedTools.Framework.Interface.UI;
 using Gtk;
 
 namespace com.antlersoft.HostedTools.Framework.Gtk.Model
@@ -17,6 +19,24 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
         : this(true)
         {
 
+        }
+
+        internal override ISetting Setting {
+            set {
+                base.Setting = value;
+                if (Setting.Definition.Cast<IReadOnly>() is IReadOnly ro) {
+                    _element.Sensitive = ! ro.IsReadOnly();
+                    if (_element.HasEntry)
+                        _element.Child.Sensitive = ! ro.IsReadOnly();
+                    ro.ReadOnlyChangeListeners.AddListener(
+                        (a) => { Application.Invoke(delegate {
+                            _element.Sensitive = ! a.IsReadOnly();
+                            if (_element.HasEntry)
+                                _element.Child.Sensitive = ! ro.IsReadOnly();
+                        }); }
+                    );
+                }
+            }
         }
 
         protected ComboBoxView(bool withEntry)

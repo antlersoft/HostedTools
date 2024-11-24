@@ -1,4 +1,6 @@
 ﻿
+using com.antlersoft.HostedTools.Framework.Interface.Setting;
+using com.antlersoft.HostedTools.Framework.Interface.UI;
 using Gtk;
 
 namespace com.antlersoft.HostedTools.Framework.Gtk.Model
@@ -6,6 +8,20 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
     internal class TextEntryView : SettingViewBase
     {
         internal readonly Entry _element;
+
+        internal override ISetting Setting {
+            set {
+                base.Setting = value;
+                if (Setting.Definition.Cast<IReadOnly>() is IReadOnly ro) {
+                    _element.Sensitive = ! ro.IsReadOnly();
+                    ro.ReadOnlyChangeListeners.AddListener(
+                        (a) => { Application.Invoke(delegate {
+                            _element.Sensitive = ! a.IsReadOnly();
+                        }); }
+                    );
+                }
+            }
+        }
 
         public TextEntryView()
         {

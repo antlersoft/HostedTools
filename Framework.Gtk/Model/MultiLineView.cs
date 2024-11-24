@@ -82,6 +82,12 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
                     _buffer.Text = text;
                 });
                 _buffer.Text = Setting.GetRaw();
+                if (Setting.Definition.Cast<IReadOnly>() is IReadOnly ro) {
+                    _textBox.Sensitive = ! ro.IsReadOnly();
+                    ro.ReadOnlyChangeListeners.AddListener( (a) => {
+                        Application.Invoke(delegate { _textBox.Sensitive = ! a.IsReadOnly(); });
+                    });
+                }
                 IMultiLineValue mlv = value.Definition.Cast<IMultiLineValue>();
                 if (mlv != null && mlv.DesiredVisibleLinesOfText > 0)
                 {

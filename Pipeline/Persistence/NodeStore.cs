@@ -16,7 +16,7 @@ namespace com.antlersoft.HostedTools.Pipeline.Persistence {
     public class NodeStore : INodeStore, IPartImportsSatisfiedNotification
     {
         [Import]
-        IPluginManager PluginManager;
+        public IPluginManager PluginManager { get; set; }
         [Import]
         public IJsonFactory JsonFactory { get; set; }
         private string _path;

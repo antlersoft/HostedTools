@@ -50,6 +50,7 @@ namespace com.antlersoft.HostedTools.GtkHostLib
 
         private Widget _currentPanel;
         private Label _breadCrumb;
+        private HashSet<ISavable> _currentlySaving=new HashSet<ISavable>();
 
         private bool _shownOnce = false;
 
@@ -220,11 +221,16 @@ namespace com.antlersoft.HostedTools.GtkHostLib
                     ISavable savable = editPanel as ISavable;
                     SettingManager[kvp.Key].SettingChangedListeners.AddListener(s =>
                     {
-                        if (savable != null)
+                        if (savable != null && ! _currentlySaving.Contains(savable))
                         {
-                            if (!savable.TrySave())
-                            {
-                                return;
+                            try {
+                                _currentlySaving.Add(savable);
+                                if (!savable.TrySave())
+                                {
+                                    return;
+                                }
+                            } finally {
+                                _currentlySaving.Remove(savable);
                             }
                         }
                         new SettingUpdateActionMonitor(this).RunUpdateAction(isa, s);
