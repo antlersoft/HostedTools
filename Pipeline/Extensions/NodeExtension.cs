@@ -1,6 +1,8 @@
 using System.Collections.Generic;
+using System.IO;
 using com.antlersoft.HostedTools.Framework.Interface.Plugin;
 using com.antlersoft.HostedTools.Framework.Interface.Setting;
+using com.antlersoft.HostedTools.Serialization;
 using CsvHelper;
 
 namespace com.antlersoft.HostedTools.Pipeline.Extensions {
@@ -75,6 +77,44 @@ public static class NodeExtension {
                 }
             }
         }
+    }
+
+    static readonly int capacity = 100;
+    private static Dictionary<string,string> _stateToDescription=new Dictionary<string,string>();
+    private static List<string> _stateKeys = new List<string>(capacity);
+
+    public static string GetDescriptionFromState(this IPipelineNode node, PluginState state) {
+        string serialized = null; 
+        string result = "null";
+        if (state != null) {
+            using (var sr = new StringWriter()) {
+                new JsonFactory().GetSerializer().Serialize(sr, state);
+                serialized = sr.ToString();
+            }
+            lock (_stateKeys) {
+                if (_stateToDescription.TryGetValue(serialized, out result)) {
+                    return result;
+                }
+                _stateToDescription[serialized]=result;
+                if (_stateKeys.Count >= capacity) {
+                    var toRemove = _stateKeys[0];
+                    _stateKeys.RemoveAt(0);
+                    _stateToDescription.Remove(toRemove);
+                }
+                _stateKeys.Add(serialized);
+            }
+            PluginState existingState = node.GetPluginState();
+            node.SetPluginState(state);
+            result = node.NodeDescription;
+            node.SetPluginState(existingState);
+            lock (_stateKeys) {
+                if (_stateToDescription.ContainsKey(serialized)) {
+                    _stateToDescription[serialized]=result;
+                }
+            }
+        }
+
+        return result;
     }
 }
 }

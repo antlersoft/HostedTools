@@ -13,6 +13,7 @@ using com.antlersoft.HostedTools.Framework.Model.Plugin.Internal;
 using com.antlersoft.HostedTools.Framework.Model.Setting;
 using com.antlersoft.HostedTools.Framework.Model.UI;
 using com.antlersoft.HostedTools.Interface;
+using com.antlersoft.HostedTools.Pipeline.Extensions;
 using com.antlersoft.HostedTools.Serialization;
 using Newtonsoft.Json;
 
@@ -111,10 +112,7 @@ namespace com.antlersoft.HostedTools.Pipeline
             foreach (var state in GetExisting()) {
                 var node = PluginManager[state.PluginName]?.Cast<IPipelineNode>();
                 if (node != null) {
-                    var existingState = node.GetPluginState();
-                    node.SetPluginState(state);
-                    sb.Append($"{++i}. {node.NodeDescription}\n");
-                    node.SetPluginState(existingState);
+                    sb.Append($"{++i}. {node.GetDescriptionFromState(state)}\n");
                 }
             }
             if (sb.Length == 0) {

@@ -13,6 +13,7 @@ using com.antlersoft.HostedTools.Framework.Model;
 using com.antlersoft.HostedTools.Framework.Model.Menu;
 using com.antlersoft.HostedTools.Framework.Model.Setting;
 using com.antlersoft.HostedTools.Framework.Model.UI;
+using com.antlersoft.HostedTools.Pipeline.Extensions;
 using com.antlersoft.HostedTools.Serialization;
 using Newtonsoft.Json;
 
@@ -22,10 +23,7 @@ namespace com.antlersoft.HostedTools.Pipeline {
         internal T _plugin;
         public override string ItemDescription {
             get {
-                var origState = _plugin.GetPluginState();
-                _plugin.SetPluginState(_node.State);
-                string text = $"{_node.Name} - {_plugin.NodeDescription}";
-                _plugin.SetPluginState(origState);
+                string text = $"{_node.Name} - {_plugin.GetDescriptionFromState(_node.State)}";
                 if (text.Length > 190) {
                     text = text.Substring(0,187)+"...";
                 }
@@ -274,10 +272,7 @@ namespace com.antlersoft.HostedTools.Pipeline {
                 if (state != null) {
                     var plugin = PluginManager[state.PluginName]?.Cast<T>();
                     if (plugin != null) {
-                        var existingState = plugin.GetPluginState();
-                        plugin.SetPluginState(state);
-                        selectedDescription = plugin.NodeDescription ?? selectedDescription;
-                        plugin.SetPluginState(existingState);
+                        selectedDescription = plugin.GetDescriptionFromState(state) ?? selectedDescription;
                     }
                 }
                 return $"Named {NodeName}:{_nameSetting.Value<string>(SettingManager)} - {selectedDescription}";

@@ -20,9 +20,11 @@ using Newtonsoft.Json.Linq;
 namespace com.antlersoft.HostedTools.Pipeline
 {
     [Export(typeof(IWorkNode))]
+    [Export(typeof(IRootNode))]
     [Export(typeof(ISettingDefinitionSource))]
     [Export(typeof(IAfterComposition))]
-    public class PipelinePlugin : GridWorker, ISettingDefinitionSource, IAfterComposition, IWorkNode, IHasSaveKey
+    public class PipelinePlugin : GridWorker, ISettingDefinitionSource, IAfterComposition, IWorkNode, IHasSaveKey,
+        IRootNode, IHtValueRoot
     {
         [ImportMany] public IEnumerable<IRootNode> Sources;
         [ImportMany] public IEnumerable<ILeafNode> Sinks;
@@ -83,7 +85,7 @@ namespace com.antlersoft.HostedTools.Pipeline
 
         public void AfterComposition()
         {
-            Source.SetPlugins(Sources.Select(s => s.Cast<IPlugin>()).Where(s => s!=null).ToList(), SettingManager);
+            Source.SetPlugins(Sources.Select(s => s.Cast<IPlugin>()).Where(s => s!=null && !(s is PipelinePlugin)).ToList(), SettingManager);
             Sink.SetPlugins(Sinks.Select(s => s.Cast<IPlugin>()).Where(s => s != null).ToList(), SettingManager);
             Transform.SetPlugins(Transforms.Select(s => s.Cast<IPlugin>()).Where(s => s!=null).ToList(), SettingManager);
         }
@@ -228,5 +230,63 @@ namespace com.antlersoft.HostedTools.Pipeline
             this.DeployPluginState(state, PluginManager, SettingManager, visited);
         }
 
+        class AsSource : HostedObjectBase, IHtValueSource, IDisposable
+        {
+            IHtValueSource _source;
+            IHtValueTransform _transform;
+            IHtExpression _filterExpression;
+            internal AsSource(IHtValueSource source, IHtValueTransform transform, IHtExpression filterExpression)
+            {
+                _source = source;
+                _transform = transform;
+                _filterExpression = filterExpression;
+            }
+
+            public void Dispose()
+            {
+                if (_transform != null && _transform.Cast<IDisposable>() is IDisposable dispose2) {
+                    dispose2.Dispose();
+                }
+                _transform = null;
+                if (_source != null && _source.Cast<IDisposable>() is IDisposable dispose1) {
+                    dispose1.Dispose();
+                }
+                _source = null;
+             }
+
+            public IEnumerable<IHtValue> GetRows(IWorkMonitor monitor)
+            {
+                var rows = _source.GetRows(monitor);
+                if (_filterExpression != null) {
+                    rows = rows.Where(r => _filterExpression.Evaluate(r).AsBool);
+                }
+                if (_transform != null) {
+                    rows = _transform.GetTransformed(rows, monitor);
+                }
+                return rows;
+            }
+        }
+
+        public IHtValueSource GetHtValueSource(PluginState state)
+        {
+            IHtValueRoot root = PluginManager[state.SettingValues[Source.FullKey()]].Cast<IHtValueRoot>();
+            IHtValueStem stem = PluginManager[state.SettingValues[Transform.FullKey()]].Cast<IHtValueStem>();
+            string filter = state.SettingValues["Pipeline.LocalFilter"];
+
+            var input = root.GetHtValueSource(state.NestedValues[Source.FullKey()]);
+
+            IHtExpression filterExpression = null;
+            if (! string.IsNullOrWhiteSpace(filter))
+            {
+                filterExpression =
+                    ConditionBuilder.ParseCondition(filter);
+            }
+            IHtValueTransform transform = null;
+            if (! (stem is NullTransform))
+            {
+                transform = stem.GetHtValueTransform(state.NestedValues[Transform.FullKey()]);
+            }
+            return new AsSource(input, transform, filterExpression);
+        }
     }
 }
