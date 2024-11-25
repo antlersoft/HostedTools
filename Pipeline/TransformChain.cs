@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Text;
 using com.antlersoft.HostedTools.Framework.Interface;
+using com.antlersoft.HostedTools.Framework.Interface.Navigation;
 using com.antlersoft.HostedTools.Framework.Interface.Plugin;
 using com.antlersoft.HostedTools.Framework.Interface.Setting;
 using com.antlersoft.HostedTools.Framework.Interface.UI;
@@ -25,22 +26,31 @@ namespace com.antlersoft.HostedTools.Pipeline
     public class TransformChain : AbstractPipelineNode, IHtValueStem, ISettingDefinitionSource, IHasSettingChangeActions, IRuntimeStateSettings,
         IAfterComposition
     {
+        static readonly string EditButton = "Edit item at";
+        static readonly string InsertButton = "Insert before";
+        static readonly string DeleteButton = "Delete";
+        static readonly string ReplaceButton = "Replace item at";
+
         private static ISettingDefinition ChainDefinition = new MultiLineSettingDefinition("ChainDefinition", "Pipeline",
             10, "Chain Definition", "Serialized version of transforms in the chain", null, null, false);
         private static ISettingDefinition ChainButtons = new ButtonsDefinition("ChainButtons", "Pipeline", new[] {"Add transform", "Remove last transform"});
         private static ISettingDefinition ChainDescription = new MultiLineSettingDefinition("ChainDescription", "Pipeline", 10, "Description");
+        private static ISettingDefinition LinkIndex = new SimpleSettingDefinition("LinkIndex","Pipeline.ChainTransform", "Index", "Index of item in chain (1-based)", typeof(int), "1", false, 0);
+        private static ISettingDefinition IndexButtons = new ButtonsDefinition("IndexButtons", "Pipeline.ChainTransform", new [] { EditButton, ReplaceButton, InsertButton, DeleteButton});
 
         [Import]
         IJsonFactory JsonFactory { get; set; }
 
-        public TransformChain()
-            : base(new MenuItem("DevTools.Pipeline.Transform.Chain", "Chain transforms", typeof(TransformChain).FullName, "DevTools.Pipeline.Transform"), new[] { ChainDefinition.FullKey(), PipelinePlugin.Transform.FullKey(), ChainButtons.FullKey(), ChainDescription.FullKey() })
-        {
-            ChainDescription.InjectImplementation(typeof(IReadOnly), new CanBeReadOnly(true));            
-        }
+        [Import]
+        INavigationManager NavigationManager {get;set;}
 
-        static readonly Type[] EmptyTypeList = new Type[0];
-        static readonly object[] EmptyParamList = new object[0];
+        public TransformChain()
+            : base(new MenuItem("DevTools.Pipeline.Transform.Chain", "Chain transforms", typeof(TransformChain).FullName, "DevTools.Pipeline.Transform"), new[] { ChainDefinition.FullKey(), PipelinePlugin.Transform.FullKey(), ChainButtons.FullKey(), LinkIndex.FullKey(), IndexButtons.FullKey(), ChainDescription.FullKey() })
+        {
+            ChainDescription.InjectImplementation(typeof(IReadOnly), new CanBeReadOnly(true)); 
+            IndexButtons.InjectImplementation(typeof(IReadOnly), new CanBeReadOnly(false));
+            ChainButtons.InjectImplementation(typeof(IReadOnly), new CanBeReadOnly(false));           
+        }
 
         public override string NodeDescription
         {
@@ -120,6 +130,14 @@ namespace com.antlersoft.HostedTools.Pipeline
             }
 
             SettingManager[ChainDescription.FullKey()].SetRaw(sb.ToString());
+            (ChainButtons.Cast<IReadOnly>() as CanBeReadOnly).KeyReadOnly("Remove last transform", i==0);
+            int index=LinkIndex.Value<int>(SettingManager);
+            bool enabled = (index > 0 && index <= i);
+            CanBeReadOnly indexReadOnly = IndexButtons.Cast<IReadOnly>() as CanBeReadOnly;
+            indexReadOnly.KeyReadOnly(EditButton, ! enabled);
+            indexReadOnly.KeyReadOnly(InsertButton, ! enabled);
+            indexReadOnly.KeyReadOnly(DeleteButton, ! enabled);
+            indexReadOnly.KeyReadOnly(ReplaceButton, ! enabled);
         }
 
         public IHtValueTransform GetHtValueTransform(PluginState state)
@@ -134,7 +152,7 @@ namespace com.antlersoft.HostedTools.Pipeline
 
         public IEnumerable<ISettingDefinition> Definitions
         {
-	        get { return new[] {ChainDefinition, ChainButtons, ChainDescription}; }
+	        get { return new[] {ChainDefinition, ChainButtons, ChainDescription, LinkIndex, IndexButtons}; }
         }
 
         public Dictionary<string, Action<IWorkMonitor, ISetting>> ActionsBySettingKey
@@ -153,7 +171,6 @@ namespace com.antlersoft.HostedTools.Pipeline
                                     ((PluginSelectionItem)
                                         PipelinePlugin.Transform.FindMatchingItem(
                                             PipelinePlugin.Transform.Value<string>(SettingManager))).Plugin;
-                                Dictionary<string, string> values = new Dictionary<string, string>();
                                 IPipelineNode node = transform.Cast<IPipelineNode>();
                                 if (node != null)
                                 {
@@ -177,6 +194,53 @@ namespace com.antlersoft.HostedTools.Pipeline
                     {
                         ChainDefinition.FullKey(), (m,s) => {
                             UpdateChainDescription();
+                        }
+                    },
+                    {
+                        LinkIndex.FullKey(), (m,s) => {
+                            UpdateChainDescription();
+                        }
+                    },
+                    {
+                        IndexButtons.FullKey(), (m,s) => {
+                            int index=LinkIndex.Value<int>(SettingManager);
+                            List<PluginState> states = GetExisting();
+                            if (index < 1 || index > states.Count) {
+                                m.Writer.WriteLine($"{index} not valid plugin index");
+                                return;
+                            }
+                            string pressed = s.Get<string>();
+                            var selected = states[index - 1];
+                            if (pressed==EditButton) {
+                                PluginManager[selected.PluginName].Cast<IPipelineNode>()?.SetPluginState(selected);
+                                NavigationManager.NavigateTo(states[index-1].PluginName);
+                                return;
+                            } else if (pressed == ReplaceButton) {
+                                IPlugin transform =
+                                    ((PluginSelectionItem)
+                                        PipelinePlugin.Transform.FindMatchingItem(
+                                            PipelinePlugin.Transform.Value<string>(SettingManager))).Plugin;
+                                IPipelineNode node = transform.Cast<IPipelineNode>();
+                                if (node != null)
+                                {
+                                    states[index-1]=node.GetPluginState();
+                                }
+                            } else if (pressed == InsertButton) {
+                                IPlugin transform =
+                                    ((PluginSelectionItem)
+                                        PipelinePlugin.Transform.FindMatchingItem(
+                                            PipelinePlugin.Transform.Value<string>(SettingManager))).Plugin;
+                                IPipelineNode node = transform.Cast<IPipelineNode>();
+                                if (node != null)
+                                {
+                                    states.Insert(index-1, node.GetPluginState());
+                                }
+                            } else if (pressed==DeleteButton) {
+                                states.RemoveAt(index-1);
+                            }
+                            SettingManager[ChainDefinition.FullKey()].SetRaw(
+                                        JsonConvert.SerializeObject(states,
+                                            JsonFactory.GetSettings(true)));
                         }
                     }
                 };
