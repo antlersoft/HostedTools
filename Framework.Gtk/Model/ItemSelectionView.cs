@@ -5,6 +5,7 @@ using Gtk;
 using System;
 using System.Linq;
 using System.Collections.ObjectModel;
+using com.antlersoft.HostedTools.Framework.Interface.UI;
 
 namespace com.antlersoft.HostedTools.Framework.Gtk.Model
 {
@@ -13,6 +14,19 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
         private readonly ComboBoxText _combobox;
         private readonly ObservableCollection<object> _collection;
         internal INavigationManager Navigation;
+
+        internal override ISetting Setting {
+            set {
+                base.Setting = value;
+
+                if (value.Definition.Cast<IReadOnly>() is IReadOnly ro) {
+                    _combobox.Sensitive = ! ro.IsReadOnly();
+                    ro.ReadOnlyChangeListeners.AddListener((a) => {
+                        _combobox.Sensitive = ! ro.IsReadOnly();
+                    });
+                }
+            }
+        }
 
         public ItemSelectionView()
         {
