@@ -94,8 +94,9 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model.Internal
             QuotedNameToken
         };
 
-        private static IGoal[] _goals =
+        private static IGoal[] GetGoals(IEnumerable<IFunctionNamespace> namespaces)
         {
+            return new IGoal[] {
             new SG(ValueSym,
                 new FunctorParseRule(
                     (t, pr) =>
@@ -252,7 +253,7 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model.Internal
                      AtSign, LeftParen, ProjectionTailSym
                      ),
                  new FunctorParseRule(
-                     (t,pr) => new GoalResult(new FunctionCallNode(pr[1].Node, pr[3].Node), pr[3].NextTokenOffset),
+                     (t,pr) => new GoalResult(new FunctionCallNode(namespaces, pr[1].Node, pr[3].Node), pr[3].NextTokenOffset),
                      AtSign, NameSym, LeftParen, ArgumentListSym
                      )),
             new SG(ProjectionTailSym,
@@ -335,9 +336,10 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model.Internal
                     SimpleExprSym)
                 )
         };
+        }
 
-            internal ConditionParser()
-                : base(_matchers, _goals)
+            internal ConditionParser(IEnumerable<IFunctionNamespace> namespaces)
+                : base(_matchers, GetGoals(namespaces))
             {
 
             }

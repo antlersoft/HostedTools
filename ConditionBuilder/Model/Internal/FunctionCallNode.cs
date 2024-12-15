@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using com.antlersoft.HostedTools.ConditionBuilder.Interface;
 using com.antlersoft.HostedTools.ConditionBuilder.Parser;
 using com.antlersoft.HostedTools.Interface;
 using com.antlersoft.HostedTools.Serialization;
@@ -11,6 +12,7 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model.Internal
     {
         private IParseTreeNode _nameNode;
         private IParseTreeNode _argumentsNode;
+        private IEnumerable<IFunctionNamespace> _namespaces;
         /// <summary>
         /// Start of UnixTime epoch; DateTimeKind is Utc
         /// </summary>
@@ -99,8 +101,9 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model.Internal
             return d => new OperatorExpression(name, evaluator, (List<IHtExpression>) _argumentsNode.GetFunctor()(d));
         }
 
-        internal FunctionCallNode(IParseTreeNode nameNode, IParseTreeNode argumentsNode)
+        internal FunctionCallNode(IEnumerable<IFunctionNamespace> namespaces, IParseTreeNode nameNode, IParseTreeNode argumentsNode)
         {
+            _namespaces = namespaces;
             _nameNode = nameNode;
             _argumentsNode = argumentsNode;
         }
@@ -111,6 +114,16 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model.Internal
             var name = ((TokenNode)_nameNode).Token.Value;
             if (! AvailableFunctions.TryGetValue(name, out evaluator))
             {
+                foreach (var added in _namespaces) {
+                    Func<IList<IHtExpression>,IGroupExpression> groupFunc;
+                    if (added.AddedGroupFunctions.TryGetValue(name, out groupFunc)) {
+                        return d => groupFunc.Invoke((IList<IHtExpression>)_argumentsNode.GetFunctor()(d));
+                    }
+                    Func<IList<IHtValue>, IHtValue> addedEvaluator;
+                    if (added.AddedFunction.TryGetValue(name, out addedEvaluator)) {
+                        return d => new OperatorExpression(name, addedEvaluator, (List<IHtExpression>) _argumentsNode.GetFunctor()(d));
+                    }
+                }
                 return d => new OperatorExpression(name, args => throw new InvalidOperationException($"No evaluator defined for function expression with name [{name}]"),
                     (IEnumerable<IHtExpression>)_argumentsNode.GetFunctor()(d));
             }
