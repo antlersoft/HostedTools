@@ -18,6 +18,7 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model.Internal
         internal static readonly Symbol ProjectionTailSym = new Symbol("ProjectionTailSym");
         internal static readonly Symbol ArgumentListSym = new Symbol("ArgumentListSym");
         internal static readonly Symbol ExprSym = new Symbol("ExprSym");
+        internal static readonly Symbol FunctionIdSym = new Symbol("FunctionIdSym");
         internal static readonly Symbol LeftParen = new Symbol("(");
         internal static readonly Symbol RightParen = new Symbol(")");
         internal static readonly Symbol LeftBracket = new Symbol("[");
@@ -254,7 +255,7 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model.Internal
                      ),
                  new FunctorParseRule(
                      (t,pr) => new GoalResult(new FunctionCallNode(namespaces, pr[1].Node, pr[3].Node), pr[3].NextTokenOffset),
-                     AtSign, NameSym, LeftParen, ArgumentListSym
+                     AtSign, FunctionIdSym, LeftParen, ArgumentListSym
                      )),
             new SG(ProjectionTailSym,
                  new FunctorParseRule(
@@ -281,7 +282,16 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model.Internal
                  new FunctorParseRule(
                      (t, pr) => new GoalResult(new ProjectionItemNode(pr[0].Node, null), pr[0].NextTokenOffset),
                      ExprSym
-                     )), 
+                     )),
+            new SG(FunctionIdSym,
+                new FunctorParseRule(
+                    (t, pr) => new GoalResult(new FunctionIdNode(pr[0].Node, pr[2].Node), pr[2].NextTokenOffset),
+                    NameSym, AtSign, FunctionIdSym
+                    ),
+                new FunctorParseRule(
+                    (t, pr) => new GoalResult(new FunctionIdNode(pr[0].Node), pr[0].NextTokenOffset),
+                    NameSym
+                    )),
             new SG(InList,
                 new FunctorParseRule(
                     (t, pr) =>

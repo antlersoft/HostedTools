@@ -11,7 +11,7 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model
     public class ConditionBuilder : IConditionBuilder
     {
         [ImportMany]
-        IEnumerable<IFunctionNamespace> FunctionNamespaces { get; set; }
+        public IEnumerable<IFunctionNamespace> FunctionNamespaces { get; set; }
         private ConditionParser _parser;
 
         private ConditionParser ConditionParser {

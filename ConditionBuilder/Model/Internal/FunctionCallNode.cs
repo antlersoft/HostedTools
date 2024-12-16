@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using com.antlersoft.HostedTools.ConditionBuilder.Interface;
 using com.antlersoft.HostedTools.ConditionBuilder.Parser;
 using com.antlersoft.HostedTools.Interface;
@@ -111,10 +112,12 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model.Internal
         public Func<object, object> GetFunctor()
         {
             Func<FunctionCallNode,string,Func<object,object>> evaluator;
-            var name = ((TokenNode)_nameNode).Token.Value;
+            FunctionIdNode idNode = (FunctionIdNode)_nameNode;
+            var name = idNode.Name;
             if (! AvailableFunctions.TryGetValue(name, out evaluator))
             {
-                foreach (var added in _namespaces) {
+                var namespacesToCheck = idNode.Namespace == null ? _namespaces : _namespaces.Where(n => n.Name == idNode.Namespace);
+                foreach (var added in namespacesToCheck) {
                     Func<IList<IHtExpression>,IGroupExpression> groupFunc;
                     if (added.AddedGroupFunctions.TryGetValue(name, out groupFunc)) {
                         return d => groupFunc.Invoke((IList<IHtExpression>)_argumentsNode.GetFunctor()(d));
@@ -124,7 +127,7 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model.Internal
                         return d => new OperatorExpression(name, addedEvaluator, (List<IHtExpression>) _argumentsNode.GetFunctor()(d));
                     }
                 }
-                return d => new OperatorExpression(name, args => throw new InvalidOperationException($"No evaluator defined for function expression with name [{name}]"),
+                return d => new OperatorExpression(name, args => throw new InvalidOperationException($"No evaluator defined for function expression with name [{_nameNode.GetFunctor()(d)}]"),
                     (IEnumerable<IHtExpression>)_argumentsNode.GetFunctor()(d));
             }
             return
