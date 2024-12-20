@@ -85,7 +85,7 @@ namespace com.antlersoft.HostedTools.Pipeline
             return new Sink(JsonFactory, outputPath, useGzip);
         }
 
-        class Sink : HostedObjectBase, IHtValueSink, IDisposable {
+        internal class Sink : HostedObjectBase, IHtValueSink, IDisposable {
             private IJsonFactory jsonFactory;
             private JsonTextWriter jr;
 
