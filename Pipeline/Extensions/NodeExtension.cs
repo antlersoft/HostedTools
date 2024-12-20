@@ -28,7 +28,7 @@ public static class NodeExtension {
         if (node.Cast<IRuntimeStateSettings>() is IRuntimeStateSettings stateSettings) {
             settingKeys = stateSettings.RuntimeSettingKeys;
         } else {
-            if (node.Cast<ISettingEditList>() is ISettingEditList settingEditList) {
+            if (node?.Cast<ISettingEditList>() is ISettingEditList settingEditList) {
                 settingKeys = settingEditList.KeysToEdit;
             }
         }
@@ -40,7 +40,7 @@ public static class NodeExtension {
                 result.SettingValues[setting]=settingRaw;
                 if (! visitedPlugins.Contains(settingRaw) && settingObject.Definition.Cast<PluginSelectionSettingDefinition>() is PluginSelectionSettingDefinition psd) {
                     var nestedPlugin = pluginManager[settingRaw];
-                    if (nestedPlugin.Cast<IPipelineNode>() is IPipelineNode nestedNode) {
+                    if (nestedPlugin?.Cast<IPipelineNode>() is IPipelineNode nestedNode) {
                         result.NestedValues[setting] = nestedNode.GetPluginState(visitedPlugins);
                     }
                 }

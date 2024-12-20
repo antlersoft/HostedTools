@@ -459,11 +459,19 @@ namespace com.antlersoft.HostedTools.Pipeline
             }
         }
 
+        private static bool StateUseSource(PluginState state) {
+            string val;
+            if (! state.SettingValues.TryGetValue(UseSourceForFile.FullKey(), out val)) {
+                return false;
+            }
+            return (bool)Convert.ChangeType(val, typeof(bool));
+        }
+
         public IHtValueTransform GetHtValueTransform(PluginState state)
         {
             string path = state.SettingValues[JoinFile.FullKey()];
             bool isGzip = (bool)Convert.ChangeType(state.SettingValues[FileIsGzip.FullKey()], typeof(bool));
-            bool useSourcePlugin = (bool)Convert.ChangeType(state.SettingValues[UseSourceForFile.FullKey()], typeof(bool));
+            bool useSourcePlugin = StateUseSource(state);
             JoinTypes jt =Enum.Parse<JoinTypes>(state.SettingValues[JoinType.FullKey()]);
             ResultTypes rt =Enum.Parse<ResultTypes>(state.SettingValues[ResultType.FullKey()]);
             IHtExpression projectionExpression = null;
