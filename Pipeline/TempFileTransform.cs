@@ -39,6 +39,10 @@ namespace com.antlersoft.HostedTools.Pipeline
             return result;
         }
 
+        internal IHtValueTransform GetTempFileTransform() {
+            return new Transform(JsonFactory);
+        }
+
         class Transform : IHtValueTransform, IDisposable {
             private string _tempFilePath;
             private IHtValueSource _source;

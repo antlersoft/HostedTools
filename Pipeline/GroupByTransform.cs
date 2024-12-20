@@ -30,17 +30,25 @@ namespace com.antlersoft.HostedTools.Pipeline
             
         }
 
-        class Transform : HostedObjectBase, IHtValueTransform {
+        class Transform : HostedObjectBase, IHtValueTransform, IDisposable {
+            private readonly IPluginManager _pluginManager;
             private readonly string _sortString;
             private readonly string _projectionExpression;
             private readonly bool _needSort;
             private readonly IConditionBuilder _conditionBuilder;
+            private IDisposable _disposable;
 
-            internal Transform(string sortString, string projectionExpression, bool needSort, IConditionBuilder conditionBuilder) {
+            internal Transform(IPluginManager p, string sortString, string projectionExpression, bool needSort, IConditionBuilder conditionBuilder) {
+                _pluginManager = p;
                 _sortString = sortString;
                 _projectionExpression = projectionExpression;
                 _needSort = needSort;
                 _conditionBuilder = conditionBuilder;
+            }
+
+            public void Dispose()
+            {
+                _disposable?.Dispose();
             }
 
             public IEnumerable<IHtValue> GetTransformed(IEnumerable<IHtValue> input, IWorkMonitor monitor)
@@ -60,7 +68,9 @@ namespace com.antlersoft.HostedTools.Pipeline
                 IEnumerable<IHtValue> sortedInput = input;
                 if (_needSort)
                 {
-                    sortedInput = input.OrderBy(row => row, groupComparer);
+                    var sortedTransform = new OrderByTransform.Transform(_pluginManager, _sortString, false, false, _conditionBuilder);
+                    _disposable = sortedTransform;
+                    sortedInput = sortedTransform.GetTransformed(sortedInput, monitor);
                 }
                 foreach (var r in sortedInput)
                 {
@@ -125,7 +135,7 @@ namespace com.antlersoft.HostedTools.Pipeline
 
         public IHtValueTransform GetHtValueTransform(PluginState state)
         {
-            return new Transform(state.SettingValues[GroupByList.FullKey()],
+            return new Transform(PluginManager, state.SettingValues[GroupByList.FullKey()],
                 state.SettingValues[GroupProjectionExpression.FullKey()],
                 (bool)Convert.ChangeType(state.SettingValues[NeedSort.FullKey()], typeof(bool)),
                 ConditionBuilder);
