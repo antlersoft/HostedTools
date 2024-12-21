@@ -11,6 +11,10 @@ using com.antlersoft.HostedTools.ConditionBuilder.Interface;
 using com.antlersoft.HostedTools.Interface;
 using com.antlersoft.HostedTools.ConditionBuilder.Model;
 using com.antlersoft.HostedTools.Framework.Model;
+using System.Threading.Tasks;
+using com.antlersoft.HostedTools.Framework.Model.Plugin.Internal;
+using System.Security.Cryptography.X509Certificates;
+using System.Runtime.CompilerServices;
 
 namespace com.antlersoft.HostedTools.Pipeline
 {
@@ -30,41 +34,127 @@ namespace com.antlersoft.HostedTools.Pipeline
             
         }
 
-        class Transform : HostedObjectBase, IHtValueTransform {
+        internal class Transform : HostedObjectBase, IHtValueTransform, IDisposable {
             private readonly string _orderByList;
             private readonly bool _descending;
             private readonly bool _nullsLast;
+            static readonly int MaxOrderSize = 200000;
             private readonly IConditionBuilder _conditionBuilder;
+            private readonly IPluginManager _pluginManager;
+            private readonly List<IDisposable> _subTransforms = new List<IDisposable>();
 
-            internal Transform(string orderByList, bool descending, bool nullsLast, IConditionBuilder conditionBuilder) {
+            internal Transform(IPluginManager p, string orderByList, bool descending, bool nullsLast, IConditionBuilder conditionBuilder) {
                 _orderByList = orderByList;
                 _descending = descending;
                 _nullsLast = nullsLast;
                 _conditionBuilder = conditionBuilder;
+                _pluginManager = p;
+            }
+
+            struct MergeDictKey {
+                internal IHtValue val;
+                internal int index;
+
+                internal MergeDictKey(IHtValue v, int i) {
+                    val = v;
+                    index = i;
+                }
+
+                internal class MergeDictComparer : IComparer<MergeDictKey>
+                {
+                    IComparer<IHtValue> _underlying;
+                    internal MergeDictComparer(IComparer<IHtValue> underlying) {
+                        _underlying = underlying;
+                    }
+                    int IComparer<MergeDictKey>.Compare(MergeDictKey x, MergeDictKey y)
+                    {
+                        int result = _underlying.Compare(x.val, y.val);
+                        if (result == 0) {
+                            result = x.index - y.index;
+                        }
+                        return result;
+                    }
+                }
+            }
+
+            internal IEnumerable<IHtValue> MergeSort(List<IEnumerable<IHtValue>> subTasks, IComparer<IHtValue> comparer, ICancelableMonitor monitor) {
+                int index = 0;
+                var enumerators = subTasks.Select(t => t.GetEnumerator()).ToArray();
+                var queue = new SortedDictionary<MergeDictKey,int>(new MergeDictKey.MergeDictComparer(comparer));
+                foreach (var x in enumerators) {
+                    if (x.MoveNext()) {
+                        queue.Add(new MergeDictKey(x.Current,index),index);
+                    }
+                    index++;
+                }
+                while (queue.Count > 0 && ! (monitor?.IsCanceled ?? false)) {
+                    var key = queue.Keys.First();
+                    queue.Remove(key);
+                    if (enumerators[key.index].MoveNext()) {
+                        queue.Add(new MergeDictKey(enumerators[key.index].Current, key.index), key.index);
+                    }
+                    yield return key.val;
+                }
             }
 
             public IEnumerable<IHtValue> GetTransformed(IEnumerable<IHtValue> input, IWorkMonitor monitor)
             {
-                if (String.IsNullOrWhiteSpace(_orderByList))
+                if (string.IsNullOrWhiteSpace(_orderByList))
                 {
                     return input;
                 }
+                ICancelableMonitor cancelable = monitor.Cast<ICancelableMonitor>();
                 List<IHtExpression> sortExpressions = new List<IHtExpression>();
                 foreach (string exprStr in _orderByList.Split(','))
                 {
                     sortExpressions.Add(_conditionBuilder.ParseCondition(exprStr));
                 }
-
-                return input.OrderBy(row => row,
-                    new OrderByComparer(
+                var comparer = new OrderByComparer(
                         new ValueComparer(_descending, _nullsLast),
-                        sortExpressions));
+                        sortExpressions);
+
+                var subTasks = new List<IEnumerable<IHtValue>>();
+                var current = new IHtValue[MaxOrderSize];
+                TempFileTransform tft = null;
+                int count = 0;
+                using (var e = input.GetEnumerator()) {
+                    for (; e.MoveNext() && ! (cancelable?.IsCanceled ?? false); ) {
+                        current[count++] = e.Current;
+                        if (count == MaxOrderSize) {
+                            Array.Sort(current, comparer);
+                            if (tft == null) {
+                                tft = _pluginManager[typeof(TempFileTransform).FullName] as TempFileTransform;
+                            }
+                            var transform = tft.GetTempFileTransform();
+                            if (transform.Cast<IDisposable>() is IDisposable sub) {
+                                _subTransforms.Add(sub);
+                            }
+                            subTasks.Add(transform.GetTransformed(current, monitor));
+                            count = 0;
+                        }
+                    }
+                }
+                Array.Resize(ref current, count);
+                Array.Sort(current, comparer);
+                if (subTasks.Count == 0) {
+                    return current;
+                }
+                subTasks.Add(current);
+                return MergeSort(subTasks, comparer, cancelable);
+            }
+
+            public void Dispose()
+            {
+                foreach (var t in _subTransforms) {
+                    t.Dispose();
+                }
             }
         }
 
         public IHtValueTransform GetHtValueTransform(PluginState state)
         {
             return new Transform(
+                PluginManager,
                 state.SettingValues[OrderByList.FullKey()],
                 (bool)Convert.ChangeType(state.SettingValues[Descending.FullKey()], typeof(bool)),
                 (bool)Convert.ChangeType(state.SettingValues[NullsLast.FullKey()], typeof(bool)),

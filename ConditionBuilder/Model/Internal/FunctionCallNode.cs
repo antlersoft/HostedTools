@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using com.antlersoft.HostedTools.ConditionBuilder.Interface;
 using com.antlersoft.HostedTools.ConditionBuilder.Parser;
 using com.antlersoft.HostedTools.Interface;
 using com.antlersoft.HostedTools.Serialization;
@@ -11,6 +13,7 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model.Internal
     {
         private IParseTreeNode _nameNode;
         private IParseTreeNode _argumentsNode;
+        private IEnumerable<IFunctionNamespace> _namespaces;
         /// <summary>
         /// Start of UnixTime epoch; DateTimeKind is Utc
         /// </summary>
@@ -99,8 +102,9 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model.Internal
             return d => new OperatorExpression(name, evaluator, (List<IHtExpression>) _argumentsNode.GetFunctor()(d));
         }
 
-        internal FunctionCallNode(IParseTreeNode nameNode, IParseTreeNode argumentsNode)
+        internal FunctionCallNode(IEnumerable<IFunctionNamespace> namespaces, IParseTreeNode nameNode, IParseTreeNode argumentsNode)
         {
+            _namespaces = namespaces;
             _nameNode = nameNode;
             _argumentsNode = argumentsNode;
         }
@@ -108,10 +112,22 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model.Internal
         public Func<object, object> GetFunctor()
         {
             Func<FunctionCallNode,string,Func<object,object>> evaluator;
-            var name = ((TokenNode)_nameNode).Token.Value;
+            FunctionIdNode idNode = (FunctionIdNode)_nameNode;
+            var name = idNode.Name;
             if (! AvailableFunctions.TryGetValue(name, out evaluator))
             {
-                return d => new OperatorExpression(name, args => throw new InvalidOperationException($"No evaluator defined for function expression with name [{name}]"),
+                var namespacesToCheck = idNode.Namespace == null ? _namespaces : _namespaces.Where(n => n.Name == idNode.Namespace);
+                foreach (var added in namespacesToCheck) {
+                    Func<IList<IHtExpression>,IGroupExpression> groupFunc;
+                    if (added.AddedGroupFunctions.TryGetValue(name, out groupFunc)) {
+                        return d => groupFunc.Invoke((IList<IHtExpression>)_argumentsNode.GetFunctor()(d));
+                    }
+                    Func<IList<IHtValue>, IHtValue> addedEvaluator;
+                    if (added.AddedFunction.TryGetValue(name, out addedEvaluator)) {
+                        return d => new OperatorExpression(name, addedEvaluator, (List<IHtExpression>) _argumentsNode.GetFunctor()(d));
+                    }
+                }
+                return d => new OperatorExpression(name, args => throw new InvalidOperationException($"No evaluator defined for function expression with name [{_nameNode.GetFunctor()(d)}]"),
                     (IEnumerable<IHtExpression>)_argumentsNode.GetFunctor()(d));
             }
             return

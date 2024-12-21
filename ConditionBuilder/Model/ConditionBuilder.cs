@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.Composition;
+﻿using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.IO;
 using com.antlersoft.HostedTools.ConditionBuilder.Interface;
 using com.antlersoft.HostedTools.ConditionBuilder.Model.Internal;
@@ -9,7 +10,18 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model
     [Export(typeof(IConditionBuilder))]
     public class ConditionBuilder : IConditionBuilder
     {
-        readonly ConditionParser _parser = new ConditionParser();
+        [ImportMany]
+        public IEnumerable<IFunctionNamespace> FunctionNamespaces { get; set; }
+        private ConditionParser _parser;
+
+        private ConditionParser ConditionParser {
+            get {
+                if (_parser == null) {
+                    _parser = new ConditionParser(FunctionNamespaces);
+                }
+                return _parser;
+            }
+        }
 
         public IHtExpression ParseCondition(string expr)
         {
@@ -17,7 +29,7 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model
             {
                 return null;
             }
-            return (IHtExpression) _parser.ParseExpression(ConditionParser.ExprSym, typeof (bool), expr)(this);
+            return (IHtExpression) ConditionParser.ParseExpression(ConditionParser.ExprSym, typeof (bool), expr)(this);
         }
 
         public IHtExpression ParseConditionVerbose(string expr, TextWriter writer)
@@ -26,7 +38,7 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model
             {
                 return null;
             }
-            return (IHtExpression)_parser.ParseExpression(ConditionParser.ExprSym, typeof(bool), expr, writer)(this);            
+            return (IHtExpression)ConditionParser.ParseExpression(ConditionParser.ExprSym, typeof(bool), expr, writer)(this);            
         }
     }
 }

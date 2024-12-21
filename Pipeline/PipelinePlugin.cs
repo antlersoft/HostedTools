@@ -47,7 +47,7 @@ namespace com.antlersoft.HostedTools.Pipeline
             : base(
                 new[]
                 {
-                    new MenuItem("DevTools.Pipeline", "Data Pipeline", null, "DevTools"),
+                    new MenuItem("DevTools.Pipeline", "Data Pipeline", null, null),
                     new MenuItem("DevTools.Pipeline.Plugin", "Run a pipeline", typeof (PipelinePlugin).FullName,
                         "DevTools.Pipeline"),
                     new MenuItem("DevTools.Pipeline.Input", "Input", null, "DevTools.Pipeline"),
