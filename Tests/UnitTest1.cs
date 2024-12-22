@@ -232,8 +232,72 @@ public class Tests
             count++;
         }
         Assert.That(count, Is.EqualTo(0));
+    }
+
+    [Test]
+    public void JoinTestLeft1() {
+        var arg1 = new string[] { "1", "2", "3"};
+        var arg2 = new string[] { "2", "2"};
+        var expectedResult = GenerateHtValue(new string[] { "3"}).First();
+        int count = 0;
+        foreach (var val in JoinTransform.GetJoin(JoinTransform.JoinTypes.LeftJoin, JoinTransform.ResultTypes.ProjectionExpression, _comparer, _allFields, GenerateHtValue(arg1), _keyExpression, GenerateHtValue(arg2), _keyExpression))
+        {
+            count++;
+            if (count == 4) {
+                Assert.That(_comparer.Compare(val, expectedResult), Is.EqualTo(0));
+            }
+        }
+        Assert.That(count, Is.EqualTo(4));
     }  
 
+    [Test]
+    public void JoinTestLeft2() {
+        var arg1 = new string[] { "1", "2", "3"};
+        var arg2 = new string[0];
+        var expectedResult = GenerateHtValue(new string[] { "3"}).First();
+        int count = 0;
+        foreach (var val in JoinTransform.GetJoin(JoinTransform.JoinTypes.LeftJoin, JoinTransform.ResultTypes.ProjectionExpression, _comparer, _allFields, GenerateHtValue(arg1), _keyExpression, GenerateHtValue(arg2), _keyExpression))
+        {
+            count++;
+            if (count == 3) {
+                Assert.That(_comparer.Compare(val, expectedResult), Is.EqualTo(0));
+            }
+        }
+        Assert.That(count, Is.EqualTo(3));
+    }  
+
+    [Test]
+    public void JoinTestLeft3() {
+        var arg1 = new string[] { "1", "2", "3", "5"};
+        var arg2 = new string[] { "1", "2", "4", "4"};
+        var expectedResult = GenerateHtValue(new string[] { "3"}).First();
+        int count = 0;
+        foreach (var val in JoinTransform.GetJoin(JoinTransform.JoinTypes.LeftJoin, JoinTransform.ResultTypes.ProjectionExpression, _comparer, _allFields, GenerateHtValue(arg1), _keyExpression, GenerateHtValue(arg2), _keyExpression))
+        {
+            count++;
+            if (count == 3) {
+                Assert.That(_comparer.Compare(val, expectedResult), Is.EqualTo(0));
+            }
+        }
+        Assert.That(count, Is.EqualTo(4));
+    }
+    
+    [Test]
+    public void JoinTestLeft4() {
+        var arg1 = new string[] { "1", "2", "3", "5"};
+        var arg2 = new string[] { "1", "2", "4", "4", "5"};
+        var expectedResult = GenerateHtValue(new string[] { "5 5"}).First();
+        int count = 0;
+        foreach (var val in JoinTransform.GetJoin(JoinTransform.JoinTypes.LeftJoin, JoinTransform.ResultTypes.ProjectionExpression, _comparer, _allFields, GenerateHtValue(arg1), _keyExpression, GenerateHtValue(arg2), _keyExpression))
+        {
+            count++;
+            if (count == 4) {
+                Assert.That(_comparer.Compare(val, expectedResult), Is.EqualTo(0));
+            }
+        }
+        Assert.That(count, Is.EqualTo(4));
+    }
+    
     [Test]
     public void JoinTestIn1() {
         var arg1 = new string[] { "1", "2"};
