@@ -65,6 +65,7 @@ namespace com.antlersoft.HostedTools.Pipeline
             private IHtValue _rewindKey = null;
             private IComparer<IHtValue> _comparer;
             private bool _isValidCurrent = false;
+            private bool _rewindable = false;
             private bool _reachedEndOfUnderlying = false;
 
             public bool IsValidCurrent => _isValidCurrent;
@@ -73,6 +74,10 @@ namespace com.antlersoft.HostedTools.Pipeline
                 _underlying = underlying;
                 _keyExpression = keyExpression;
                 _comparer = comparer;
+            }
+
+            public void MakeRewindable() {
+                _rewindable = true;
             }
             public IHtValue Current => (_rewindIndex >=0 && _rewindIndex < _rewindList.Count) ? _rewindList[_rewindIndex] : _underlying.Current;
 
@@ -105,7 +110,7 @@ namespace com.antlersoft.HostedTools.Pipeline
                     return false;
                 }
 
-                if (_isValidCurrent) {
+                if (_isValidCurrent && _rewindable) {
                     if (_rewindKey == null) {
                         _rewindKey = UnderyingCurrentKey;
                     } else {
@@ -128,6 +133,9 @@ namespace com.antlersoft.HostedTools.Pipeline
             }
 
             public void RewindRepeatedKeys() {
+                if (! _rewindable) {
+                    throw new InvalidOperationException("RewindRepeatedKeys called on non-rewindable enumerator");
+                }
                 if (_rewindList.Count > 0) {
                     _rewindIndex = 0;
                     _isValidCurrent = true;
@@ -372,8 +380,17 @@ namespace com.antlersoft.HostedTools.Pipeline
             IHtValue leftKey = null;
             IHtValue rightKey = null;
             var leftRewind = new RewindWithSameKeyEnumerator(leftRows.GetEnumerator(), leftKeyExp, comparer);
-            leftRewind.MoveNext();
             var rightRewind = new RewindWithSameKeyEnumerator(rightRows.GetEnumerator(), rightKeyExp, comparer);
+            switch (jt) {
+                case JoinTypes.LeftJoin:
+                case JoinTypes.JoinSymmetric:
+                    rightRewind.MakeRewindable();
+                    break;
+                case JoinTypes.RightJoin:
+                    leftRewind.MakeRewindable();
+                    break;
+            }
+            leftRewind.MoveNext();
             rightRewind.MoveNext();
 
             while (leftRewind.IsValidCurrent || rightRewind.IsValidCurrent)
