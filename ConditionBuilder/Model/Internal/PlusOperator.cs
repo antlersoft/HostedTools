@@ -14,28 +14,66 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model.Internal
         {
             
         }
+
+        private bool CoerceToDouble(IHtValue o, out double result)
+        {
+            if (o.IsDouble)
+            {
+                result = o.AsDouble;
+                return true;
+            }
+            if (o.IsLong)
+            {
+                result = o.AsLong;
+                return true;
+            }
+            return double.TryParse(o.AsString, out result);
+        }
+
+        private bool CoerceToLong(IHtValue o, out long result)
+        {
+            if (o.IsLong)
+            {
+                result = o.AsLong;
+                return true;
+            }
+            return long.TryParse(o.AsString, out result);
+        }
+
         public override object Evaluate(object data, Func<object, object> leftOperand, Func<object, object> rightOperand)
         {
             return new OperatorExpression("+", arg =>
             {
-                if (arg[0].IsDouble || arg[1].IsDouble)
+                if (arg[0].IsDouble)
                 {
-                    try
+                    double a1;
+                    if (CoerceToDouble(arg[1], out a1))
                     {
-                        return new JsonHtValue(arg[0].AsDouble + arg[1].AsDouble);
-                    }
-                    catch (FormatException)
-                    {
+                        return new JsonHtValue(arg[0].AsDouble + a1);
                     }
                 }
-                else if (arg[0].IsLong || arg[1].IsLong)
+                else if (arg[1].IsDouble)
                 {
-                    try
+                    double a1;
+                    if (CoerceToDouble(arg[0], out a1))
                     {
-                        return new JsonHtValue(arg[0].AsLong + arg[1].AsLong);
+                        return new JsonHtValue(arg[1].AsDouble + a1);
                     }
-                    catch (FormatException)
+                }
+                else if (arg[0].IsLong)
+                {
+                    long a1;
+                    if (CoerceToLong(arg[1], out a1))
                     {
+                        return new JsonHtValue(arg[0].AsLong + a1);
+                    }
+                }
+                else if (arg[1].IsLong)
+                {
+                    long a1;
+                    if (CoerceToLong(arg[0], out a1))
+                    {
+                        return new JsonHtValue(arg[1].AsLong + a1);
                     }
                 }
                 return new JsonHtValue(arg[0].AsString + arg[1].AsString);
