@@ -61,6 +61,7 @@ namespace com.antlersoft.HostedTools.Pipeline
                     sink.ReceiveRows(input, monitor);
                 }
                 monitor.Writer.WriteLine("Finished writing to temp file " + _tempFilePath);
+                //GC.Collect();
 
                 _source = PipelinePlugin.FromJsonStream(new FileStream(_tempFilePath, FileMode.Open, FileAccess.Read), _jsonFactory, true, false);
                 return _source.GetRows(monitor);
@@ -68,16 +69,16 @@ namespace com.antlersoft.HostedTools.Pipeline
 
             public void Dispose()
             {
-                if (_tempFilePath != null)
-                {
-                    File.Delete(_tempFilePath);
-                    _tempFilePath = null;
-                }
                 if (_source != null) {
                     if (_source is IDisposable disposable) {
                         disposable.Dispose();
                     }
                     _source = null;
+                }
+                if (_tempFilePath != null)
+                {
+                    File.Delete(_tempFilePath);
+                    _tempFilePath = null;
                 }
             }
 
