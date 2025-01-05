@@ -11,6 +11,7 @@ namespace com.antlersoft.HostedTools.GtkHostLib
     public partial class WorkControl : IElementSource
     {
         private readonly IWork _work;
+        private readonly IWorkMonitorHolder _holder;
         private WorkMonitor _monitor;
         private readonly Button _cancelButton = new Button() { Label = "Cancel" };
         private readonly Button _runButton = new Button() { Label = "Run" };
@@ -22,11 +23,12 @@ namespace com.antlersoft.HostedTools.GtkHostLib
         private Widget _workText;
         private readonly IBackgroundWorkReceiver _backgroundWorkReceiver;
 
-        public WorkControl(IBackgroundWorkReceiver receiver, IWork work, ISavable savable)
+        public WorkControl(IBackgroundWorkReceiver receiver, IWork work, ISavable savable, IWorkMonitorHolder holder)
         {
             _work = work;
             _backgroundWorkReceiver = receiver;
             _savable = savable;
+            _holder = holder;
 
             // Setup layout
             _table.PackStart(_explanationLabel, false, true, 2);
@@ -74,7 +76,7 @@ namespace com.antlersoft.HostedTools.GtkHostLib
             {
                 _table.Remove(_workText);
             }
-            _monitor = new WorkMonitor(_work);
+            _monitor = new WorkMonitor(_work, _holder);
             var workText = _monitor.GetElement(this);
             _workText = workText;
             _table.PackEnd(workText, true, true, 2);

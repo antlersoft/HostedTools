@@ -24,6 +24,8 @@ namespace com.antlersoft.HostedTools.CommandHost
         public ISettingManager SettingManager { get; set; }
         [Import]
         public IJsonFactory JsonFactory { get; set; }
+        [Import]
+        public IWorkMonitorHolder MonitorHolder { get; set; }
 
       [ImportMany]
       public IEnumerable<IAfterComposition> NeedAfterComposition { get; set; }
@@ -54,6 +56,7 @@ namespace com.antlersoft.HostedTools.CommandHost
         public void Run(string[] args)
         {
             IWorkMonitor monitor = new ConsoleMonitor();
+            MonitorHolder.SetMonitor(monitor);
 
             for (int i = 0; i < args.Length;)
             {
