@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.IO;
+using System.Linq;
 using com.antlersoft.HostedTools.ConditionBuilder.Interface;
 using com.antlersoft.HostedTools.ConditionBuilder.Model.Internal;
 using com.antlersoft.HostedTools.Interface;
@@ -11,13 +12,13 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model
     public class ConditionBuilder : IConditionBuilder
     {
         [ImportMany]
-        public IEnumerable<IFunctionNamespace> FunctionNamespaces { get; set; }
+        public IEnumerable<IFunctionSource> FunctionSources { get; set; }
         private ConditionParser _parser;
 
         private ConditionParser ConditionParser {
             get {
                 if (_parser == null) {
-                    _parser = new ConditionParser(FunctionNamespaces);
+                    _parser = new ConditionParser(FunctionSources);
                 }
                 return _parser;
             }

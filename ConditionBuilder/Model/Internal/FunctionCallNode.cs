@@ -13,7 +13,7 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model.Internal
     {
         private IParseTreeNode _nameNode;
         private IParseTreeNode _argumentsNode;
-        private IEnumerable<IFunctionNamespace> _namespaces;
+        private IEnumerable<IFunctionSource> _sources;
         /// <summary>
         /// Start of UnixTime epoch; DateTimeKind is Utc
         /// </summary>
@@ -102,9 +102,9 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model.Internal
             return d => new OperatorExpression(name, evaluator, (List<IHtExpression>) _argumentsNode.GetFunctor()(d));
         }
 
-        internal FunctionCallNode(IEnumerable<IFunctionNamespace> namespaces, IParseTreeNode nameNode, IParseTreeNode argumentsNode)
+        internal FunctionCallNode(IEnumerable<IFunctionSource> functionSources, IParseTreeNode nameNode, IParseTreeNode argumentsNode)
         {
-            _namespaces = namespaces;
+            _sources = functionSources;
             _nameNode = nameNode;
             _argumentsNode = argumentsNode;
         }
@@ -116,7 +116,8 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model.Internal
             var name = idNode.Name;
             if (! AvailableFunctions.TryGetValue(name, out evaluator))
             {
-                var namespacesToCheck = idNode.Namespace == null ? _namespaces : _namespaces.Where(n => n.Name == idNode.Namespace);
+                var namespaces = _sources.SelectMany(s => s.AvailableNamespaces);
+                var namespacesToCheck = idNode.Namespace == null ? namespaces : namespaces.Where(n => n.Name == idNode.Namespace);
                 foreach (var added in namespacesToCheck) {
                     Func<IList<IHtExpression>,IGroupExpression> groupFunc;
                     if (added.AddedGroupFunctions.TryGetValue(name, out groupFunc)) {
