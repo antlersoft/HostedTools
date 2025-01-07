@@ -112,6 +112,9 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
 
         private void Edit(object source, EventArgs args)
         {
+            if (_collection==null || _collection.Count==0) {
+                return;
+            }
             Navigation.NavigateTo(ItemSelection.NavigateToOnEdit(_collection[_combobox.Active]));
         }
 

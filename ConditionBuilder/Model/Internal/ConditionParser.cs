@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using com.antlersoft.HostedTools.ConditionBuilder.Interface;
 using com.antlersoft.HostedTools.ConditionBuilder.Parser;
 using com.antlersoft.HostedTools.Interface;
 using com.antlersoft.HostedTools.Serialization;
@@ -95,7 +96,7 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model.Internal
             QuotedNameToken
         };
 
-        private static IGoal[] GetGoals(IEnumerable<IFunctionNamespace> namespaces)
+        private static IGoal[] GetGoals(IEnumerable<IFunctionSource> functionSources)
         {
             return new IGoal[] {
             new SG(ValueSym,
@@ -254,7 +255,7 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model.Internal
                      AtSign, LeftParen, ProjectionTailSym
                      ),
                  new FunctorParseRule(
-                     (t,pr) => new GoalResult(new FunctionCallNode(namespaces, pr[1].Node, pr[3].Node), pr[3].NextTokenOffset),
+                     (t,pr) => new GoalResult(new FunctionCallNode(functionSources, pr[1].Node, pr[3].Node), pr[3].NextTokenOffset),
                      AtSign, FunctionIdSym, LeftParen, ArgumentListSym
                      )),
             new SG(ProjectionTailSym,
@@ -348,8 +349,8 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model.Internal
         };
         }
 
-            internal ConditionParser(IEnumerable<IFunctionNamespace> namespaces)
-                : base(_matchers, GetGoals(namespaces))
+            internal ConditionParser(IEnumerable<IFunctionSource> functionSources)
+                : base(_matchers, GetGoals(functionSources))
             {
 
             }

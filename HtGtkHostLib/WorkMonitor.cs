@@ -20,6 +20,7 @@ namespace com.antlersoft.HostedTools.GtkHostLib
         private readonly NotifiedTextWriter _writer = new NotifiedTextWriter();
         private OutputPane _outputPane;
         private ITextOutput _textOutput;
+        private IWorkMonitorHolder _holder;
         private readonly IWork _work;
         private CancellationTokenSource _source;
         private bool _isCanceled;
@@ -27,9 +28,10 @@ namespace com.antlersoft.HostedTools.GtkHostLib
         private Action _notifyBackgroundChanged;
         private Action _notifyRunningChanged;
 
-        internal WorkMonitor(IWork work)
+        internal WorkMonitor(IWork work, IWorkMonitorHolder holder)
         {
             _work = work;
+            _holder = holder;
             _outputPane = new OutputPane(work.Cast<IOutputPaneList>());
             InjectImplementation(typeof(IHasOutputPanes), _outputPane);
             InjectImplementation(typeof(IHasImageOutput), _outputPane);
@@ -133,12 +135,17 @@ namespace com.antlersoft.HostedTools.GtkHostLib
             {
                 try
                 {
+                    _holder.SetMonitor(this);
                     _work.Perform(this);
                 }
                 catch (Exception ex)
                 {
                     Writer.WriteLine(ex.ToString());
                     IsCanceled = true;
+                }
+                finally
+                {
+                    _holder.ClearMonitor();
                 }
             }, () => {
                 IsRunning = false;

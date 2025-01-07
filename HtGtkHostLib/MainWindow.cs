@@ -31,6 +31,8 @@ namespace com.antlersoft.HostedTools.GtkHostLib
 
         [Import]
         public ISettingManager SettingManager { get; set; }
+        [Import]
+        public IWorkMonitorHolder MonitorHolder { get; set; }
 
         [Import]
         public INavigationManager NavigationManager { get; set; }
@@ -233,13 +235,13 @@ namespace com.antlersoft.HostedTools.GtkHostLib
                                 _currentlySaving.Remove(savable);
                             }
                         }
-                        new SettingUpdateActionMonitor(this).RunUpdateAction(isa, s);
+                        new SettingUpdateActionMonitor(this, MonitorHolder).RunUpdateAction(isa, s);
                     });
                 }
             }
             if (work != null)
             {
-                workPanel = new WorkControl(BackgroundWorkReceiver, work, editPanel == null ? null : editPanel as ISavable);
+                workPanel = new WorkControl(BackgroundWorkReceiver, work, editPanel == null ? null : editPanel as ISavable, MonitorHolder);
             }
             if (editPanel != null && workPanel == null)
             {

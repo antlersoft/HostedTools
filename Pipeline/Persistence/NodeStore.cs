@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
-using System.Data.Common;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using com.antlersoft.HostedTools.ConditionBuilder.Interface;
 using com.antlersoft.HostedTools.Framework.Interface.Plugin;
 using com.antlersoft.HostedTools.Serialization;
 using Newtonsoft.Json;
@@ -13,7 +12,8 @@ using SQLite;
 namespace com.antlersoft.HostedTools.Pipeline.Persistence {
     
     [Export(typeof(INodeStore))]
-    public class NodeStore : INodeStore, IPartImportsSatisfiedNotification
+    [Export(typeof(IFunctionStore))]
+    public class NodeStore : INodeStore, IFunctionStore, IPartImportsSatisfiedNotification
     {
         [Import]
         public IPluginManager PluginManager { get; set; }
@@ -23,6 +23,11 @@ namespace com.antlersoft.HostedTools.Pipeline.Persistence {
         private SQLiteConnection GetConnection() {
             var db = new SQLiteConnection(_path);
             db.CreateTable<NodeRecord>();
+            db.CreateTable<FunctionRecord>();
+            int rowsDeleted = db.Execute("delete from SavedFunction where namespace is null");
+            //if (rowsDeleted!=0) {
+                Console.WriteLine($"{rowsDeleted} functions with no name deleted");
+            //}
             return db;
         }
 
@@ -55,6 +60,18 @@ namespace com.antlersoft.HostedTools.Pipeline.Persistence {
                 result.State = DeserializeString<PluginState>(record.JsonState);
                 result.State.Key = record.Id;
                 result.MetaData = DeserializeString<JsonHtValue>(record.JsonMetadata);
+            }
+            return result;
+        }
+
+        private SavedFunction RecordToFunction(FunctionRecord record) {
+            SavedFunction result = null;
+            if (record != null) {
+                result = new SavedFunction();
+                result.Name = record.Name;
+                result.Namespace = record.Namespace;
+                result.Key = record.Id;
+                result.Definition = DeserializeString<JsonHtValue>(record.JsonDefinition);
             }
             return result;
         }
@@ -108,6 +125,55 @@ namespace com.antlersoft.HostedTools.Pipeline.Persistence {
         {
             using (var db = GetConnection()) {
                 db.Delete<NodeRecord>(key);
+            }
+        }
+
+        public void Save(SavedFunction functionDef)
+        {
+            FunctionRecord fr = new FunctionRecord();
+            using (var db = GetConnection()) {
+                fr.Name = functionDef.Name;
+                fr.JsonDefinition = SerializeObject(functionDef.Definition);
+                fr.Namespace = functionDef.Namespace;
+                if (string.IsNullOrWhiteSpace(functionDef.Key)) {
+                    fr.Id = Guid.NewGuid().ToString();
+                    functionDef.Key = fr.Id;
+                    db.Insert(fr);
+                } else {
+                    fr.Id = functionDef.Key;
+                    db.Update(fr);
+                }
+            }
+        }
+
+        SavedFunction IFunctionStore.GetByKey(string key)
+        {
+            SavedFunction saved = null;
+            using (var db = GetConnection()) {
+                var fr = db.Get<FunctionRecord>(key);
+                saved = RecordToFunction(fr);
+            }
+            return saved;
+        }
+
+        void IFunctionStore.Delete(string key) {
+            using (var db = GetConnection()) {
+                var fr = db.Delete<FunctionRecord>(key);
+            }
+        }
+
+        public IEnumerable<string> GetNamespaces()
+        {
+            using (var db = GetConnection()) {
+                return db.QueryScalars<string>("select distinct namespace from SavedFunction");
+            }
+        }
+
+        public IEnumerable<SavedFunction> GetNamespaceFunctions(string space)
+        {
+            using (var db = GetConnection()) {
+                return db.Query<FunctionRecord>("select * from SavedFunction where namespace = ?", space)
+                    .Select(fr => RecordToFunction(fr));
             }
         }
     }

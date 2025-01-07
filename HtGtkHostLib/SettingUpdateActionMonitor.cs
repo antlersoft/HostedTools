@@ -16,11 +16,13 @@ namespace com.antlersoft.HostedTools.GtkHostLib
         private readonly CancellationToken _token = new CancellationToken();
         private readonly NotifiedTextWriter _writer;
         private readonly StringBuilder _displayString;
+        private readonly IWorkMonitorHolder _holder;
 
-        internal SettingUpdateActionMonitor(Window containingWindow)
+        internal SettingUpdateActionMonitor(Window containingWindow, IWorkMonitorHolder holder)
         {
             _containingWindow = containingWindow;
             _writer = new NotifiedTextWriter();
+            _holder = holder;
             _displayString = new StringBuilder();
             _writer.OnFlush += s => _displayString.Append(s);
         }
@@ -36,6 +38,7 @@ namespace com.antlersoft.HostedTools.GtkHostLib
             Thrown = null;
             try
             {
+                _holder.SetMonitor(this);
                 isa.Invoke(this, setting);
             }
             catch (Exception ex)
@@ -43,11 +46,16 @@ namespace com.antlersoft.HostedTools.GtkHostLib
                 Writer.WriteLine(ex.Message);
                 Writer.WriteLine(ex.ToString());
             }
+            finally
+            {
+                _holder.ClearMonitor();
+            }
             Writer.Flush();
             string s = GetAllOutput();
             if (s.Length > 0)
             {
-                new MessageDialog(_containingWindow, DialogFlags.Modal, MessageType.Error, ButtonsType.Close, s);
+                var d=new MessageDialog(_containingWindow, DialogFlags.Modal, MessageType.Error, ButtonsType.Close, s);
+                d.Run();
             }
         }
         public void Clear()
