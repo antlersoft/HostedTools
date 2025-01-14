@@ -68,7 +68,27 @@ namespace com.antlersoft.HostedTools.GtkHostLib
             };
         }
 
-        
+        private void InvokeGridItemCommandOnSelected(IGridItemCommand command) {
+            var selection = _tree.Selection;
+            selection.SelectedForeach((model, path, iter) => {
+                var row = model.GetValue(iter, 0) as Dictionary<string, object>;
+                if (row != null)
+                {
+                    command.Invoke(row, null);
+                }
+            });
+        }
+
+        internal void AddMenuItems(IGridItemCommandList commandList, string title) {
+            foreach (var c in commandList.GetGridItemCommands(title)) {
+                var item = new Gtk.MenuItem(c.Prompt);
+                var localCommand = c;
+                item.Activated += (sender, e) => {
+                    InvokeGridItemCommandOnSelected(localCommand);
+                };
+                _menu.Add(item);
+            }
+        }        
 
         public void AddRow(Dictionary<string, object> row)
         {

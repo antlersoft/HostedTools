@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="com.antlersoft.HostedTools.Framework" Version="2.1.0.1" />
+    <PackageReference Include="com.antlersoft.HostedTools.Framework" Version="2.3.0.1" />
     <PackageReference Include="com.antlersoft.HostedTools.Interface" Version="2.0.0.1" />
   </ItemGroup>
 

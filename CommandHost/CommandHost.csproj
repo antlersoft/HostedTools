@@ -14,7 +14,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="com.antlersoft.HostedTools.Framework">
-      <Version>2.2.0.1</Version>
+      <Version>2.3.0.1</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="System.ComponentModel.Composition" Version="5.0.0" />
