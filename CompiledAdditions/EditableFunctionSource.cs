@@ -14,6 +14,7 @@ namespace com.antlersoft.HostedTools.CompiledAdditions {
     [Export(typeof(IFunctionSource))]
     [Export(typeof(IAfterComposition))]
     [Export(typeof(ISettingDefinitionSource))]
+    [Export(typeof(EditableFunctionSource))]
     public class EditableFunctionSource : EditOnlyPlugin, IFunctionSource, IAfterComposition, IHasSettingChangeActions, ISettingDefinitionSource
     {
         [Import]
@@ -34,10 +35,17 @@ namespace com.antlersoft.HostedTools.CompiledAdditions {
         private SortedDictionary<string,FunctionNamespace> _namespaces = new SortedDictionary<string, FunctionNamespace>();
 
         private void SetEditNamespace(string name) {
-            FunctionNamespace toEdit;
-            if (_namespaces.TryGetValue(name, out toEdit)) {
-                namespaceEditor.SetNamespace(toEdit);
+            namespaceEditor?.SetNamespace(GetNamespaceForName(name));
+        }
+
+        internal FunctionNamespace GetNamespaceForName(string name) {
+            FunctionNamespace? existing = null;
+            _namespaces.TryGetValue(name, out existing);
+            FunctionNamespace result = existing ?? new FunctionNamespace(name, FunctionStore, MonitorSource);
+            if (existing == null) {
+                _namespaces.Add(name, result);
             }
+            return result;
         }
 
         public EditableFunctionSource()
@@ -52,9 +60,6 @@ namespace com.antlersoft.HostedTools.CompiledAdditions {
                         m.Thrown = new ArgumentException($"'{n}' is not a valid namespace name");
                         m.Writer.WriteLine("Bad namespace name");
                         return;
-                    }
-                    if (! _namespaces.ContainsKey(n)) {
-                        _namespaces.Add(n, new FunctionNamespace(n, FunctionStore, MonitorSource));
                     }
                     SetEditNamespace(n);
                     NavigationManager?.NavigateTo(typeof(NamespaceEditor).FullName);
