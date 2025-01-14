@@ -12,7 +12,7 @@ namespace com.antlersoft.HostedTools.Pipeline
     [Export(typeof(IRootNode))]
     public class MySqlSource : SqlSourceBase, ISettingDefinitionSource
     {
-        static ISettingDefinition MySqlConnectionString = new SimpleSettingDefinition("ConnectionString", "MySqlSource", "Connection string");
+        internal static ISettingDefinition MySqlConnectionString = new SimpleSettingDefinition("ConnectionString", "MySqlSource", "Connection string");
 
         public IEnumerable<ISettingDefinition> Definitions => new [] {MySqlConnectionString};
         public MySqlSource()

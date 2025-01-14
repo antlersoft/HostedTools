@@ -19,6 +19,8 @@ namespace com.antlersoft.HostedTools.CompiledAdditions {
         public IFunctionStore? FunctionStore {get; set;}
         [Import]
         public IConditionBuilder? ConditionBuilder {get;set;}
+        [Import]
+        public EditableFunctionSource? FunctionSource {get;set;}
 
         private FunctionNamespace? _namespace;
         private SavedFunction? _function;
@@ -53,8 +55,13 @@ namespace com.antlersoft.HostedTools.CompiledAdditions {
 
         private bool ValidateFunctionName(IWorkMonitor m) {
             if (_namespace==null) {
-                m.Writer.WriteLine("Namespace not set!");
-                return false;
+                string namespaceName = NamespaceName.Value<string>(SettingManager);
+                if (string.IsNullOrWhiteSpace(namespaceName) || ! EditableFunctionSource.NameRegex.IsMatch(namespaceName)) {
+                    m.Writer.WriteLine("Namespace not set!");
+                    return false;
+                } else {
+                    _namespace = FunctionSource?.GetNamespaceForName(namespaceName);
+                }
             }
             string name = FunctionName.Value<string>(SettingManager);
             if (! EditableFunctionSource.NameRegex.IsMatch(name)) {
@@ -119,9 +126,17 @@ namespace com.antlersoft.HostedTools.CompiledAdditions {
             if (name != _namespace) {
                 _namespace = name;
                 SettingManager[NamespaceName.FullKey()].SetRaw(name.Name);
-                FunctionSelection.Cast<ISavable>()?.Reset();
-                if (FunctionSelection._functionList.Count>0) {
-                    SetCurrentFunction(FunctionSelection._functionList[0].Key);
+                ISavable? savable=FunctionSelection.Cast<ISavable>();
+                if (savable != null) {
+                    savable.Reset();
+                    if (FunctionSelection._functionList.Count>0) {
+                        SetCurrentFunction(FunctionSelection._functionList[0].Key);
+                    }
+                } else {
+                    var first = FunctionStore?.GetNamespaceFunctions(name.Name).FirstOrDefault();
+                    if (first!=null) {
+                        SetCurrentFunction(first.Key);
+                    }
                 }
             }
         }

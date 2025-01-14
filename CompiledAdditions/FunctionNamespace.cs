@@ -30,11 +30,12 @@ namespace com.antlersoft.HostedTools.CompiledAdditions {
         private string BuildClassDefinition(IList<SavedFunction> functions) {
             StringBuilder sb = new StringBuilder();
 
+            sb.Append("using System;\n");
+            sb.Append("using System.Collections.Generic;\n");
+            sb.Append("using com.antlersoft.HostedTools.Interface;\n");
+            sb.Append("using com.antlersoft.HostedTools.ConditionBuilder;\n");
+            sb.Append("using com.antlersoft.HostedTools.Serialization;\n");
             foreach (var f in functions) {
-                sb.Append("using System.Collections.Generic;\n");
-                sb.Append("using com.antlersoft.HostedTools.Interface;\n");
-                sb.Append("using com.antlersoft.HostedTools.ConditionBuilder;\n");
-                sb.Append("using com.antlersoft.HostedTools.Serialization;\n");
                 sb.Append(f.Definition[UsingStatements].AsString);
                 sb.Append("\n");
             }

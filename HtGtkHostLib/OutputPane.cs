@@ -61,9 +61,10 @@ namespace com.antlersoft.HostedTools.GtkHostLib
                 _topElement = grid;
 
                 uint paneOffset = 0;
+                var gridCommandList = paneList.Cast<IGridItemCommandList>();
                 foreach (IOutputPaneSpecifier paneSpec in paneList.Panes)
                 {
-                    PaneItem pane = CreatePane(paneSpec);
+                    PaneItem pane = CreatePane(paneSpec, gridCommandList);
                     _items.Add(pane);
                     Label paneLabel = null;
                     var paneControl = pane.Control;
@@ -95,13 +96,17 @@ namespace com.antlersoft.HostedTools.GtkHostLib
             }
         }
 
-        private PaneItem CreatePane(IOutputPaneSpecifier spec)
+        private PaneItem CreatePane(IOutputPaneSpecifier spec, IGridItemCommandList gridItemCommandList)
         {
             PaneItem result = new PaneItem { PaneType = spec.Type, Title = spec.Title };
             switch (spec.Type)
             {
                 case EOutputPaneType.Grid:
-                    result.Control = new GridOutput();
+                    GridOutput gridOutput = new GridOutput();
+                    if (gridItemCommandList != null) {
+                        gridOutput.AddMenuItems(gridItemCommandList, spec.Title);
+                    }
+                    result.Control = gridOutput;
                     if (_outputGrid == null)
                     {
                         _outputGrid = result.Control as IGridOutput;
