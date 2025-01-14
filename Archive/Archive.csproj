@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="cp $(TargetPath) ..\HtGtkHost\bin\$(ConfigurationName)\netcoreapp7.0" />
+    <!-- <Exec Command="cp $(TargetPath) ..\HtGtkHost\bin\$(ConfigurationName)\netcoreapp7.0" /> -->
   </Target>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
