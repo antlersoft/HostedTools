@@ -12,7 +12,7 @@ namespace com.antlersoft.HostedTools.Pipeline
     [Export(typeof(IRootNode))]
     public class SQLiteSource : SqlSourceBase, ISettingDefinitionSource
     {
-        static ISettingDefinition SQLiteConnectionString = new SimpleSettingDefinition("ConnectionString", "SQLiteSource", "Path to SQLite db");
+        internal static ISettingDefinition SQLiteConnectionString = new SimpleSettingDefinition("ConnectionString", "SQLiteSource", "Path to SQLite db");
 
         public IEnumerable<ISettingDefinition> Definitions => new[] { SQLiteConnectionString };
         public SQLiteSource()

@@ -12,7 +12,7 @@ namespace com.antlersoft.HostedTools.Pipeline
     [Export(typeof(IRootNode))]
     public class PostgreSqlSource : SqlSourceBase, ISettingDefinitionSource
     {
-        static ISettingDefinition PostgreSqlConnectionString = new SimpleSettingDefinition("ConnectionString", "PostgreSqlSource", "Connection string");
+        internal static ISettingDefinition PostgreSqlConnectionString = new SimpleSettingDefinition("ConnectionString", "PostgreSqlSource", "Connection string");
 
         public IEnumerable<ISettingDefinition> Definitions => new[] { PostgreSqlConnectionString };
         public PostgreSqlSource()
