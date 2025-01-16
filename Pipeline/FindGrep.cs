@@ -41,7 +41,7 @@ namespace com.antlersoft.HostedTools.Pipeline {
 
         public IEnumerable<ISettingDefinition> Definitions => _definitions;
 
-        public string NodeDescription => "FindGrep";
+        public string NodeDescription => $"FindGrep {MatchExpression.Value<string>(SettingManager)} in {StartFolder.Value<string>(SettingManager)}";
 
         public Dictionary<string, Action<IWorkMonitor, ISetting>> ActionsBySettingKey => _actionsBySettingKey;
 
@@ -91,7 +91,9 @@ namespace com.antlersoft.HostedTools.Pipeline {
 
         public override void Perform(IWorkMonitor monitor)
         {
-            Perform(GetPluginState(), monitor);
+            var state = GetPluginState();
+            CanBackground(monitor, NodeDescription);
+            Perform(state, monitor);
         }
 
         class FindGrepSource : HostedObjectBase, IHtValueSource, IDisposable
