@@ -397,8 +397,8 @@ namespace com.antlersoft.HostedTools.Pipeline
             {
                 leftKey = leftRewind.IsValidCurrent ? leftRewind.CurrentKey : null;
                 rightKey = rightRewind.IsValidCurrent ? rightRewind.CurrentKey : null;
-                var left = leftRewind.Current;
-                var right = rightRewind.Current;
+                var left = leftRewind.IsValidCurrent ? leftRewind.Current : null;
+                var right = rightRewind.IsValidCurrent ? rightRewind.Current : null;
                 bool bothValid = leftKey != null && rightKey != null;
                 var comparison = bothValid ? comparer.Compare(leftKey, rightKey) : 0;
                 bool partialRow;
