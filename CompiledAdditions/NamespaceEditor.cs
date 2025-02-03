@@ -31,9 +31,9 @@ namespace com.antlersoft.HostedTools.CompiledAdditions {
         internal static ISettingDefinition FunctionName = new SimpleSettingDefinition("FunctionName",Scope,"Function Name");
         internal static ISettingDefinition TestExpression = new SimpleSettingDefinition("TestExpression", Scope,"Test Expression");
         static FunctionSelectionDefinition FunctionSelection = new FunctionSelectionDefinition();
-        static ISettingDefinition Usings = new MultiLineSettingDefinition("Usings", Scope, 3, "Using declarations");
-        static ISettingDefinition OtherDeclarations = new MultiLineSettingDefinition("OtherDeclarations", Scope, 3, "In-class declarations");
-        static ISettingDefinition Body = new MultiLineSettingDefinition("Body", Scope, 5, "Function body");
+        static ISettingDefinition Usings = new MultiLineSettingDefinition("Usings", Scope, 3, "Using declarations", null, null, null, false);
+        static ISettingDefinition OtherDeclarations = new MultiLineSettingDefinition("OtherDeclarations", Scope, 3, "In-class declarations", null, null, null, false);
+        static ISettingDefinition Body = new MultiLineSettingDefinition("Body", Scope, 5, "Function body", "Body of function declared IHtValue [functionName](IList<IHtValue> args)", null, null, false);
         static ISettingDefinition AddButton = new ButtonsDefinition("AddButton", Scope, new[] {"Add function"});
 
         private void SetFieldsFromEditedFunction() {
@@ -68,7 +68,7 @@ namespace com.antlersoft.HostedTools.CompiledAdditions {
                 m.Writer.WriteLine($"'{name}' is not a valid function name");
                 return false;
             }
-            if (name!=_function?.Name) {
+            if (_function==null || name!=_function?.Name) {
                 if (FunctionSelection._functionList.Any(f => f.Name == name)) {
                     m.Writer.WriteLine($"'{name}' is already a function name in this namespace");
                     return false;
