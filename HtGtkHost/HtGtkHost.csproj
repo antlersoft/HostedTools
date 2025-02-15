@@ -15,6 +15,7 @@
     <ProjectReference Include="..\HtGtkHostLib\HtGtkHostLib.csproj" />
     <ProjectReference Include="..\Pipeline\Pipeline.csproj" />
     <ProjectReference Include="..\CompiledAdditions\CompiledAdditions.csproj" />
+    <ProjectReference Include="..\HostedBbqClient\HostedBbqClient.csproj" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
