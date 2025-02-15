@@ -16,6 +16,7 @@
     <ProjectReference Include="..\Pipeline\Pipeline.csproj" />
     <ProjectReference Include="..\CompiledAdditions\CompiledAdditions.csproj" />
     <ProjectReference Include="..\HostedBbqClient\HostedBbqClient.csproj" />
+    <ProjectReference Include="..\Geo\Geo.csproj" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
