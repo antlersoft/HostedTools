@@ -58,7 +58,12 @@ namespace com.antlersoft.HostedTools.Pipeline
 
         public IHtValueSource GetHtValueSource(PluginState state)
         {
-            return new Source(GetConnectionSource(), state.SettingValues[SqlCommand.FullKey()], (int)Convert.ChangeType(state.SettingValues[CommandTimeout.FullKey()], typeof(int)), GetColumnValue);
+            string timeoutString;
+            int timeout=600;
+            if (state.SettingValues.TryGetValue(CommandTimeout.FullKey(), out timeoutString) && ! string.IsNullOrWhiteSpace(timeoutString)) {
+                timeout=(int)Convert.ChangeType(timeoutString, typeof(int));
+            }
+            return new Source(GetConnectionSource(), state.SettingValues[SqlCommand.FullKey()], timeout, GetColumnValue);
         }
 
         public override string NodeDescription
