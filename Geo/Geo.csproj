@@ -7,11 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Pipeline\Pipeline.csproj" />
+    <PackageReference Include="com.antlersoft.HostedTools.Framework" Version="2.3.0.1" />
+    <PackageReference Include="NetTopologySuite.IO.Esri.Shapefile" Version="1.2.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="NetTopologySuite.IO.Esri.Shapefile" Version="1.2.0" />
+    <ProjectReference Include="..\Pipeline\Pipeline.csproj" />
   </ItemGroup>
 
 </Project>

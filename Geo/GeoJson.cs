@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using com.antlersoft.HostedTools.Interface;
 using com.antlersoft.HostedTools.Interface.Geography;
+using com.antlersoft.HostedTools.Serialization;
 using Newtonsoft.Json;
 
 namespace com.antlersoft.HostedTools.Geography
@@ -17,13 +18,13 @@ namespace com.antlersoft.HostedTools.Geography
     public class GeoJsonCrs
     {
         public string type { get; set; }
-        public IHtValue? properties { get; set; }
+        public JsonHtValue? properties { get; set; }
     }
 
     public class GeoJsonGeometry : GeoJsonBase
     {
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public IHtValue? coordinates { get; set; }
+        public JsonHtValue? coordinates { get; set; }
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public List<GeoJsonGeometry>? geometries { get; set; } 
     }
@@ -33,7 +34,7 @@ namespace com.antlersoft.HostedTools.Geography
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string? id { get; set; }
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public IHtValue? properties { get; set; }
+        public JsonHtValue? properties { get; set; }
         public GeoJsonGeometry? geometry { get; set; }
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public double? MaxMetersPerPixel { get; set; }
@@ -57,13 +58,13 @@ namespace com.antlersoft.HostedTools.Geography
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string? id { get; set; }
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public IHtValue? coordinates { get; set; }
+        public JsonHtValue? coordinates { get; set; }
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public List<GeoJsonGeometry>? geometries { get; set; }
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public double? MaxMetersPerPixel { get; set; }
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public IHtValue? properties { get; set; }
+        public JsonHtValue? properties { get; set; }
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public GeoJsonGeometry? geometry { get; set; }
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]

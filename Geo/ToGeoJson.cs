@@ -79,10 +79,10 @@ namespace com.antlersoft.HostedTools.Geography
             return x.Select(parseFloat).ToList();
         }
 
-        static IHtValue coord(string s)
+        static JsonHtValue coord(string s)
         {
             string[] coords = NormalizeSpace(s).Trim().Split(' ');
-            IHtValue result = new JsonHtValue();
+            JsonHtValue result = new JsonHtValue();
             int i = 0;
             foreach (string c in coords)
             {
@@ -91,11 +91,11 @@ namespace com.antlersoft.HostedTools.Geography
             return result;
         }
 
-        static IHtValue coord1(string s)
+        static JsonHtValue coord1(string s)
         {
             var doubles = numarray(NormalizeSpace(s).Replace(" ", String.Empty).Split(','));
             int i = 0;
-            IHtValue result = new JsonHtValue();
+            JsonHtValue result = new JsonHtValue();
             foreach (var d in doubles)
             {
                 result[i++] = new JsonHtValue(d);
@@ -193,7 +193,7 @@ namespace com.antlersoft.HostedTools.Geography
                         else if (MatchingType(geo, "Polygon", geometryType))
                         {
                             var rings = Get(geomNode, "LinearRing");
-                            IHtValue coords = new JsonHtValue();
+                            JsonHtValue coords = new JsonHtValue();
                             for (int r = 0; r<rings.Count; r++)
                             {
                                 coords[r] = coord(nodeVal(Get1(rings[r], "coordinates")));
