@@ -7,7 +7,6 @@ using System.Threading;
 
 using Newtonsoft.Json;
 using com.antlersoft.HostedTools.Interface;
-using System.Collections;
 
 namespace com.antlersoft.HostedTools.Serialization
 {
@@ -335,8 +334,6 @@ namespace com.antlersoft.HostedTools.Serialization
             get { return ! IsBool && ! IsDouble && ! IsLong && ! IsString && ! IsArray && ! IsDictionary; }
         }
 
-        public bool IsReadOnly => false;
-
         public IHtValue this [string i] {
 			get {
 				if (! IsDictionary) {
@@ -371,76 +368,7 @@ namespace com.antlersoft.HostedTools.Serialization
             if (! IsArray)
             {
                 _asArray = new List<IHtValue>();
-				_asBool = null;
-				_asDictionary = null;
-				_asDouble = null;
-				_asLong = null;
-                _asString = null;
             }
-        }
-
-        public int IndexOf(IHtValue item)
-        {
-            MakeArray();
-            return _asArray.IndexOf(item);
-        }
-
-        public void Insert(int index, IHtValue item)
-        {
-            MakeArray();
-            _asArray.Insert(index, item);
-        }
-
-        public void RemoveAt(int index)
-        {
-            MakeArray();
-            _asArray.RemoveAt(index);
-        }
-
-        public void Add(IHtValue item)
-        {
-            MakeArray();
-            _asArray.Add(item);
-        }
-
-        public void Clear()
-        {
-            _asBool = null;
-            _asArray = null;
-            _asDictionary = null;
-            _asDouble = null;
-            _asLong = null;
-            _asString = null;
-        }
-
-        public bool Contains(IHtValue item)
-        {
-            MakeArray();
-            return _asArray.Contains(item);
-        }
-
-        public void CopyTo(IHtValue[] array, int arrayIndex)
-        {
-            MakeArray();
-            _asArray.CopyTo(array, arrayIndex);
-        }
-
-        public bool Remove(IHtValue item)
-        {
-            MakeArray();
-            return _asArray.Remove(item);
-        }
-
-        public IEnumerator<IHtValue> GetEnumerator()
-        {
-            MakeArray();
-            return _asArray.GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            MakeArray();
-            return ((IEnumerable)_asArray).GetEnumerator();
         }
 
         public IHtValue this [int i] {

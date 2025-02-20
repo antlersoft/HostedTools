@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace com.antlersoft.HostedTools.Interface
 {
-	public interface IHtValue : IList<IHtValue>
+	public interface IHtValue
     {
         bool AsBool { get; set; }
         double AsDouble { get; set; }
@@ -18,7 +18,9 @@ namespace com.antlersoft.HostedTools.Interface
         bool IsDictionary { get; }
         bool IsArray { get; }
         bool IsEmpty { get; }
+		int Count { get; }
         IHtValue this[string i] { get; set; }
+        IHtValue this[int i] { get; set; }
     }
 }
 
