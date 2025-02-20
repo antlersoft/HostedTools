@@ -36,7 +36,7 @@ namespace com.antlersoft.HostedTools.Pipeline
 
         public IHtValueTransform GetHtValueTransform(PluginState state)
         {
-            string expr = FilterExpression.Value<string>(SettingManager);
+            string expr = state.SettingValues[FilterExpression.FullKey()];
             IHtExpression expression = ConditionBuilder.ParseCondition(expr);
             return new Transform(expression);
         }

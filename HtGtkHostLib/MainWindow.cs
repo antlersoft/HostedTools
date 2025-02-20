@@ -33,6 +33,8 @@ namespace com.antlersoft.HostedTools.GtkHostLib
         public ISettingManager SettingManager { get; set; }
         [Import]
         public IWorkMonitorHolder MonitorHolder { get; set; }
+        [Import(AllowDefault = true)]
+        public IWorkMonitorSource MonitorSource { get; set; }
 
         [Import]
         public INavigationManager NavigationManager { get; set; }
@@ -55,6 +57,7 @@ namespace com.antlersoft.HostedTools.GtkHostLib
         private HashSet<ISavable> _currentlySaving=new HashSet<ISavable>();
 
         private bool _shownOnce = false;
+        private ICancelableMonitor _cancelableMonitor;
 
         public MainWindow(string s = null)
         : base(s??"HostedTools Gtk Host")
@@ -79,9 +82,15 @@ namespace com.antlersoft.HostedTools.GtkHostLib
             {
                 _startupError = ex;
             }
+            _cancelableMonitor = MonitorSource?.GetMonitor()?.Cast<ICancelableMonitor>();
             SetDefaultSize(1000, 700);
             SetPosition(WindowPosition.Center);
-            DeleteEvent += delegate { Application.Quit(); };
+            DeleteEvent += delegate {
+                if (_cancelableMonitor != null) {
+                    _cancelableMonitor.IsCanceled = true;
+                }
+                Application.Quit();
+            };
 
             var hbox = new HBox(false, 2);
             _mainMenuBar = new MenuBar();
@@ -146,7 +155,12 @@ namespace com.antlersoft.HostedTools.GtkHostLib
                 item.Activated += (sender, args) => SettingManager.Save();
                 _fileMenu.Add(new SeparatorMenuItem());
                 var exitItem = new MenuItem("Exit");
-                exitItem.Activated += (sender, args) => Close();
+                exitItem.Activated += (sender, args) => {
+                    if (_cancelableMonitor != null) {
+                        _cancelableMonitor.IsCanceled = true;
+                    }
+                    Close();
+                };
                 _fileMenu.Add(exitItem);
             }
             return _fileMenu;

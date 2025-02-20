@@ -16,7 +16,7 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model.Internal
 
         public override object Evaluate(object data, Func<object, object> leftOperand, Func<object, object> rightOperand)
         {
-            return new OperatorExpression("+", arg => new JsonHtValue(NumericEvaluate(arg[0].AsDouble, arg[1].AsDouble)),
+            return new OperatorExpression(Name.Name, arg => new JsonHtValue(NumericEvaluate(arg[0].AsDouble, arg[1].AsDouble)),
             new List<IHtExpression> { (IHtExpression)leftOperand(data), (IHtExpression)rightOperand(data) });
         }
 

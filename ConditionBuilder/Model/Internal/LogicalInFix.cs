@@ -23,7 +23,7 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model.Internal
 
         public override OperatorValidity GetReturnType(Type leftOperand, Type rightOperand)
         {
-            if ((leftOperand == typeof(bool) || typeof(IHtValue).IsAssignableFrom(leftOperand))&& (rightOperand == typeof(bool) || typeof(IHtValue).IsAssignableFrom(leftOperand)))
+            if ((leftOperand == typeof(bool) || typeof(IHtValue).IsAssignableFrom(leftOperand))&& (rightOperand == typeof(bool) || typeof(IHtValue).IsAssignableFrom(rightOperand)))
             {
                 return new OperatorValidity(typeof(bool));
             }
