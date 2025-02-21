@@ -24,10 +24,7 @@ namespace com.antlersoft.HostedTools.Pipeline.Persistence {
             var db = new SQLiteConnection(_path);
             db.CreateTable<NodeRecord>();
             db.CreateTable<FunctionRecord>();
-            int rowsDeleted = db.Execute("delete from SavedFunction where namespace is null");
-            //if (rowsDeleted!=0) {
-                Console.WriteLine($"{rowsDeleted} functions with no name deleted");
-            //}
+
             return db;
         }
 

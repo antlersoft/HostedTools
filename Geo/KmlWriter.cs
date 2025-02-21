@@ -166,8 +166,10 @@ namespace com.antlersoft.HostedTools.Geography
 
         internal void WritePoly(string description, GeoJsonGeometry g)
         {
-            _sw.Write($"<Placemark><description><LineString><altitudeMode>clampToGround</altitudeMode><coordinates>");
-            foreach (var coord in g.coordinates.AsArrayElements) {
+            _sw.Write($"<Placemark><description>{HttpUtility.HtmlEncode(description ?? string.Empty)}</description><LineString><altitudeMode>clampToGround</altitudeMode><coordinates>");
+            var coordinates = g.type=="LineString" ? g.coordinates : g.coordinates[0];
+
+            foreach (var coord in coordinates.AsArrayElements) {
                 _sw.Write("{0},{1} ", coord[0].AsDouble, coord[1].AsDouble);               
             }
             _sw.WriteLine("</coordinates></LineString></Placemark>");
@@ -297,7 +299,7 @@ namespace com.antlersoft.HostedTools.Geography
                 var response = context.Response;
                 if (_content != null) {
                     response.StatusCode = 200;
-                    response.ContentType = "application/vnd.google-earth.kml+xm";
+                    response.ContentType = "application/vnd.google-earth.kml+xml";
                     response.ContentLength64 = _content.Length;
                     using (StreamWriter writer = new StreamWriter(response.OutputStream)) {
                         await writer.WriteAsync(_content);
