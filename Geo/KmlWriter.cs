@@ -137,10 +137,16 @@ namespace com.antlersoft.HostedTools.Geography
     class KmlWriter : IDisposable
     {
         TextWriter? _sw;
+        bool _writeFullHeader;
 
-        internal KmlWriter(TextWriter sw) {
+        internal KmlWriter(TextWriter sw, bool writeFullHeader = true) {
             _sw = sw;
-            _sw.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<kml xmlns=\"http://www.opengis.net/kml/2.2\"><Document><Style id=\"scaledIcon1\"><IconStyle><scale>0.3</scale></IconStyle></Style><Style id=\"scaledIcon2\"><IconStyle><scale>0.3</scale><color>ff0000ff</color></IconStyle></Style><Style id=\"scaledIcon3\"><IconStyle><scale>0.3</scale><color>FFC878F0</color></IconStyle></Style><Style id=\"boundingBox\"><LineStyle><color>ff0000ff</color></LineStyle></Style><Folder>\r\n");
+            _writeFullHeader = writeFullHeader;
+            if (_writeFullHeader) {
+                _sw.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<kml xmlns=\"http://www.opengis.net/kml/2.2\"><Document><Style id=\"scaledIcon1\"><IconStyle><scale>0.3</scale></IconStyle></Style><Style id=\"scaledIcon2\"><IconStyle><scale>0.3</scale><color>ff0000ff</color></IconStyle></Style><Style id=\"scaledIcon3\"><IconStyle><scale>0.3</scale><color>FFC878F0</color></IconStyle></Style><Style id=\"boundingBox\"><LineStyle><color>ff0000ff</color></LineStyle></Style><Folder>\r\n");
+            } else {
+                //_sw.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<kml xmlns=\"http://www.opengis.net/kml/2.2\">");
+            }
         }
 
         internal KmlWriter(string path)
@@ -153,7 +159,11 @@ namespace com.antlersoft.HostedTools.Geography
         {
             if (_sw != null)
             {
-                _sw.WriteLine("</Folder></Document></kml>");
+                if (_writeFullHeader) {
+                    _sw.WriteLine("</Folder></Document></kml>");
+                } else {
+                    //_sw.WriteLine("</kml>");
+                }
                 _sw.Close();
                 _sw = null;
             }
@@ -300,6 +310,7 @@ namespace com.antlersoft.HostedTools.Geography
                 if (_content != null) {
                     response.StatusCode = 200;
                     response.ContentType = "application/vnd.google-earth.kml+xml";
+                    response.AddHeader("Access-Control-Allow-Origin", "https://earth.google.com");
                     response.ContentLength64 = _content.Length;
                     using (StreamWriter writer = new StreamWriter(response.OutputStream)) {
                         await writer.WriteAsync(_content);
