@@ -57,7 +57,11 @@ namespace com.antlersoft.HostedTools.Pipeline {
         public IEnumerable<IGridItemCommand> GetGridItemCommands(string title)
         {
             return new [] { new SimpleGridItemCommand("Open in VS Code", (row, s) => {
-                ProcessStartInfo pi = new ProcessStartInfo("/usr/bin/code", row["file"].ToString());
+                var args = $"-g {row["file"]}";
+                if (row.ContainsKey("index")) {
+                    args=$"{args}:{row["index"]}";
+                }
+                ProcessStartInfo pi = new ProcessStartInfo("/usr/bin/code", args);
                 ConsoleCommandHelper.InvokeConsoleCommand(MonitorSource.GetMonitor(), pi);
             })};
         }

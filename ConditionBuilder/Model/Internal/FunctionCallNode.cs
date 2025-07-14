@@ -28,7 +28,7 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model.Internal
             return new MinMax(n == "min", expression);
         });
 
-        private static readonly Dictionary<string, Func<FunctionCallNode,string,Func<object,object>>> AvailableFunctions = new Dictionary<string, Func<FunctionCallNode,string,Func<object,object>>>
+        private static readonly Dictionary<string, Func<FunctionCallNode,string,Func<object,object>>> AvailableFunctions = new Dictionary<string, Func<FunctionCallNode, string, Func<object, object>>>
         {
             {
                 "split", (t,n) => t.GetFF(n, arg =>
@@ -93,6 +93,15 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model.Internal
             },
             {
                 "datetime", (t,n) => t.GetFF(n, arg => new JsonHtValue((DateTime.UtcNow - Epoch).TotalSeconds))
+            },
+            {
+                "arraycount", (t,n) => t.GetFF(n, arg => new JsonHtValue(arg[0].Count))
+            },
+            {
+                "arraysort", (t,n) => (d => new ArraySortExpression((List<IHtExpression>)t._argumentsNode.GetFunctor()(d)))
+            },
+            {
+                "rowindex", (t,n) => (d => new RowIndex())
             }
         };
 
