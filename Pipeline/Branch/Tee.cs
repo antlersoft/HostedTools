@@ -56,17 +56,24 @@ namespace com.antlersoft.HostedTools.Pipeline.Branch {
                     _collection = null;
                 }
             }
+
+            private IEnumerable<IHtValue> InternalGetTransformed(IEnumerable<IHtValue> input)
+            {
+                foreach (var row in input)
+                {
+                    _receiver.ReceiveRow(row);
+                    yield return row;
+                }
+                _receiver.Finish();
+            }
+
             public IEnumerable<IHtValue> GetTransformed(IEnumerable<IHtValue> input, IWorkMonitor monitor)
             {
                 _monitor = monitor;
                 _collection = _branchManager.CreateBranchCollection(_monitor, _key);
                 _receiver = _collection.GetNextReceiver();
 
-                foreach (var row in input) {
-                    _receiver.ReceiveRow(row);
-                    yield return row;
-                }
-                Dispose();
+                return InternalGetTransformed(input);
             }
         }
 
