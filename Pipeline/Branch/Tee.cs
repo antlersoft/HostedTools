@@ -156,10 +156,10 @@ namespace com.antlersoft.HostedTools.Pipeline.Branch {
             {
                 _monitor = monitor;
                 _collection = _branchManager.CreateBranchCollection(_monitor, _key);
-                _receiver = _collection.GetNextReceiver(NextTeeValue);
                 _mainQueue = new SpilloverQueue(_pluginManager, monitor);
                 _branchQueue = new SpilloverQueue(_pluginManager, monitor);
                 _enumerator = input.GetEnumerator();
+                _receiver = _collection.GetNextReceiver(NextTeeValue);
 
                 return InternalGetTransformed();
             }
