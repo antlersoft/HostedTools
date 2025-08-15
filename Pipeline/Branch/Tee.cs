@@ -48,6 +48,7 @@ namespace com.antlersoft.HostedTools.Pipeline.Branch {
             bool _disposed = false;
             internal Transform(IPluginManager pluginManager, IBranchManager branchManager, string key)
             {
+                _pluginManager = pluginManager;
                 _branchManager = branchManager;
                 _key = key;
             }
