@@ -4,6 +4,7 @@ using System.Threading;
 using com.antlersoft.HostedTools.Framework.Interface.Plugin;
 using com.antlersoft.HostedTools.Framework.Interface.Setting;
 using com.antlersoft.HostedTools.Framework.Model;
+using com.antlersoft.HostedTools.Interface;
 
 namespace com.antlersoft.HostedTools.Pipeline.Branch.Internal {
     internal class BranchCollection : HostedObjectBase, IBranchCollection
@@ -55,7 +56,7 @@ namespace com.antlersoft.HostedTools.Pipeline.Branch.Internal {
             return false;
         }
 
-        public IBranchHtValueReceiver GetNextReceiver()
+        public IBranchHtValueReceiver GetNextReceiver(Func<IHtValue> producer)
         {
             HtValueBranch newBranch = null;
             int addedIndex=0;
@@ -64,7 +65,7 @@ namespace com.antlersoft.HostedTools.Pipeline.Branch.Internal {
                     throw new InvalidOperationException($"GetNextReceiver calles on Finished Key {Key}");
                 }
                 addedIndex = Count;
-                newBranch = new HtValueBranch(Key, addedIndex);
+                newBranch = new HtValueBranch(producer, Key, addedIndex);
                 _branches.Add(newBranch);
             }
 

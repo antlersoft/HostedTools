@@ -1,5 +1,6 @@
 using System;
 using com.antlersoft.HostedTools.Framework.Interface;
+using com.antlersoft.HostedTools.Interface;
 
 namespace com.antlersoft.HostedTools.Pipeline.Branch {
 
@@ -7,7 +8,7 @@ namespace com.antlersoft.HostedTools.Pipeline.Branch {
         string Key { get; }
         int Count {get;}
         bool IsFinished { get; }
-        IBranchHtValueReceiver GetNextReceiver();
+        IBranchHtValueReceiver GetNextReceiver(Func<IHtValue> producer);
         IHtValueSource GetHtValueSource(int index);
     }
 }
