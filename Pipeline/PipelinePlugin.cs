@@ -71,13 +71,17 @@ namespace com.antlersoft.HostedTools.Pipeline
         }
 
         public string NodeDescription {
-            get {
+            get
+            {
+                /*
                 IRootNode root = ((PluginSelectionItem)Source.FindMatchingItem(Source.Value<string>(SettingManager))).Plugin.Cast<IRootNode>();
                 IStemNode stem = ((PluginSelectionItem)Transform.FindMatchingItem(Transform.Value<string>(SettingManager))).Plugin.Cast<IStemNode>();
                 ILeafNode leaf = ((PluginSelectionItem)Sink.FindMatchingItem(Sink.Value<string>(SettingManager))).Plugin.Cast<ILeafNode>();
                 string gridOutput = GridOutput.Value<bool>(SettingManager) ? ", write to grid" : string.Empty;
 
                 return $"From {root.NodeDescription}, {stem.NodeDescription}{gridOutput}, write to {leaf.NodeDescription}";
+                */
+                return "Pipeline as source";
             }
         }
 
