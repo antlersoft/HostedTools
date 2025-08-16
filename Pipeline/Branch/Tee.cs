@@ -1,3 +1,4 @@
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
@@ -5,11 +6,8 @@ using com.antlersoft.HostedTools.Framework.Interface.Plugin;
 using com.antlersoft.HostedTools.Framework.Interface.Setting;
 using com.antlersoft.HostedTools.Framework.Model;
 using com.antlersoft.HostedTools.Framework.Model.Menu;
-using com.antlersoft.HostedTools.Framework.Model.Plugin;
 using com.antlersoft.HostedTools.Framework.Model.Setting;
 using com.antlersoft.HostedTools.Interface;
-using com.antlersoft.HostedTools.Pipeline.Branch.Internal;
-using com.antlersoft.HostedTools.Pipeline.Extensions;
 
 namespace com.antlersoft.HostedTools.Pipeline.Branch {
 
@@ -34,52 +32,143 @@ namespace com.antlersoft.HostedTools.Pipeline.Branch {
 
         class Transform : HostedObjectBase, IHtValueTransform, IDisposable
         {
+            private readonly IPluginManager _pluginManager;
             private readonly IBranchManager _branchManager;
             private readonly string _key;
+            private readonly object _queueLock = new object();
+            private readonly object _enumeratorLock = new object();
 
             private IWorkMonitor _monitor;
             private IBranchCollection _collection;
             private IBranchHtValueReceiver _receiver;
-            internal Transform(IBranchManager branchManager, string key) {
+            private SpilloverQueue _mainQueue;
+            private SpilloverQueue _branchQueue;
+            private IEnumerator<IHtValue> _enumerator;
+            bool _inputFinished = false;
+            bool _disposed = false;
+            internal Transform(IPluginManager pluginManager, IBranchManager branchManager, string key)
+            {
+                _pluginManager = pluginManager;
                 _branchManager = branchManager;
                 _key = key;
             }
 
-            public void Dispose() {
-                if (_receiver != null) {
-                    _receiver.Finish();
-                    _receiver = null;
-                }
-                if (_monitor!= null) {
-                    _branchManager.FinishBranchCollection(_monitor, _key);
-                    _monitor = null;
-                    _collection = null;
+            public void Dispose()
+            {
+                lock (_enumeratorLock)
+                {
+                    lock (_queueLock)
+                    {
+                        _disposed = true;
+                        _inputFinished = true;
+                        if (_receiver != null)
+                        {
+                            _receiver.Finish();
+                            _receiver = null;
+                        }
+                        if (_monitor != null)
+                        {
+                            _branchManager.FinishBranchCollection(_monitor, _key);
+                            _monitor = null;
+                            _collection = null;
+                        }
+                    }
                 }
             }
 
-            private IEnumerable<IHtValue> InternalGetTransformed(IEnumerable<IHtValue> input)
+            private IHtValue ReadFromSource(SpilloverQueue myQueue, SpilloverQueue otherQueue)
             {
-                foreach (var row in input)
+                IHtValue resultValue = null;
+                bool finished = false;
+                lock (_queueLock)
                 {
-                    _receiver.ReceiveRow(row);
-                    yield return row;
+                    if (_disposed)
+                    {
+                        finished = true;
+                    }
+                    else if (myQueue.Count > 0)
+                    {
+                        resultValue = myQueue.Dequeue();
+                        finished = true;
+                    }
+                    else if (_inputFinished)
+                    {
+                        finished = true;
+                    }
                 }
-                _receiver.Finish();
+                bool currentGood = false;
+                if (!finished)
+                {
+                    lock (_enumeratorLock)
+                    {
+                        if (! _disposed && _enumerator.MoveNext())
+                        {
+                            currentGood = true;
+                            resultValue = _enumerator.Current;
+                        }
+                        lock (_queueLock)
+                        {
+                            if (_disposed)
+                            {
+                                resultValue = null;
+                            }
+                            else
+                            {
+                                if (!_inputFinished) _inputFinished = !currentGood;
+                                if (myQueue.Count > 0)
+                                {
+                                    if (currentGood)
+                                    {
+                                        myQueue.Enqueue(resultValue);
+                                        otherQueue.Enqueue(resultValue);
+                                    }
+                                    resultValue = myQueue.Dequeue();
+                                }
+                                else if (currentGood)
+                                {
+                                    otherQueue.Enqueue(resultValue);
+                                }
+                            }
+                        }
+                    }
+                }
+                return resultValue;
+            }
+
+            private IEnumerable<IHtValue> InternalGetTransformed()
+            {
+                for (IHtValue nextValue; (nextValue = ReadFromSource(_mainQueue, _branchQueue)) != null;)
+                {
+                    yield return nextValue;
+                }
+            }
+
+            private IHtValue NextTeeValue()
+            {
+                var result = ReadFromSource(_branchQueue, _mainQueue);
+                if (result == null)
+                {
+                    _receiver.Finish();
+                }
+                return result;
             }
 
             public IEnumerable<IHtValue> GetTransformed(IEnumerable<IHtValue> input, IWorkMonitor monitor)
             {
                 _monitor = monitor;
                 _collection = _branchManager.CreateBranchCollection(_monitor, _key);
-                _receiver = _collection.GetNextReceiver();
+                _mainQueue = new SpilloverQueue(_pluginManager, monitor);
+                _branchQueue = new SpilloverQueue(_pluginManager, monitor);
+                _enumerator = input.GetEnumerator();
+                _receiver = _collection.GetNextReceiver(NextTeeValue);
 
-                return InternalGetTransformed(input);
+                return InternalGetTransformed();
             }
         }
 
         public IHtValueTransform GetHtValueTransform(PluginState state)
         {
-            return new Transform(BranchManager, state.SettingValues[BranchKey.FullKey()]);
+            return new Transform(PluginManager, BranchManager, state.SettingValues[BranchKey.FullKey()]);
         }
     }
 }
