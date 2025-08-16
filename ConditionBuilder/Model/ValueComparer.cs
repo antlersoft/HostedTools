@@ -34,13 +34,13 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model
             {
                 diff = (x.AsBool ? 1 : 0) - (y.AsBool ? 1 : 0);
             }
-            else if (x.IsDouble && y.IsDouble)
-            {
-                diff = x.AsDouble > y.AsDouble ? 1 : (y.AsDouble > x.AsDouble ? -1 : 0);
-            }
             else if (x.IsLong && y.IsLong)
             {
                 diff = x.AsLong > y.AsLong ? 1 : (y.AsLong > x.AsLong ? -1 : 0);
+            }
+            else if ((x.IsDouble || x.IsLong) && (y.IsDouble || y.IsLong))
+            {
+                diff = x.AsDouble > y.AsDouble ? 1 : (y.AsDouble > x.AsDouble ? -1 : 0);
             }
             else
             {
