@@ -98,10 +98,16 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model.Internal
                 "arraycount", (t,n) => t.GetFF(n, arg => new JsonHtValue(arg[0].Count))
             },
             {
-                "arraysort", (t,n) => (d => new ArraySortExpression((List<IHtExpression>)t._argumentsNode.GetFunctor()(d)))
+                "arraysort", (t,n) => (d => new ArraySortExpression((IEnumerable<IHtExpression>)t._argumentsNode.GetFunctor()(d)))
             },
             {
                 "rowindex", (t,n) => (d => new RowIndex())
+            },
+            {
+                "_", (t,n) => (d => new SameExpression())
+            },
+            {
+                "previous", (t,n) => (d => new PreviousRowExpression((IEnumerable<IHtExpression>)t._argumentsNode.GetFunctor()(d)))
             }
         };
 
