@@ -18,6 +18,7 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model.Internal
         internal static readonly Symbol ProjectionItemSym = new Symbol("ProjectionItemSym");
         internal static readonly Symbol ProjectionTailSym = new Symbol("ProjectionTailSym");
         internal static readonly Symbol ArgumentListSym = new Symbol("ArgumentListSym");
+        internal static readonly Symbol ArrayElementsSym = new Symbol("ArrayElementsSym");
         internal static readonly Symbol ExprSym = new Symbol("ExprSym");
         internal static readonly Symbol FunctionIdSym = new Symbol("FunctionIdSym");
         internal static readonly Symbol LeftParen = new Symbol("(");
@@ -70,7 +71,7 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model.Internal
             new StringMatch(">=", GreaterThanOrEqual.I),
             new SingleChar('>', GreaterThan.I),
             new StringMatch("~=", RegExpMatch.I),
-            new SingleChar('+', PlusOperator.I), 
+            new SingleChar('+', PlusOperator.I),
             new StringMatch("&&", new LogicalAnd()),
             new StringMatch("||", new LogicalOr()),
             new SingleChar(',', new Token(Comma)),
@@ -90,8 +91,8 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model.Internal
             new SingleChar(':', new Token(Colon)),
             new SingleChar('*', TimesOperator.I),
             new SingleChar('-', SubtractOperator.I),
-            new SingleChar('/', DivideOperator.I), 
-            new SingleChar('@', new Token(AtSign)), 
+            new SingleChar('/', DivideOperator.I),
+            new SingleChar('@', new Token(AtSign)),
             NameToken,
             QuotedNameToken
         };
@@ -257,7 +258,11 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model.Internal
                  new FunctorParseRule(
                      (t,pr) => new GoalResult(new FunctionCallNode(functionSources, pr[1].Node, pr[3].Node), pr[3].NextTokenOffset),
                      AtSign, FunctionIdSym, LeftParen, ArgumentListSym
-                     )),
+                     ),
+                new FunctorParseRule(
+                    (t, pr) => new GoalResult(new InlineArrayNode(pr[2].Node), pr[2].NextTokenOffset),
+                    AtSign, LeftBracket, ArrayElementsSym
+                )),
             new SG(ProjectionTailSym,
                  new FunctorParseRule(
                      (t, pr) => new GoalResult(new ProjectionNode((ProjectionNode)pr[2].Node, (ProjectionItemNode)pr[0].Node), pr[2].NextTokenOffset),
@@ -336,7 +341,31 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model.Internal
                                 d => new List<IHtExpression> {(IHtExpression) pr[0].Node.GetFunctor()(d)}),
                                 pr[1].NextTokenOffset), ExprSym, RightParen)
                 ), 
-            new InFixGoal(),
+            new SG(ArrayElementsSym,
+                new FunctorParseRule(
+                    (t, pr) =>
+                        new GoalResult(
+                            new ParseTreeNode(typeof (List<IHtExpression>),
+                                d => new List<IHtExpression>()),
+                                pr[0].NextTokenOffset), RightBracket),
+                new FunctorParseRule(
+                    (t, pr) =>
+                        new GoalResult(
+                            new ParseTreeNode(typeof (List<IHtExpression>),
+                                d => 
+                                {
+                                    var l = (List<IHtExpression>) pr[2].Node.GetFunctor()(d);
+                                    l.Insert(0, (IHtExpression) pr[0].Node.GetFunctor()(d));
+                                    return l;
+                                }),
+                                pr[2].NextTokenOffset), ExprSym, Comma, ArrayElementsSym),
+                new FunctorParseRule(
+                    (t, pr) =>
+                        new GoalResult(
+                            new ParseTreeNode(typeof (List<IHtExpression>),
+                                d => new List<IHtExpression> {(IHtExpression) pr[0].Node.GetFunctor()(d)}),
+                                pr[1].NextTokenOffset), ExprSym, RightBracket)
+                ),             new InFixGoal(),
             new SubscriptGoal(),
             new SG(ExprSym,
                 new FunctorParseRule(
