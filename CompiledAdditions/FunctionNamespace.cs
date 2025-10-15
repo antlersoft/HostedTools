@@ -1,9 +1,9 @@
 using System.Reflection;
 using System.Runtime.Loader;
 using System.Text;
-using com.antlersoft.HostedTools.ConditionBuilder;
 using com.antlersoft.HostedTools.ConditionBuilder.Interface;
 using com.antlersoft.HostedTools.Framework.Interface.Plugin;
+using com.antlersoft.HostedTools.Framework.Model;
 using com.antlersoft.HostedTools.Interface;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -12,13 +12,13 @@ namespace com.antlersoft.HostedTools.CompiledAdditions {
     /// <summary>
     /// Represents a dynamically compiled class
     /// </summary>
-    public class FunctionNamespace : IFunctionNamespace
+    public class FunctionNamespace : HostedObjectBase, IFunctionNamespace
     {
         private string _name;
         private IFunctionStore _persistence;
         private IWorkMonitorSource _workMonitorSource;
         private object _lock = new object();
-        private Dictionary<string, Func<IList<IHtValue>, IHtValue>>? _namespaceFunctions;
+        private Dictionary<string, IAddedFunction>? _namespaceFunctions;
         private MyLoadContext? _unloadableCompiledContext;
         private PortableExecutableReference[] _refFiles;
 
@@ -90,13 +90,13 @@ namespace com.antlersoft.HostedTools.CompiledAdditions {
 
         public string Name => _name;
 
-        public IDictionary<string, Func<IList<IHtExpression>, IGroupExpression>> AddedGroupFunctions  => new Dictionary<string, Func<IList<IHtExpression>, IGroupExpression>>();
-        public IDictionary<string, Func<IList<IHtValue>, IHtValue>> AddedFunction {
+        public IDictionary<string, IAddedGroupFunction> AddedGroupFunctions  => new Dictionary<string, IAddedGroupFunction>();
+        public IDictionary<string, IAddedFunction> AddedFunctions {
             get {
                 lock (_lock) {
                     var monitor = _workMonitorSource.GetMonitor();
                     if (_namespaceFunctions == null) {
-                        _namespaceFunctions = new Dictionary<string, Func<IList<IHtValue>, IHtValue>>();
+                        _namespaceFunctions = new Dictionary<string, IAddedFunction>();
                         var functions = _persistence.GetNamespaceFunctions(Name).ToList();
                         var code = BuildClassDefinition(functions);
                         var tree = CSharpSyntaxTree.ParseText(code);
@@ -133,7 +133,7 @@ namespace com.antlersoft.HostedTools.CompiledAdditions {
                         foreach (var f in functions) {
                             var m = t.GetMethod(f.Name, argTypes);
                             if (m != null) {
-                                _namespaceFunctions[f.Name] = (valueArgs) => (IHtValue)m.Invoke(o, new object[] { valueArgs });
+                                _namespaceFunctions[f.Name] = new AddedFunctionHolder((valueArgs) => (IHtValue?)m.Invoke(o, new object[] { valueArgs }), f.Name);
                             }
                         }
                     }

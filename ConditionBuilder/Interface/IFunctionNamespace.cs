@@ -1,18 +1,13 @@
-using System;
 using System.Collections.Generic;
-using com.antlersoft.HostedTools.ConditionBuilder.Interface;
-using com.antlersoft.HostedTools.Interface;
+using com.antlersoft.HostedTools.Framework.Interface;
 
-namespace com.antlersoft.HostedTools.ConditionBuilder {
+namespace com.antlersoft.HostedTools.ConditionBuilder.Interface {
 
-public interface IGroupExpressionCreator {
-    IGroupExpression CreateGroupExpression(IList<IHtExpression> arguments);
-}
 
-public interface IFunctionNamespace {
-    string Name {get;}
-    IDictionary<string,Func<IList<IHtExpression>,IGroupExpression>> AddedGroupFunctions { get; }
-    IDictionary<string,Func<IList<IHtValue>, IHtValue>> AddedFunction { get; } 
-}
+    public interface IFunctionNamespace : IHostedObject {
+        string Name {get;}
+        IDictionary<string,IAddedGroupFunction> AddedGroupFunctions { get; }
+        IDictionary<string,IAddedFunction> AddedFunctions { get; } 
+    }
 
 }

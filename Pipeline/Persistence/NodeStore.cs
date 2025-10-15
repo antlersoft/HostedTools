@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using com.antlersoft.HostedTools.ConditionBuilder.Interface;
 using com.antlersoft.HostedTools.Framework.Interface.Plugin;
+using com.antlersoft.HostedTools.Framework.Model;
 using com.antlersoft.HostedTools.Serialization;
 using Newtonsoft.Json;
 using SQLite;
@@ -13,7 +14,7 @@ namespace com.antlersoft.HostedTools.Pipeline.Persistence {
     
     [Export(typeof(INodeStore))]
     [Export(typeof(IFunctionStore))]
-    public class NodeStore : INodeStore, IFunctionStore, IPartImportsSatisfiedNotification
+    public class NodeStore : HostedObjectBase, INodeStore, IFunctionStore, IPartImportsSatisfiedNotification
     {
         [Import]
         public IPluginManager PluginManager { get; set; }

@@ -16,7 +16,7 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model.Internal
             {
                 comparer = new ValueComparer();
             }
-            _distinctValues = new SortedDictionary<IHtValue, IHtValue>();
+            _distinctValues = new SortedDictionary<IHtValue, IHtValue>(comparer);
         }
 
         public override void StartGroup()

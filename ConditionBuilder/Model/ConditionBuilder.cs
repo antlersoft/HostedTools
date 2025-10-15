@@ -4,12 +4,13 @@ using System.IO;
 using System.Linq;
 using com.antlersoft.HostedTools.ConditionBuilder.Interface;
 using com.antlersoft.HostedTools.ConditionBuilder.Model.Internal;
+using com.antlersoft.HostedTools.Framework.Model;
 using com.antlersoft.HostedTools.Interface;
 
 namespace com.antlersoft.HostedTools.ConditionBuilder.Model
 {
     [Export(typeof(IConditionBuilder))]
-    public class ConditionBuilder : IConditionBuilder
+    public class ConditionBuilder : HostedObjectBase, IConditionBuilder
     {
         [ImportMany]
         public IEnumerable<IFunctionSource> FunctionSources { get; set; }
@@ -18,7 +19,7 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model
         private ConditionParser ConditionParser {
             get {
                 if (_parser == null) {
-                    _parser = new ConditionParser(FunctionSources);
+                    _parser = new ConditionParser(FunctionSources.Where(fs => ! (fs is BuiltInFunctionSource)));
                 }
                 return _parser;
             }
