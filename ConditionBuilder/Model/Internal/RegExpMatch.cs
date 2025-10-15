@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using com.antlersoft.HostedTools.ConditionBuilder.Interface;
 using com.antlersoft.HostedTools.ConditionBuilder.Parser;
 using com.antlersoft.HostedTools.Interface;
 using com.antlersoft.HostedTools.Interface.Expressions;
@@ -29,7 +30,7 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model.Internal
         }
     }
 
-    internal class RegExpExpression : IOperatorExpression
+    internal class RegExpExpression : IOperatorExpression, IGroupExpression
     {
         private Regex _regex;
         private List<IHtExpression> _operands;
@@ -40,7 +41,7 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model.Internal
             {
                 _regex = new Regex(regExp.Evaluate(null).AsString);
             }
-            _operands = new List<IHtExpression> {data, regExp};
+            _operands = new List<IHtExpression> { data, regExp };
         }
 
         public string OperatorName
@@ -57,6 +58,38 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model.Internal
         {
             Regex regex = _regex ?? new Regex(_operands[1].Evaluate(data).AsString);
             return new JsonHtValue(regex.IsMatch(_operands[0].Evaluate(data).AsString ?? string.Empty));
+        }
+        public void AddRow(IHtValue row)
+        {
+            foreach (var exp in _operands)
+            {
+                if (exp is IGroupExpression group)
+                {
+                    group.AddRow(row);
+                }
+            }
+        }
+
+        public void EndGroup()
+        {
+            foreach (var exp in _operands)
+            {
+                if (exp is IGroupExpression group)
+                {
+                    group.EndGroup();
+                }
+            }
+        }
+
+        public void StartGroup()
+        {
+            foreach (var exp in _operands)
+            {
+                if (exp is IGroupExpression group)
+                {
+                    group.StartGroup();
+                }
+            }
         }
     }
 }
