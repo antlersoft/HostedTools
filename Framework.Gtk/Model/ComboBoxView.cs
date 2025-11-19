@@ -56,13 +56,18 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
 
         public override bool TrySave()
         {
-            Setting.SetRaw(_element.ActiveText);
+            var setting = _element.ActiveText;
+            if (Setting.GetRaw() != _element.ActiveText)
+            {
+                Setting.SetRaw(_element.ActiveText);
+            }
             SetNeedsSave(false);
             return true;
         }
 
         public override void Reset()
         {
+            SetNeedsSave(false);
             _element.Model = new ListStore(typeof(string));
             foreach (var val in Setting.PreviousValues)
             {

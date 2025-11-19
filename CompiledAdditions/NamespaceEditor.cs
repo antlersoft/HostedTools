@@ -27,6 +27,9 @@ namespace com.antlersoft.HostedTools.CompiledAdditions {
         private Dictionary<string, Action<IWorkMonitor, ISetting>> _actionsBySettingKey;
         private static readonly string Scope = "NamespaceEditor";
 
+        private static readonly string SaveButtonText = "Save function";
+        private static readonly string DeleteButtonText = "Delete function";
+
         internal static ISettingDefinition NamespaceName = new SimpleSettingDefinition("NamespaceName", Scope, "Namespace");
         internal static ISettingDefinition FunctionName = new SimpleSettingDefinition("FunctionName",Scope,"Function Name");
         internal static ISettingDefinition TestExpression = new SimpleSettingDefinition("TestExpression", Scope,"Test Expression");
@@ -34,23 +37,57 @@ namespace com.antlersoft.HostedTools.CompiledAdditions {
         static ISettingDefinition Usings = new MultiLineSettingDefinition("Usings", Scope, 3, "Using declarations", null, null, null, false);
         static ISettingDefinition OtherDeclarations = new MultiLineSettingDefinition("OtherDeclarations", Scope, 3, "In-class declarations", null, null, null, false);
         static ISettingDefinition Body = new MultiLineSettingDefinition("Body", Scope, 5, "Function body", "Body of function declared IHtValue [functionName](IList<IHtValue> args)", null, null, false);
-        static ISettingDefinition AddButton = new ButtonsDefinition("AddButton", Scope, new[] {"Add function"});
+        static ISettingDefinition Description = new SimpleSettingDefinition("Description", Scope, "Description");
+        static ISettingDefinition DeleteButton = new ButtonsDefinition("DeleteButton", Scope, new[] { SaveButtonText, DeleteButtonText });
 
-        private void SetFieldsFromEditedFunction() {
-            if (_function != null) {
+        private void SetFieldsFromEditedFunction()
+        {
+            if (_function != null)
+            {
                 SettingManager[FunctionName.FullKey()].SetRaw(_function.Name);
-                SettingManager[Usings.FullKey()].SetRaw(_function.Definition[FunctionNamespace.UsingStatements].AsString);
-                SettingManager[OtherDeclarations.FullKey()].SetRaw(_function.Definition[FunctionNamespace.Declarations].AsString);
-                SettingManager[Body.FullKey()].SetRaw(_function.Definition[FunctionNamespace.Body].AsString);
+                SettingManager[Usings.FullKey()].SetRaw(_function.Definition[FunctionNamespace.UsingStatements]?.AsString ?? string.Empty);
+                SettingManager[OtherDeclarations.FullKey()].SetRaw(_function.Definition[FunctionNamespace.Declarations]?.AsString ?? string.Empty);
+                SettingManager[Body.FullKey()].SetRaw(_function.Definition[FunctionNamespace.Body]?.AsString ?? string.Empty);
+                SettingManager[Description.FullKey()].SetRaw(_function.Definition[FunctionNamespace.Description]?.AsString ?? string.Empty);
+            }
+            else
+            {
+                SettingManager[FunctionName.FullKey()].SetRaw("(name required)");
+                SettingManager[Usings.FullKey()].SetRaw(string.Empty);
+                SettingManager[OtherDeclarations.FullKey()].SetRaw(string.Empty);
+                SettingManager[Body.FullKey()].SetRaw(string.Empty);
+                SettingManager[Description.FullKey()].SetRaw(string.Empty);
+            }
+            UpdateButtonState();
+        }
+        
+        private void UpdateButtonState()
+        {
+            if (DeleteButton.Cast<IReadOnly>() is CanBeReadOnly readOnly)
+            {
+                if (_function != null)
+                {
+
+                    readOnly.KeyReadOnly(DeleteButtonText, false);
+                    readOnly.KeyReadOnly(SaveButtonText,
+                        FunctionName.Value<string>(SettingManager) == _function.Name &&
+                        Usings.Value<string>(SettingManager) == _function.Definition[FunctionNamespace.UsingStatements]?.AsString &&
+                        OtherDeclarations.Value<string>(SettingManager) == _function.Definition[FunctionNamespace.Declarations]?.AsString &&
+                        Body.Value<string>(SettingManager) == _function.Definition[FunctionNamespace.Body]?.AsString &&
+                        Description.Value<string>(SettingManager) == _function.Definition[FunctionNamespace.Description]?.AsString
+                        );
+                }
+                else
+                {
+                    readOnly.KeyReadOnly(SaveButtonText, false);
+                    readOnly.KeyReadOnly(DeleteButtonText, true);
+                }
             }
         }
 
         private void SetCurrentFunction(string key) {
-            var saved = FunctionStore?.GetByKey(key);
-            if (saved != null) {
-                _function = saved;
-                SetFieldsFromEditedFunction();
-            }
+            _function = string.IsNullOrEmpty(key) ? null : FunctionStore?.GetByKey(key);
+            SetFieldsFromEditedFunction();
         }
 
         private bool ValidateFunctionName(IWorkMonitor m) {
@@ -61,18 +98,13 @@ namespace com.antlersoft.HostedTools.CompiledAdditions {
                     return false;
                 } else {
                     _namespace = FunctionSource?.GetNamespaceForName(namespaceName);
+                    FunctionSelection.GetAllItems();
                 }
             }
             string name = FunctionName.Value<string>(SettingManager);
             if (! EditableFunctionSource.NameRegex.IsMatch(name)) {
                 m.Writer.WriteLine($"'{name}' is not a valid function name");
                 return false;
-            }
-            if (_function==null || name!=_function?.Name) {
-                if (FunctionSelection._functionList.Any(f => f.Name == name)) {
-                    m.Writer.WriteLine($"'{name}' is already a function name in this namespace");
-                    return false;
-                }
             }
             return true;
         }
@@ -84,10 +116,11 @@ namespace com.antlersoft.HostedTools.CompiledAdditions {
             string usings = Usings.Value<string>(SettingManager);
             string declarations = OtherDeclarations.Value<string>(SettingManager);
             string body = Body.Value<string>(SettingManager);
-
+            string description = Description.Value<string>(SettingManager);
             bool changeRequired = false;
             SavedFunction function = _function ?? new SavedFunction();
-            if (_function == null) {
+            if (_function == null)
+            {
                 _function = function;
                 function.Namespace = _namespace?.Name;
                 function.Name = name;
@@ -99,6 +132,11 @@ namespace com.antlersoft.HostedTools.CompiledAdditions {
             }
             if (string.IsNullOrWhiteSpace(function.Key)) {
                 changeRequired = true;
+                FunctionSelection.GetAllItems();
+                if (FunctionSelection._functionList.Any(sf => sf.Name == name)) {
+                    m.Writer.WriteLine("Can't create new function with existing name " + name);
+                    return;
+                }
             }
             if (usings != function.Definition[FunctionNamespace.UsingStatements]?.AsString) {
                 changeRequired = true;
@@ -116,10 +154,16 @@ namespace com.antlersoft.HostedTools.CompiledAdditions {
                 changeRequired = true;
                 function.Definition[FunctionNamespace.Declarations] = new JsonHtValue(declarations);
             }
-            if (changeRequired) {
+            if (description != function.Definition[FunctionNamespace.Description]?.AsString) {
+                changeRequired = true;
+                function.Definition[FunctionNamespace.Description] = new JsonHtValue(description);
+            }
+            if (changeRequired)
+            {
                 _namespace?.addOrUpdateFunction(function);
                 FunctionSelection.Cast<ISavable>()?.Reset();
             }
+            UpdateButtonState();
         }
         
         internal void SetNamespace(FunctionNamespace name) {
@@ -143,30 +187,40 @@ namespace com.antlersoft.HostedTools.CompiledAdditions {
 
         public NamespaceEditor()
         : base(new MenuItem("DevTools.NamespaceEditor", "Edit a namespace", typeof(NamespaceEditor).FullName, "DevTools"),
-        new [] { NamespaceName.FullKey(), FunctionSelection.FullKey(), FunctionName.FullKey(), AddButton.FullKey(), Usings.FullKey(), OtherDeclarations.FullKey(), Body.FullKey(), TestExpression.FullKey()})
+        new [] { NamespaceName.FullKey(), FunctionSelection.FullKey(), FunctionName.FullKey(), DeleteButton.FullKey(), Usings.FullKey(), OtherDeclarations.FullKey(), Body.FullKey(), Description.FullKey(), TestExpression.FullKey()})
         {
             NamespaceName.Cast<IAggregator>().InjectImplementation(typeof(IReadOnly), new CanBeReadOnly(true));
+            DeleteButton.Cast<IAggregator>().InjectImplementation(typeof(IReadOnly), new CanBeReadOnly(false));
             FunctionSelection._container = this;
+            Action<IWorkMonitor, ISetting> updateButtons = (m, s) => UpdateButtonState();
             _actionsBySettingKey = new Dictionary<string, Action<IWorkMonitor, ISetting>> {
-                { AddButton.FullKey(), (m,s) => {
-                    if (! ValidateFunctionName(m))
-                        return;
-                    string name = FunctionName.Value<string>(SettingManager);
-                    _function = new SavedFunction();
-                    _function.Definition = new JsonHtValue();
-                    _function.Namespace = _namespace?.Name;
-                    _function.Name = name;
-                }},
-                {FunctionName.FullKey(), SaveEditedFunction},
-                {Body.FullKey(), SaveEditedFunction},
-                {OtherDeclarations.FullKey(), SaveEditedFunction},
-                {Usings.FullKey(), SaveEditedFunction}
+                { DeleteButton.FullKey(), (m,s) =>
+                {
+                    string key = _function?.Key??string.Empty;
+                    if (s.GetRaw()==SaveButtonText)
+                    {
+                        SaveEditedFunction(m, s);
+                        SettingManager[FunctionSelection.FullKey()].SetRaw(key);
+                    }
+                    else if (key.Length > 0)
+                    {
+                        _namespace?.DeleteFunction(_function.Key);
+                        SettingManager[FunctionSelection.FullKey()].SetRaw("");
+                        SetCurrentFunction(string.Empty);
+                    }
+                    FunctionSelection.Cast<ISavable>()?.Reset();
+                }
+                },
+                { FunctionName.FullKey(), updateButtons},
+                { Usings.FullKey(), updateButtons },
+                { OtherDeclarations.FullKey(), updateButtons},
+                { Body.FullKey(), updateButtons}
             };
         }
 
         public Dictionary<string, Action<IWorkMonitor, ISetting>> ActionsBySettingKey => _actionsBySettingKey;
 
-        public IEnumerable<ISettingDefinition> Definitions => new ISettingDefinition[] { NamespaceName, FunctionName, TestExpression, FunctionSelection, Usings, OtherDeclarations, Body, AddButton };
+        public IEnumerable<ISettingDefinition> Definitions => new ISettingDefinition[] { NamespaceName, FunctionName, TestExpression, FunctionSelection, Usings, OtherDeclarations, Body, Description, DeleteButton };
 
         public override void Perform(IWorkMonitor monitor)
         {
@@ -193,7 +247,7 @@ namespace com.antlersoft.HostedTools.CompiledAdditions {
             }
 
             private Dictionary<string,SavedFunction> _functionsByKey;
-            internal IList<SavedFunction> _functionList;
+            internal List<SavedFunction> _functionList;
 
             public object FindMatchingItem(string rawText)
             {
@@ -204,7 +258,11 @@ namespace com.antlersoft.HostedTools.CompiledAdditions {
 
             public IEnumerable<object> GetAllItems()
             {
-                _functionList = (((IEnumerable<SavedFunction>?)_container?.FunctionStore?.GetNamespaceFunctions(_container?._namespace?.Name??string.Empty))??Array.Empty<SavedFunction>()).ToList();
+                SavedFunction dummyFunction = new SavedFunction();
+                dummyFunction.Name = "(new function)";
+                _functionList.Clear();
+                _functionList.Add(dummyFunction);
+                _functionList.AddRange((((IEnumerable<SavedFunction>?)_container?.FunctionStore?.GetNamespaceFunctions(_container?._namespace?.Name??string.Empty))??Array.Empty<SavedFunction>()).ToList());
                 _functionsByKey.Clear();
                 foreach (var f in _functionList) {
                     _functionsByKey[f.Key] = f;

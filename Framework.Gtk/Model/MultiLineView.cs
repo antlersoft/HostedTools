@@ -100,16 +100,21 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
 
         public override bool TrySave()
         {
+            SetNeedsSave(false);
             string currentText = _buffer.Text;
-            Setting.SetRaw(currentText);
-            _upButton.Sensitive = false;
-            _downButton.Sensitive = Setting.PreviousValues.Count > 0;
+            if (currentText != Setting.GetRaw())
+            {
+                Setting.SetRaw(currentText);
+                _upButton.Sensitive = false;
+                _downButton.Sensitive = Setting.PreviousValues.Count > 0;
+            }
             SetNeedsSave(false);
             return true;
         }
 
         public override void Reset()
         {
+            SetNeedsSave(false);
             _currentPosition = 0;
             _buffer.Text = Setting.GetRaw();
             _upButton.Sensitive = false;

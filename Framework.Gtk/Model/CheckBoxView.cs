@@ -17,7 +17,12 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
 
         public override bool TrySave()
         {
-            Setting.SetRaw(_element.Active  ? "true" : "false");
+            SetNeedsSave(false);
+            var setting = _element.Active ? "true" : "false";
+            if (Setting.GetRaw() != setting)
+            {
+                Setting.SetRaw(_element.Active ? "true" : "false");
+            }
             SetNeedsSave(false);
             return true;
         }

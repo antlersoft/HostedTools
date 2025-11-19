@@ -91,6 +91,7 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
 
         public override void Reset()
         {
+            SetNeedsSave(false);
             _collection.Clear();
             _combobox.Model = new ListStore(typeof(string));
             foreach (var val in ItemSelection.GetAllItems())

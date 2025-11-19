@@ -41,7 +41,11 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
 
         public override bool TrySave()
         {
-            Setting.SetRaw(_element.Text);
+            var text = _element.Text;
+            if (Setting.GetRaw() != text)
+            {
+                Setting.SetRaw(text);
+            }
             return true;
         }
 

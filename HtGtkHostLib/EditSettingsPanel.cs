@@ -76,11 +76,19 @@ namespace com.antlersoft.HostedTools.GtkHostLib
 
         public bool TrySave()
         {
+            bool updated = false;
             foreach (var s in _savables)
             {
-                s.TrySave();
+                if (s.NeedsSave())
+                {
+                    if (!s.TrySave())
+                    {
+                        return false;
+                    }
+                    updated = true;
+                }
             }
-            _settings.Save();
+            if (updated) _settings.Save();
             return true;
         }
 

@@ -25,6 +25,7 @@ namespace com.antlersoft.HostedTools.CompiledAdditions {
         internal static readonly string UsingStatements = "UsingStatements";
         internal static readonly string Declarations = "Declarations";
         internal static readonly string Body = "Body";
+        internal static readonly string Description = "Description";
         internal static readonly string ClassNamespace = "com.antlersoft.HostedTools.UserFunctions";
 
         private string BuildClassDefinition(IList<SavedFunction> functions) {
@@ -133,7 +134,7 @@ namespace com.antlersoft.HostedTools.CompiledAdditions {
                         foreach (var f in functions) {
                             var m = t.GetMethod(f.Name, argTypes);
                             if (m != null) {
-                                _namespaceFunctions[f.Name] = new AddedFunctionHolder((valueArgs) => (IHtValue?)m.Invoke(o, new object[] { valueArgs }), f.Name);
+                                _namespaceFunctions[f.Name] = new AddedFunctionHolder((valueArgs) => (IHtValue?)m.Invoke(o, new object[] { valueArgs }), f.Name, Name, f.Definition[Description]?.AsString??string.Empty);
                             }
                         }
                     }

@@ -16,6 +16,7 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
 
         public override void Reset()
         {
+            SetNeedsSave(false);
             if (!_enumsSet)
             {
                 foreach (object v in Enum.GetValues(Setting.Definition.Type))
@@ -30,9 +31,12 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
             } catch (Exception e) {
                 // Do nothing
             }
-            if (enumValue == null) {
+            if (enumValue == null)
+            {
                 _element.Active = 0;
-            } else {
+            }
+            else
+            {
                 _element.Active = Array.IndexOf(Enum.GetValues(Setting.Definition.Type), enumValue);
             }
             SetNeedsSave(false);
