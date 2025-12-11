@@ -16,7 +16,8 @@ using Gtk;
 namespace com.antlersoft.HostedTools.GtkHostLib
 {
     [Export(typeof(IHasContainer))]
-    public class MainWindow : Window, IHasContainer
+    [Export(typeof(IAvailableComposer))]
+    public class MainWindow : Window, IHasContainer, IAvailableComposer
     {
         public CompositionContainer Container { get; private set; }
         [Import]
@@ -337,6 +338,11 @@ namespace com.antlersoft.HostedTools.GtkHostLib
                 }
             }
             return null;
+        }
+
+        public void ComposeSingleObject(object obj)
+        {
+            Container.SatisfyImportsOnce(obj);
         }
     }
 }

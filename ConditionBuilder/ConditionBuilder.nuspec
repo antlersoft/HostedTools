@@ -9,7 +9,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Simple expression language for use with hosted tools</description>
     <releaseNotes>Initial release</releaseNotes>
-    <copyright>Copyright 2016</copyright>
+    <copyright>Copyright 2016-2025</copyright>
     <tags>HostedTools condition expression</tags>
   </metadata>
 </package>

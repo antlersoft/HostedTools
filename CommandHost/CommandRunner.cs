@@ -16,7 +16,8 @@ using Newtonsoft.Json;
 namespace com.antlersoft.HostedTools.CommandHost
 {
     [Export(typeof(IHasContainer))]
-    public class CommandRunner : HostedObjectBase, IHasContainer
+    [Export(typeof(IAvailableComposer))]
+    public class CommandRunner : HostedObjectBase, IHasContainer, IAvailableComposer
     {
         [Import]
         public IPluginManager PluginManager { get; set; }
@@ -214,6 +215,11 @@ namespace com.antlersoft.HostedTools.CommandHost
                 }
             }
             return i + 1;
+        }
+
+        public void ComposeSingleObject(object obj)
+        {
+            Container.SatisfyImportsOnce(obj);
         }
     }
 }

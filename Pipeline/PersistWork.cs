@@ -23,7 +23,7 @@ namespace com.antlersoft.HostedTools.Pipeline {
         IPartImportsSatisfiedNotification, IWorkNode
     {
         [Import]
-        public IHasContainer HasContainer { get; set; }
+        public IAvailableComposer HasContainer { get; set; }
         private GridWorker _gridImpl;
         public EPaneListOrientation Orientation => _gridImpl.Orientation;
 
@@ -36,7 +36,7 @@ namespace com.antlersoft.HostedTools.Pipeline {
         public void OnImportsSatisfied()
         {
             _gridImpl = new GridWorkerImpl();
-            HasContainer.Container.SatisfyImportsOnce(_gridImpl);
+            HasContainer.ComposeSingleObject(_gridImpl);
         }
 
         public void Perform(IWorkMonitor monitor)
