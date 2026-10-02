@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <Nullable>enable</Nullable>
+    <AssemblyName>com.antlersoft.HostedTools.Cloud</AssemblyName>
+    <RootNamespace>com.antlersoft.HostedTools.Cloud</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="com.antlersoft.HostedTools.Interface" Version="2.0.0.1" />
+  </ItemGroup>
+
+</Project>

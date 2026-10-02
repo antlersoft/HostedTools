@@ -45,6 +45,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HostedBbqClient", "HostedBb
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Geo", "Geo\Geo.csproj", "{182165CC-4B57-47A9-8E70-22CC83BDF588}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cloud", "Cloud\Cloud.csproj", "{A06A256A-0ED6-40A4-8707-ECDE72084606}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -135,6 +137,10 @@ Global
 		{182165CC-4B57-47A9-8E70-22CC83BDF588}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{182165CC-4B57-47A9-8E70-22CC83BDF588}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{182165CC-4B57-47A9-8E70-22CC83BDF588}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A06A256A-0ED6-40A4-8707-ECDE72084606}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A06A256A-0ED6-40A4-8707-ECDE72084606}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A06A256A-0ED6-40A4-8707-ECDE72084606}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A06A256A-0ED6-40A4-8707-ECDE72084606}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
