@@ -25,7 +25,7 @@ for csproj in csproj_files:
             version = pkg.get('Version')
             if name and version:
                 # Basic normalization / version tracking (keep latest found)
-                if name not in packages:
+                if name not in packages or packages[name] < version:
                     packages[name] = version
     except Exception as e:
         print(f"Error reading {csproj}: {e}")
@@ -62,7 +62,7 @@ for csproj in csproj_files:
     # regex matches: Version="[^"]*" or Version='[^']*' inside a PackageReference
     # We can use a precise regex replacement
     modified = re.sub(r'(<PackageReference\s+[^>]*?)\s+Version="[^"]*"([^>]*>)', r'\1\2', content)
-    modified = re.sub(r'(<PackageReference\s+[^>]*?)\s+Version=\'[^\']*\'([^>]*>)', r'\1\2', content)
+    modified = re.sub(r'(<PackageReference\s+[^>]*?)\s+Version=\'[^\']*\'([^>]*>)', r'\1\2', modified)
     
     # If the project targets net7.0, upgrade it to net10.0
     # Leave netstandard2.0 untouched as requested
