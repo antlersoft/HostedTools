@@ -20,11 +20,11 @@
     <None Include="Pipeline.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="com.antlersoft.HostedTools.ConditionBuilder" Version="2.1.0.2" />
-    <PackageReference Include="com.antlersoft.HostedTools.Sql" Version="1.0.0" />
-    <PackageReference Include="CsvHelper" Version="33.0.1" />
-    <PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
-    <PackageReference Include="System.Data.Common" Version="4.3.0" />
+    <PackageReference Include="com.antlersoft.HostedTools.ConditionBuilder" />
+    <PackageReference Include="com.antlersoft.HostedTools.Sql" />
+    <PackageReference Include="CsvHelper" />
+    <PackageReference Include="sqlite-net-pcl" />
+    <PackageReference Include="System.Data.Common" />
   </ItemGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DebugType>portable</DebugType>

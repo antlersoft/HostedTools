@@ -60,10 +60,10 @@
       <Name>PythonIntegration</Name>
     </ProjectReference>
     <ProjectReference Include="..\WpfHostLib\WpfHostLib.csproj" />
-    <PackageReference Include="com.antlersoft.HostedTools.Pipeline" Version="2.0.0.1" />
-    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="System.ComponentModel.Composition" Version="5.0.0" />
-    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
+    <PackageReference Include="com.antlersoft.HostedTools.Pipeline" />
+    <PackageReference Include="Microsoft.CSharp" />
+    <PackageReference Include="System.ComponentModel.Composition" />
+    <PackageReference Include="System.Data.DataSetExtensions" />
   </ItemGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DebugType>portable</DebugType>

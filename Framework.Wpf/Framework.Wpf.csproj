@@ -18,8 +18,8 @@
     <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="com.antlersoft.HostedTools.Framework" Version="2.0.0.1" />
-    <PackageReference Include="Ookii.Dialogs.Wpf" Version="3.1.0" />
+    <PackageReference Include="com.antlersoft.HostedTools.Framework" />
+    <PackageReference Include="Ookii.Dialogs.Wpf" />
   </ItemGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DebugType>portable</DebugType>

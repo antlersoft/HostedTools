@@ -21,8 +21,8 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="com.antlersoft.HostedTools.Framework" Version="2.0.0.1" />
-    <PackageReference Include="com.antlersoft.HostedTools.Utility" Version="2.0.0.2" />
+    <PackageReference Include="com.antlersoft.HostedTools.Framework" />
+    <PackageReference Include="com.antlersoft.HostedTools.Utility" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="BackgroundItem.xaml.cs">

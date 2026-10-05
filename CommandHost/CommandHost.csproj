@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netcoreapp7.0</TargetFramework>
+    <TargetFramework>netcoreapp10.0</TargetFramework>
     <OutputType>Exe</OutputType>
     <RootNamespace>com.antlersoft.HostedTools.CommandHost</RootNamespace>
     <SccProjectName>SAK</SccProjectName>
@@ -14,11 +14,11 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="com.antlersoft.HostedTools.Framework">
-      <Version>2.4.0.1</Version>
+      
     </PackageReference>
-    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="System.ComponentModel.Composition" Version="5.0.0" />
-    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
+    <PackageReference Include="Microsoft.CSharp" />
+    <PackageReference Include="System.ComponentModel.Composition" />
+    <PackageReference Include="System.Data.DataSetExtensions" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Pipeline\Pipeline.csproj" />

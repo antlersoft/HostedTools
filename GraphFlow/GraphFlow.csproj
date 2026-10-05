@@ -7,8 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="com.antlersoft.HostedTools.Framework" Version="2.0.0.1" />
-    <PackageReference Include="com.antlersoft.HostedTools.Interface" Version="2.0.0.1" />
+    <PackageReference Include="com.antlersoft.HostedTools.Framework" />
+    <PackageReference Include="com.antlersoft.HostedTools.Interface" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
