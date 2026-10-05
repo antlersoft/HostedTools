@@ -63,10 +63,12 @@ for csproj in csproj_files:
     # We can use a precise regex replacement
     modified = re.sub(r'(<PackageReference\s+[^>]*?)\s+Version="[^"]*"([^>]*>)', r'\1\2', content)
     modified = re.sub(r'(<PackageReference\s+[^>]*?)\s+Version=\'[^\']*\'([^>]*>)', r'\1\2', modified)
+    modified = re.sub(r'<Version>[^>]*>', '', modified)
     
     # If the project targets net7.0, upgrade it to net10.0
     # Leave netstandard2.0 untouched as requested
     modified = re.sub(r'<TargetFramework>net7\.0</TargetFramework>', '<TargetFramework>net10.0</TargetFramework>', modified)
+    modified = re.sub(r'<TargetFramework>netcoreapp7\.0</TargetFramework>', '<TargetFramework>netcoreapp10.0</TargetFramework>', modified)
     
     with open(csproj, 'w') as f:
         f.write(modified)
