@@ -6,6 +6,16 @@
     <AssemblyName>com.antlersoft.HostedTools.Serialization</AssemblyName>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
+  <PropertyGroup>
+    <PackageId>com.antlersoft.HostedTools.Serialization</PackageId>
+    <Version>2.0.0.1</Version>
+    <Title>Hosted Tools Serialization</Title>
+    <Authors>Michael MacDonald</Authors>
+    <Description>Interfaces and serialization for the generic data type used in hosted tools</Description>
+    <PackageReleaseNotes>Initial release</PackageReleaseNotes>
+    <Copyright>Copyright 2016</Copyright>
+    <PackageTags>HostedTools</PackageTags>
+  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <OutputPath>bin\Debug</OutputPath>
     <DefineConstants>DEBUG;</DefineConstants>

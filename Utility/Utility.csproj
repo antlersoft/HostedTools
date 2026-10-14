@@ -6,6 +6,16 @@
     <AssemblyName>com.antlersoft.HostedTools.Utility</AssemblyName>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
+  <PropertyGroup>
+    <PackageId>com.antlersoft.HostedTools.Utility</PackageId>
+    <Version>2.0.0.1</Version>
+    <Title>Hosted Tools Utility Classes</Title>
+    <Authors>Michael MacDonald</Authors>
+    <Description>Utility classes for use with the Hosted Tools framework</Description>
+    <PackageReleaseNotes>Initial release</PackageReleaseNotes>
+    <Copyright>Copyright 2016</Copyright>
+    <PackageTags>HostedTools;utility</PackageTags>
+  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <OutputPath>bin\Debug</OutputPath>
     <DefineConstants>DEBUG;</DefineConstants>

@@ -6,6 +6,16 @@
     <AssemblyName>com.antlersoft.HostedTools.ConditionBuilder</AssemblyName>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
+  <PropertyGroup>
+    <PackageId>com.antlersoft.HostedTools.ConditionBuilder</PackageId>
+    <Version>2.0.0.1</Version>
+    <Title>Hosted Tools Condition Builder</Title>
+    <Authors>Michael MacDonald</Authors>
+    <Description>Simple expression language for use with hosted tools</Description>
+    <PackageReleaseNotes>Initial release</PackageReleaseNotes>
+    <Copyright>Copyright 2016-2025</Copyright>
+    <PackageTags>HostedTools;condition;expression</PackageTags>
+  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <OutputPath>bin\Debug</OutputPath>
     <DefineConstants>DEBUG;</DefineConstants>

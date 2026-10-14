@@ -6,6 +6,18 @@
     <RootNamespace>com.antlersoft.HostedTools.LogFacade</RootNamespace>
     <AssemblyName>com.antlersoft.HostedTools.LogFacade</AssemblyName>
   </PropertyGroup>
+  <PropertyGroup>
+    <PackageId>com.antlersoft.HostedTools.LogFacade</PackageId>
+    <Version>2.0.0.1</Version>
+    <Title>Hosted Tools LogFacade</Title>
+    <Authors>Michael MacDonald</Authors>
+    <Description>Perhaps redundant facade for other loggers</Description>
+    <PackageReleaseNotes>
+2.0.0.1 dotnet release
+Initial release</PackageReleaseNotes>
+    <Copyright>Copyright 2016,2020</Copyright>
+    <PackageTags>HostedTools</PackageTags>
+  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <OutputPath>bin\Debug</OutputPath>
     <DefineConstants>DEBUG;</DefineConstants>
