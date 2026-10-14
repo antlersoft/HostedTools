@@ -19,7 +19,7 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model
         private ConditionParser ConditionParser {
             get {
                 if (_parser == null) {
-                    _parser = new ConditionParser(FunctionSources.Where(fs => ! (fs is BuiltInFunctionSource)));
+                    _parser = new ConditionParser((FunctionSources??(new List<IFunctionSource>())).Where(fs => ! (fs is BuiltInFunctionSource)));
                 }
                 return _parser;
             }
