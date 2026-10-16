@@ -41,6 +41,10 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
                     SetNeedsSave(_combobox.ActiveText != Setting.GetRaw());
                 }
             };
+            _combobox.Mapped += delegate (object sender, EventArgs args)
+            {
+                Reset();
+            };
         }
 
         private IItemSelectionDefinition ItemSelection
