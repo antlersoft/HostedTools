@@ -134,7 +134,6 @@ namespace com.antlersoft.HostedTools.Pipeline
 
             public IEnumerable<IHtValue> GetRows(IWorkMonitor monitor)
             {
-                bool sentRow = false;
                 using (StreamReader sw = new StreamReader(stream))
                 using (var jr = new JsonTextReader(sw))
                 {
@@ -146,26 +145,30 @@ namespace com.antlersoft.HostedTools.Pipeline
                     else
                     {
                         // Skip array start
-                        jr.Read();
-                        jr.Read();
-                        do
+                        if (jr.Read() && jr.Read())
                         {
-                            IHtValue value;
-                            try
+                            do
                             {
-                                value = serializer.Deserialize<JsonHtValue>(jr);
-                            }
-                            catch (Exception)
-                            {
-                                break;
-                            }
-                            if (value == null || (! sentRow && value.IsEmpty))
-                            {
-                                break;
-                            }
-                            yield return value;
-                            sentRow = true;
-                        } while (jr.Read() && jr.TokenType != JsonToken.EndArray);
+                                IHtValue value;
+                                try
+                                {
+                                    value = serializer.Deserialize<JsonHtValue>(jr);
+                                    if (value == null && jr.TokenType != JsonToken.EndArray)
+                                    {
+                                        value = new JsonHtValue();
+                                    }
+                                }
+                                catch (Exception)
+                                {
+                                    break;
+                                }
+                                if (value == null)
+                                {
+                                    break;
+                                }
+                                yield return value;
+                            } while (jr.Read() && jr.TokenType != JsonToken.EndArray);
+                        }
                     }
                 }
             }
