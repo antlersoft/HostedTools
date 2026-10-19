@@ -7,11 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="com.antlersoft.HostedTools.Framework" />
-    <PackageReference Include="com.antlersoft.HostedTools.Interface" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Pipeline\Pipeline.csproj" />
   </ItemGroup>
 

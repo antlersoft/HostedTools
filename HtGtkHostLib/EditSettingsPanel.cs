@@ -138,7 +138,7 @@ namespace com.antlersoft.HostedTools.GtkHostLib
                 DialogFlags.Modal,          // Makes the window modal (blocks input to parent)
                 MessageType.Error,          // Icon type (Info, Warning, Error, Question)
                 ButtonsType.Ok,             // Standard button configuration
-                result.Message))
+                GLib.Markup.EscapeText(result.Message)))
             {
                 // 2. Set the window title
                 dialog.Title = result.Validated.Cast<ISettingDefinition>().Prompt;

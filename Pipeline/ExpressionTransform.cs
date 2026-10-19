@@ -19,7 +19,7 @@ namespace com.antlersoft.HostedTools.Pipeline
     {
         [Import]
         public IConditionBuilder ConditionBuilder { get; set; }
-        public static ISettingDefinition ProjectionExpression = new SimpleSettingDefinition("ProjectionExpression", "Pipeline.Transform", "Expression", "Expression to turn row into in condition expression language", null, null, false, 20);
+        public static ISettingDefinition ProjectionExpression = new ConditionDefinition("ProjectionExpression", "Pipeline.Transform", "Expression", "Expression to turn row into in condition expression language", null, null, false, 20);
         public ExpressionTransform()
             : base(new MenuItem("DevTools.Pipeline.Transform.Expression", "Projection Expression", typeof(ExpressionTransform).FullName, "DevTools.Pipeline.Transform"), new String[] {ProjectionExpression.FullKey()})
         { }

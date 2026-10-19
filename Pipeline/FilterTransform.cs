@@ -18,7 +18,7 @@ namespace com.antlersoft.HostedTools.Pipeline
     {
         [Import]
         public IConditionBuilder ConditionBuilder { get; set; }
-        public static ISettingDefinition FilterExpression = new SimpleSettingDefinition("FilterExpression", "Pipeline.Transform", "Filter", "Boolean filter on row in condition expression language", null, null, false, 20);
+        public static ISettingDefinition FilterExpression = new ConditionDefinition("FilterExpression", "Pipeline.Transform", "Filter", "Boolean filter on row in condition expression language", null, null, false, 20);
         public FilterTransform()
             : base(new MenuItem("DevTools.Pipeline.Transform.Filter", "Filter Expression", typeof(FilterTransform).FullName, "DevTools.Pipeline.Transform"), new String[] {FilterExpression.FullKey() })
         { }
