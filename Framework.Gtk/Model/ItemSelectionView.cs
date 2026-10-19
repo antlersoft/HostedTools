@@ -15,8 +15,8 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
         private readonly ObservableCollection<object> _collection;
         internal INavigationManager Navigation;
 
-        internal override ISetting Setting {
-            set {
+        public  override ISetting Setting {
+            internal set {
                 base.Setting = value;
 
                 if (value.Definition.Cast<IReadOnly>() is IReadOnly ro) {
@@ -27,6 +27,8 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
                 }
             }
         }
+
+        public override string RawValue => ItemSelection.GetRawTextForItem(_collection[_combobox.Active]);
 
         public ItemSelectionView()
         {
@@ -57,9 +59,9 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
             var data = _combobox.ActiveText;
             if (data != null)
             {
-                var raw = ItemSelection.GetRawTextForItem(_collection[_combobox.Active]);
+                var raw = RawValue;
                 if (Setting.GetRaw() != raw) {
-                    Setting.SetRaw(ItemSelection.GetRawTextForItem(_collection[_combobox.Active]));
+                    Setting.SetRaw(raw);
                 }
                 SetNeedsSave(false);
             }

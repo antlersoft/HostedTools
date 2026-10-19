@@ -13,9 +13,9 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
             _grid = new HBox();
         }
 
-        internal override ISetting Setting
+        public override ISetting Setting
         {
-            set
+            internal set
             {
                 base.Setting = value;
                 ISettingDefinition sd = value.Definition;
@@ -47,6 +47,8 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
                 }
             }
         }
+
+        public override string RawValue => string.Empty;
 
         public override bool TrySave()
         {

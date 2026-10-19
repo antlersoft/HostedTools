@@ -9,8 +9,8 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
     {
         internal readonly Entry _element;
 
-        internal override ISetting Setting {
-            set {
+        public  override ISetting Setting {
+            internal set {
                 base.Setting = value;
                 if (Setting.Definition.Cast<IReadOnly>() is IReadOnly ro) {
                     _element.Sensitive = ! ro.IsReadOnly();
@@ -39,9 +39,11 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
             SetNeedsSave(true);
         }
 
+        public override string RawValue => _element.Text;
+
         public override bool TrySave()
         {
-            var text = _element.Text;
+            var text = RawValue;
             if (Setting.GetRaw() != text)
             {
                 Setting.SetRaw(text);

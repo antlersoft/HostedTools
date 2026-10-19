@@ -220,10 +220,9 @@ namespace com.antlersoft.HostedTools.GtkHostLib
             IElementSource workPanel = null;
             if (editList != null)
             {
-                var keys = editList.KeysToEdit.ToList();
-                if (keys.Count > 0)
+                if (editList.KeysToEdit.Any())
                 {
-                    editPanel = new EditSettingsPanel(SettingManager, keys);
+                    editPanel = new EditSettingsPanel(SettingManager, editList);
                     if (work == null)
                     {
                         ((EditSettingsPanel)editPanel).AddExplanation(editList as IHostedObject);

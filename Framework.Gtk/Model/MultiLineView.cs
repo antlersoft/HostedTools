@@ -71,9 +71,9 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
             }
         }
 
-        internal override ISetting Setting
+        public override ISetting Setting
         {
-            set
+            internal set
             {
                 base.Setting = value;
                 Setting.SettingChangedListeners.AddListener(s =>
@@ -98,10 +98,12 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
             }
         }
 
+        public override string RawValue => _buffer.Text;
+
         public override bool TrySave()
         {
             SetNeedsSave(false);
-            string currentText = _buffer.Text;
+            string currentText = RawValue;
             if (currentText != Setting.GetRaw())
             {
                 Setting.SetRaw(currentText);

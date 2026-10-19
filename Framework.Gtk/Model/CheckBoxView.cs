@@ -15,13 +15,15 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
             _element.Clicked += delegate { CheckForChange(); };
         }
 
+        public override string RawValue => _element.Active ? "true" : "false";
+
         public override bool TrySave()
         {
             SetNeedsSave(false);
-            var setting = _element.Active ? "true" : "false";
+            var setting = RawValue;
             if (Setting.GetRaw() != setting)
             {
-                Setting.SetRaw(_element.Active ? "true" : "false");
+                Setting.SetRaw(setting);
             }
             SetNeedsSave(false);
             return true;

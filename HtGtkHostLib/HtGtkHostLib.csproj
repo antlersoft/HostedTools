@@ -7,12 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="com.antlersoft.HostedTools.Framework" />
     <PackageReference Include="GtkSharp" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Framework.Gtk\Framework.Gtk.csproj" />
+    <ProjectReference Include="..\Framework\Framework.csproj" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

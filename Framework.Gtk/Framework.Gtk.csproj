@@ -7,7 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="com.antlersoft.HostedTools.Framework" />
+    <ProjectReference Include="..\Framework\Framework.csproj" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="GtkSharp" />
   </ItemGroup>
 

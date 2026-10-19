@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace com.antlersoft.HostedTools.Framework.Interface.Plugin
 {
-    public interface ISettingEditList
+    public interface ISettingEditList : IHostedObject
     {
         IEnumerable<string> KeysToEdit { get; } 
     }

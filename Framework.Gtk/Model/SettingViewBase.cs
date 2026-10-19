@@ -8,11 +8,10 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace com.antlersoft.HostedTools.Framework.Gtk.Model
 {
-    internal abstract class SettingViewBase : HostedObjectBase, ISavable, IElementSource
+    internal abstract class SettingViewBase : HostedObjectBase, ISavable, IElementSource, ISettingEditor
     {
         private bool _needsSave;
         private readonly ListenerCollection<ISavable> _needsSaveChangedListeners = new ListenerCollection<ISavable>();
@@ -22,7 +21,9 @@ namespace com.antlersoft.HostedTools.Framework.Gtk.Model
             _needsSaveChangedListeners = new ListenerCollection<ISavable>();
         }
 
-        internal virtual ISetting Setting { get; set; }
+        public virtual ISetting Setting { get; internal set; }
+
+        public abstract string RawValue { get; }
 
         protected IEnumerable<MenuItem> GetPopupMenuItems()
         {

@@ -17,17 +17,19 @@ namespace com.antlersoft.HostedTools.GtkHostLib
         private readonly List<ISavable> _savables;
         private readonly ListenerCollection<ISavable> _listenerCollection;
         private readonly Label _label;
+        private readonly IValidatable _panelValidation;
         private readonly uint _definedRows;
 
-        internal EditSettingsPanel(ISettingManager settings, IEnumerable<string> keys)
+        internal EditSettingsPanel(ISettingManager settings, ISettingEditList settingEditList)
         {
-            var keyList = keys.ToList();
+            var keyList = settingEditList.KeysToEdit.ToList();
+            _panelValidation = settingEditList.Cast<IValidatable>();
             _settings = settings;
             _savables = new List<ISavable>();
             _panel = new Table((uint)(keyList.Count + 2), 2, false);
             _listenerCollection = new ListenerCollection<ISavable>();
             uint row = 0;
-            foreach (var key in keys)
+            foreach (var key in keyList)
             {
                 ISetting setting = settings[key];
                 ISettingDefinition def = setting.Definition;
@@ -81,6 +83,12 @@ namespace com.antlersoft.HostedTools.GtkHostLib
             {
                 if (s.NeedsSave())
                 {
+                    var validationResult = s.ValidateSavable(s.Cast<ISettingEditor>()?.Setting?.Definition);
+                    if (!validationResult.IsValid)
+                    {
+                        ShowValidationMessage(validationResult);
+                        return false;
+                    }
                     if (!s.TrySave())
                     {
                         return false;
@@ -88,7 +96,18 @@ namespace com.antlersoft.HostedTools.GtkHostLib
                     updated = true;
                 }
             }
-            if (updated) _settings.Save();
+            if (updated) {
+                if (_panelValidation != null)
+                {
+                    var validationResult = _panelValidation.Validate(this);
+                    if (! validationResult.IsValid)
+                    {
+                        ShowValidationMessage(validationResult);
+                        return false;
+                    }
+                }
+                _settings.Save();
+            }
             return true;
         }
 
@@ -109,6 +128,24 @@ namespace com.antlersoft.HostedTools.GtkHostLib
         public IListenerCollection<ISavable> NeedsSaveChangedListeners
         {
             get { return _listenerCollection; }
+        }
+
+        private void ShowValidationMessage(IValidationResult result)
+        {
+            // 1. Initialize the MessageDialog
+            using (MessageDialog dialog = new MessageDialog(
+                _panel.Toplevel as Window,
+                DialogFlags.Modal,          // Makes the window modal (blocks input to parent)
+                MessageType.Error,          // Icon type (Info, Warning, Error, Question)
+                ButtonsType.Ok,             // Standard button configuration
+                result.Message))
+            {
+                // 2. Set the window title
+                dialog.Title = result.Validated.Cast<ISettingDefinition>().Prompt;
+
+                // 3. Run the dialog loop synchronously
+                dialog.Run();
+            }
         }
     }
 }

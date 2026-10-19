@@ -31,9 +31,9 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ConditionBuilder\ConditionBuilder.csproj" />
+    <ProjectReference Include="..\Sql\Sql.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="com.antlersoft.HostedTools.Sql" />
     <PackageReference Include="CsvHelper" />
     <PackageReference Include="sqlite-net-pcl" />
     <PackageReference Include="System.Data.Common" />
