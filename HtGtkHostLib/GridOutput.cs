@@ -124,7 +124,7 @@ namespace com.antlersoft.HostedTools.GtkHostLib
                     if (row.TryGetValue(key, out obj))
                     {
                         result = obj.ToString();
-                        if (obj is String && ((String)obj).IndexOf("Ticks")>0) {
+                        if (obj is String && ((String)obj).IndexOf("\"Ticks\"")>0) {
                             DateTime dt = new DateTime(JsonConvert.DeserializeObject<TickHolder>((String)obj).Ticks);
                             result = dt.ToString();
                         }
