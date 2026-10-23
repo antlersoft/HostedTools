@@ -4,6 +4,12 @@ namespace Tests;
 
 public class Tests
 {
+    /**
+     * Converts an array/IEnumerable of strings to an IEnumerable of IHTValue.
+     * Each string is considered a set of fields, with the implied field names of A,B,C...
+     * Each IHtValue returned is an object with the fields set from the values in
+     * the corresponding string.
+     */
     IEnumerable<IHtValue> GenerateHtValue(IEnumerable<string> input) {
         foreach (string s in input) {
             var arr = s.Split();
@@ -28,18 +34,23 @@ public class Tests
         Assert.Pass();
     }
 
+    /**
+     * The input IHtValue is assumed to be an object with two (optional) fields, left and right.
+     * The ouput IHtValue is all the fields in "left" combined with the fields in "right",
+     * named as "A", "B", "C"....
+     */
     class AllFields : IHtExpression {
         public IHtValue Evaluate(IHtValue ht) {
             int i=0;
             var result = new JsonHtValue();
-            if (! ht["left"].IsEmpty) {
+            if (! (ht["left"]?.IsEmpty??true)) {
             foreach (var pair in ht["left"].AsDictionaryElements) {
                 char c=(char)((int)('A') + i++);
                 string key = new string(c, 1);
                 result[key] = pair.Value;
             }
             }
-            if (! ht["right"].IsEmpty) {
+            if (! (ht["right"]?.IsEmpty??true)) {
             foreach (var pair in ht["right"].AsDictionaryElements) {
                 char c=(char)((int)('A') + i++);
                 string key = new string(c, 1);
@@ -392,4 +403,32 @@ public class Tests
         }
         Assert.That(count, Is.EqualTo(1));
    }
+
+    [Test]
+    public void TestJoinTestOnly()
+    {
+        var arg1 = new string[] { "7", "5", "9", "3"};
+        var arg2 = new string[] { "4", "5", "3"};
+
+        var arg3 = new string[] { "7 4", "5 5", "9 3", "3"};
+        var resultEnum = GenerateHtValue(arg3).GetEnumerator();
+        int count = 0;
+        foreach (var val in JoinTransform.GetJoin(JoinTransform.JoinTypes.TestOnly, JoinTransform.ResultTypes.ProjectionExpression, _comparer, _allFields, GenerateHtValue(arg1), _keyExpression, GenerateHtValue(arg2), _keyExpression))
+        {
+            count++;
+            resultEnum.MoveNext();
+            Assert.That(_comparer.Compare(val, resultEnum.Current), Is.EqualTo(0));
+        }
+        Assert.That(count, Is.EqualTo(4));
+    }
+
+    [Test]
+    public void TestJoinTestOnlyRowLimit()
+    {
+        var arg1 = new string[] { "7", "5", "9", "3", "1", "1", "1", "1", "1", "1", "1", "1"};
+        var arg2 = new string[] { "7", "5", "9", "3", "1", "1", "1", "1", "1", "1", "1", "1", "1"};
+
+        // Actually row limit doesn't apply to result of GetJoin...
+        Assert.That(JoinTransform.GetJoin(JoinTransform.JoinTypes.TestOnly, JoinTransform.ResultTypes.ProjectionExpression, _comparer, _allFields, GenerateHtValue(arg1), _keyExpression, GenerateHtValue(arg2), _keyExpression).Count(), Is.EqualTo(13));
+    }
 }

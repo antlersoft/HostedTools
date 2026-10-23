@@ -35,7 +35,8 @@ namespace com.antlersoft.HostedTools.Pipeline
             LeftJoin,
             RightJoin,
             RightNotIn,
-            RightIn
+            RightIn,
+            TestOnly
         };
         public enum ResultTypes {
             FilterOnly,
@@ -314,6 +315,7 @@ namespace com.antlersoft.HostedTools.Pipeline
                     leftRow = new JsonHtValue();
                     break;
                 case JoinTypes.JoinSymmetric:
+                case JoinTypes.TestOnly:
                     leftRow = left;
                     rightRow = right;
                     break;
@@ -356,6 +358,7 @@ namespace com.antlersoft.HostedTools.Pipeline
                         case JoinTypes.NotIn:
                         case JoinTypes.LeftJoin:
                         case JoinTypes.JoinSymmetric:
+                        case JoinTypes.TestOnly:
                             result = leftRow;
                             break;
                         case JoinTypes.RightJoin:
@@ -438,6 +441,12 @@ namespace com.antlersoft.HostedTools.Pipeline
                             yield return OutputValue(jt, rt, left, right, projectionExpression, partialRow);
                         }
                         break;
+                    case JoinTypes.TestOnly:
+                        partialRow = !bothValid;
+                        leftRewind.MoveNext();
+                        rightRewind.MoveNext();
+                        yield return OutputValue(jt, rt, left, right, projectionExpression, partialRow);
+                        break;
                 }
             }
         }
@@ -472,7 +481,12 @@ namespace com.antlersoft.HostedTools.Pipeline
 
             public IEnumerable<IHtValue> GetTransformed(IEnumerable<IHtValue> rows, IWorkMonitor monitor)
             {
-                return GetJoin(jt, rt, _comparer, projectionExpression, rows, filteredKey, fileSource.GetRows(monitor), fileKey);
+                var result = GetJoin(jt, rt, _comparer, projectionExpression, rows, filteredKey, fileSource.GetRows(monitor), fileKey);
+                if (jt == JoinTypes.TestOnly)
+                {
+                    result = new RowRangeTransform.Transform(0,10).GetTransformed(result, monitor);
+                }
+                return result;
             }
         }
 

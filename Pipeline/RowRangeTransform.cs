@@ -6,7 +6,6 @@ using com.antlersoft.HostedTools.Framework.Interface.Plugin;
 using com.antlersoft.HostedTools.Framework.Interface.Setting;
 using com.antlersoft.HostedTools.Framework.Model;
 using com.antlersoft.HostedTools.Framework.Model.Menu;
-using com.antlersoft.HostedTools.Framework.Model.Plugin;
 using com.antlersoft.HostedTools.Framework.Model.Setting;
 using com.antlersoft.HostedTools.Interface;
 
@@ -34,7 +33,7 @@ namespace com.antlersoft.HostedTools.Pipeline
                 (int)Convert.ChangeType(state.SettingValues[NumberOfRows.FullKey()], typeof(int)));
         }
 
-        class Transform : HostedObjectBase, IHtValueTransform {
+        internal class Transform : HostedObjectBase, IHtValueTransform {
             private readonly int _startRow;
             private readonly int _numberOfRows;
 
