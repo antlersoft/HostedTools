@@ -153,11 +153,11 @@ namespace com.antlersoft.HostedTools.Pipeline
         static readonly ISettingDefinition FileIsGzip = new SimpleSettingDefinition("FileIsGzip", "Pipeline.JoinTransform", "Join file is GZipped", "If checked, assumes json join file data is compressed in gzip format", typeof(bool), "false");
         static readonly ISettingDefinition UseSourceForFile = new SimpleSettingDefinition("UseSource", "Pipeline.JoinTransform", "Use source", "Use selected source plugin instead of file", typeof(bool), "false", false, 0);
         private readonly PluginSelectionSettingDefinition SourcePlugin;
-        static ISettingDefinition ToFilterJoinKey = new SimpleSettingDefinition("InputJoinKey", "Pipeline.JoinTransform", "Key in input to join on", "Input must be sorted on given key");
-        static ISettingDefinition FileFilterJoinKey = new SimpleSettingDefinition("FileJoinKey", "Pipeline.JoinTransform", "Key in file data to join on", "Data file must be sorted on given key");
+        static ISettingDefinition ToFilterJoinKey = new ConditionDefinition("InputJoinKey", "Pipeline.JoinTransform", "Key in input to join on", "Input must be sorted on given key");
+        static ISettingDefinition FileFilterJoinKey = new ConditionDefinition("FileJoinKey", "Pipeline.JoinTransform", "Key in file data to join on", "Data file must be sorted on given key");
         static ISettingDefinition JoinType = new SimpleSettingDefinition("JoinType", "Pipeline.JoinTransform", "Join Type", null, typeof(JoinTypes), "In", false, 0);
         static ISettingDefinition ResultType = new SimpleSettingDefinition("ResultType", "Pipeline.JoinTransform", "Result Type", null, typeof(ResultTypes), "FilterOnly", false, 0);
-        static ISettingDefinition ProjectionExpression = new SimpleSettingDefinition("ProjectionExpression", "Pipeline.JoinTransform", "Projection Expression");
+        static ISettingDefinition ProjectionExpression = new ConditionDefinition("ProjectionExpression", "Pipeline.JoinTransform", "Projection Expression");
 
         [Import]
         public IConditionBuilder _expressionBuilder;

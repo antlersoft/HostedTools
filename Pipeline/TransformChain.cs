@@ -44,12 +44,39 @@ namespace com.antlersoft.HostedTools.Pipeline
         [Import]
         INavigationManager NavigationManager {get;set;}
 
+        class DefinitionValidatable : HostedObjectBase, IValidatable
+        {
+            TransformChain _transformChain;
+
+            internal DefinitionValidatable(TransformChain chain)
+            {
+                _transformChain = chain;
+            }
+            public IValidationResult Validate(ISavable evaluationContext)
+            {
+                string rawValue = evaluationContext.Cast<ISettingEditor>()?.RawValue??string.Empty;
+                if (rawValue != string.Empty)
+                {
+                    try
+                    {
+                        JsonConvert.DeserializeObject<List<PluginState>>(rawValue);
+                    }
+                    catch (JsonException exc)
+                    {
+                        return new ValidationResult(this, evaluationContext, exc);
+                    }
+                }                    
+                return new ValidationResult(this, evaluationContext);
+            }
+        }
+
         public TransformChain()
             : base(new MenuItem("DevTools.Pipeline.Transform.Chain", "Chain transforms", typeof(TransformChain).FullName, "DevTools.Pipeline.Transform"), new[] { ChainDefinition.FullKey(), PipelinePlugin.Transform.FullKey(), ChainButtons.FullKey(), LinkIndex.FullKey(), IndexButtons.FullKey(), ChainDescription.FullKey() })
         {
             ChainDescription.InjectImplementation(typeof(IReadOnly), new CanBeReadOnly(true)); 
             IndexButtons.InjectImplementation(typeof(IReadOnly), new CanBeReadOnly(false));
-            ChainButtons.InjectImplementation(typeof(IReadOnly), new CanBeReadOnly(false));           
+            ChainButtons.InjectImplementation(typeof(IReadOnly), new CanBeReadOnly(false));
+            ChainDefinition.InjectImplementation(typeof(IValidatable), new DefinitionValidatable(this));           
         }
 
         public override string NodeDescription
