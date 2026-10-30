@@ -46,7 +46,7 @@ namespace com.antlersoft.HostedTools.Pipeline
             {
                 if (_validatable == null)
                 {
-                    throw new CompositionException("Attempty to use static ConditionValidatable before composition complete");
+                    throw new CompositionException("Attempt to use static ConditionValidatable before composition complete");
                 }
                 return _validatable;
             }
