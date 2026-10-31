@@ -71,7 +71,7 @@ namespace com.antlersoft.HostedTools.Pipeline {
             return new FindGrepSource(state);
         }
 
-        public PluginState GetPluginState(ISet<string> visited = null)
+        public PluginState GetPluginState(IDictionary<string,PluginState> visited = null)
         {
             return this.AssemblePluginState(PluginManager, SettingManager, visited);
         }

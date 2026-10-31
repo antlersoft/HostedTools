@@ -25,7 +25,7 @@ namespace com.antlersoft.HostedTools.Pipeline {
 
         public string SaveKey { get; set;}
 
-        public PluginState GetPluginState(ISet<string> visited = null)
+        public PluginState GetPluginState(IDictionary<string,PluginState> visited = null)
         {
             return this.AssemblePluginState(PluginManager, SettingManager, visited);
         }

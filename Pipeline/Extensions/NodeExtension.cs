@@ -8,7 +8,7 @@ using CsvHelper;
 namespace com.antlersoft.HostedTools.Pipeline.Extensions {
 
 public static class NodeExtension {
-    public static PluginState AssemblePluginState(this IPipelineNode node, IPluginManager pluginManager, ISettingManager settings, ISet<string> visitedPlugins=null) {
+    public static PluginState AssemblePluginState(this IPipelineNode node, IPluginManager pluginManager, ISettingManager settings, IDictionary<string,PluginState> visitedPlugins=null) {
         PluginState result = new PluginState();
         if (node.Cast<IPlugin>() is IPlugin plugin) {
             result.PluginName = plugin.Name;
@@ -16,12 +16,12 @@ public static class NodeExtension {
             result.PluginName = node.GetType().FullName;
         }
         if (visitedPlugins == null) {
-            visitedPlugins = new HashSet<string>();
+            visitedPlugins = new Dictionary<string,PluginState>();
         }
         if (node.Cast<IHasSaveKey>() is IHasSaveKey saveKey) {
             result.Key = saveKey.SaveKey;
         }
-        visitedPlugins.Add(result.PluginName);
+        visitedPlugins.Add(result.PluginName,result);
         result.NestedValues = new Dictionary<string,PluginState>();
         result.SettingValues = new Dictionary<string, string>();
         IEnumerable<string> settingKeys = null;
@@ -38,10 +38,18 @@ public static class NodeExtension {
                 ISetting settingObject = settings[setting];
                 var settingRaw = settingObject.GetRaw();
                 result.SettingValues[setting]=settingRaw;
-                if (! visitedPlugins.Contains(settingRaw) && settingObject.Definition.Cast<PluginSelectionSettingDefinition>() is PluginSelectionSettingDefinition psd) {
-                    var nestedPlugin = pluginManager[settingRaw];
-                    if (nestedPlugin?.Cast<IPipelineNode>() is IPipelineNode nestedNode) {
-                        result.NestedValues[setting] = nestedNode.GetPluginState(visitedPlugins);
+                //if (! visitedPlugins.Contains(settingRaw) && settingObject.Definition.Cast<PluginSelectionSettingDefinition>() is PluginSelectionSettingDefinition psd) {
+                if (settingObject.Definition.Cast<PluginSelectionSettingDefinition>() is PluginSelectionSettingDefinition psd) {
+                    PluginState existingNested;
+                    if (visitedPlugins.TryGetValue(settingRaw, out existingNested))
+                    {
+                        result.NestedValues[setting] = existingNested;                        
+                    }
+                    else {
+                        var nestedPlugin = pluginManager[settingRaw];
+                        if (nestedPlugin?.Cast<IPipelineNode>() is IPipelineNode nestedNode) {
+                            result.NestedValues[setting] = nestedNode.GetPluginState(visitedPlugins);
+                        }
                     }
                 }
             }

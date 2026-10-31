@@ -287,7 +287,7 @@ namespace com.antlersoft.HostedTools.Pipeline {
 
         public Dictionary<string, Action<IWorkMonitor, ISetting>> ActionsBySettingKey => initialize()._actionsBySettingKey;
 
-        public PluginState GetPluginState(ISet<string> visited = null)
+        public PluginState GetPluginState(IDictionary<string,PluginState> visited = null)
         {
             return DeserializeString<PluginState>(_existing.Value<string>(SettingManager));
         }

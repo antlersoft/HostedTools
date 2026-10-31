@@ -29,7 +29,7 @@ namespace com.antlersoft.HostedTools.Pipeline
             return new Transform(JsonFactory);
         }
 
-        public PluginState GetPluginState(ISet<string> visited = null)
+        public PluginState GetPluginState(IDictionary<string,PluginState> visited = null)
         {
             PluginState result = new PluginState();
             result.PluginName = Name;

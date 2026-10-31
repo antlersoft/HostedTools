@@ -31,7 +31,7 @@ namespace com.antlersoft.HostedTools.Geography {
         public IEnumerable<ISettingDefinition> Definitions => new[] { ShapefilePath, IDAttribute };
 
         public string NodeDescription => $"Read shapefile "+ShapefilePath.Value<string>(SettingManager);
-        public PluginState GetPluginState(ISet<string>? visited = null)
+        public PluginState GetPluginState(IDictionary<string,PluginState>? visited = null)
         {
             return this.AssemblePluginState(PluginManager, SettingManager, visited);
         }
