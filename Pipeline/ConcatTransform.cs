@@ -24,7 +24,7 @@ namespace com.antlersoft.HostedTools.Pipeline
 
         public IEnumerable<ISettingDefinition> Definitions => new ISettingDefinition[] { SourcePlugin};
 
-        public override string NodeDescription => "Concatenate "+((PluginSelectionItem)SourcePlugin.FindMatchingItem(SourcePlugin.Value<string>(SettingManager))).Plugin.Cast<IRootNode>().NodeDescription;
+        public override string NodeDescription => "Concatenate "+((PluginSelectionItem)SourcePlugin.FindMatchingItem(SourcePlugin.Value<string>(SettingManager)))?.Plugin?.Cast<IRootNode>()?.NodeDescription??"(not set)";
 
         public IHtValueTransform GetHtValueTransform(PluginState state)
         {
