@@ -13,12 +13,13 @@ using CsvHelper;
 using System.Globalization;
 using com.antlersoft.HostedTools.Framework.Model;
 using com.antlersoft.HostedTools.Framework.Interface.Plugin;
+using com.antlersoft.HostedTools.Pipeline.Streams;
 
 namespace com.antlersoft.HostedTools.Pipeline
 {
     [Export(typeof(IRootNode))]
     [Export(typeof(ISettingDefinitionSource))]
-    public class CsvSource : AbstractPipelineNode, IHtValueRoot, ISettingDefinitionSource
+    public class CsvSource : AbstractPipelineNode, IHtValueRoot, ISettingDefinitionSource, IHtValueSourceFromStream
     {
         static ISettingDefinition CsvInput = new PathSettingDefinition("CsvInput", "Pipeline", "CSV input file", false, false,
                         "CSV file|*.csv");
@@ -49,6 +50,12 @@ namespace com.antlersoft.HostedTools.Pipeline
 
             internal Source(string file, bool useHeader) {
                 reader = new StreamReader(file);
+                csv = new CsvReader(reader, CultureInfo.InvariantCulture);
+                _useHeader = useHeader;
+            }
+            internal Source(Stream inputStream, bool useHeader)
+            {
+                reader = new StreamReader(inputStream);
                 csv = new CsvReader(reader, CultureInfo.InvariantCulture);
                 _useHeader = useHeader;
             }
@@ -92,6 +99,12 @@ namespace com.antlersoft.HostedTools.Pipeline
         public IHtValueSource GetHtValueSource(PluginState state)
         {
             return new Source(state.SettingValues["Pipeline.CsvInput"],
+                new JsonHtValue(state.SettingValues["Pipeline.UseFirstRowAsHeader"]).AsBool);
+        }
+
+        public IHtValueSource GetHtValueSource(PluginState state, Stream stream)
+        {
+            return new Source(stream,
                 new JsonHtValue(state.SettingValues["Pipeline.UseFirstRowAsHeader"]).AsBool);
         }
     }

@@ -6,6 +6,7 @@ using com.antlersoft.HostedTools.Framework.Model.Menu;
 using com.antlersoft.HostedTools.Framework.Model.Plugin;
 using com.antlersoft.HostedTools.Framework.Model.Setting;
 using com.antlersoft.HostedTools.Interface;
+using com.antlersoft.HostedTools.Pipeline.Streams;
 using com.antlersoft.HostedTools.Serialization;
 using Newtonsoft.Json;
 using System;
@@ -104,7 +105,7 @@ namespace com.antlersoft.HostedTools.Pipeline
     }
 
     [Export(typeof(IRootNode))]
-    public class CommandLineLineSource : AbstractPipelineNode, IHtValueRoot
+    public class CommandLineLineSource : AbstractPipelineNode, IHtValueRoot, IStreamSource
     {
         internal const string LINE = "line";
         public CommandLineLineSource()
@@ -119,6 +120,33 @@ namespace com.antlersoft.HostedTools.Pipeline
                 state.SettingValues[SchemaDelimitedSource.CommandFile.FullKey()],
                 state.SettingValues[SchemaDelimitedSource.CommandArgs.FullKey()]
             );
+        }
+
+        static async void processWaiter(Process p)
+        {
+            try
+            {
+                p.WaitForExit();
+            }   
+            catch (Exception e)
+            {
+                
+            } 
+        }
+
+        public Stream GetStream(PluginState state)
+        {
+            var commandFile = state.SettingValues[SchemaDelimitedSource.CommandFile.FullKey()];
+            var commandArgs = state.SettingValues[SchemaDelimitedSource.CommandArgs.FullKey()];
+            var startInfo = new ProcessStartInfo(commandFile, commandArgs);
+            startInfo.CreateNoWindow = true;
+            startInfo.RedirectStandardOutput = true;
+            startInfo.UseShellExecute = false;
+
+            var process = Process.Start(startInfo);
+            var result = process.StandardOutput.BaseStream;
+            processWaiter(process);
+            return result;
         }
 
         class Source : HostedObjectBase, IHtValueSource {

@@ -12,6 +12,7 @@ using com.antlersoft.HostedTools.Framework.Model.Menu;
 using com.antlersoft.HostedTools.Framework.Model.Plugin;
 using com.antlersoft.HostedTools.Framework.Model.Setting;
 using com.antlersoft.HostedTools.Interface;
+using com.antlersoft.HostedTools.Pipeline.Streams;
 using com.antlersoft.HostedTools.Serialization;
 using Newtonsoft.Json;
 
@@ -35,7 +36,7 @@ namespace com.antlersoft.HostedTools.Pipeline
     }
 
     [Export(typeof (IRootNode))]
-    public class JsonFileSource : AbstractPipelineNode, IHtValueRoot
+    public class JsonFileSource : AbstractPipelineNode, IHtValueRoot, IHtValueSourceFromStream
     {
         [Import]
         public IJsonFactory JsonFactory;
@@ -53,6 +54,13 @@ namespace com.antlersoft.HostedTools.Pipeline
             return PipelinePlugin.FromJsonStream(stream, JsonFactory,
                 new JsonHtValue(state.SettingValues[Settings.DataIsGzip.FullKey()]).AsBool,
                 new JsonHtValue(state.SettingValues[PipelinePlugin.IsSingleValued.FullKey()]).AsBool);
+        }
+
+        public IHtValueSource GetHtValueSource(PluginState state, Stream stream)
+        {
+            return PipelinePlugin.FromJsonStream(stream, JsonFactory,
+                false,
+                new JsonHtValue(state.SettingValues[PipelinePlugin.IsSingleValued.FullKey()]).AsBool);            
         }
 
         public override string NodeDescription
