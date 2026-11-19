@@ -51,7 +51,6 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Model.Internal {
             new AddedGroupFunctionHolder(MinMaxFunctor("max"), "max", null, true, false, "Maximum of argument over group, or if no argument, maximum value in group"),
             new AddedGroupFunctionHolder(argsList => new ArraySortExpression(argsList), "arraysort", null, true, true, "Sort array that is first argument, using any subsequent arguments as sort key within first argument"),
             new AddedGroupFunctionHolder(argsList => new RowIndex(), "rowindex", null, true, true, "Index of row in group, or in overall collection"),
-            new AddedGroupFunctionHolder(argsList => new SameExpression(), "_", null, false, true, "input of the expression"),
             new AddedGroupFunctionHolder(argsList => new PreviousRowExpression(argsList), "previous", null, true, true, "The argument as evaluated for the previous row in the group, or the previous row in the group if no argument")
         };
         private static AddedFunctionHolder[] _functions = new[]

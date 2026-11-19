@@ -8,6 +8,6 @@ namespace com.antlersoft.HostedTools.ConditionBuilder.Interface
     public interface IAddedGroupFunction : IHostedObject
     {
         string Name { get; }
-        Func<IList<IHtExpression>,IHtExpression> Functor { get; }
+        Func<IList<IHtExpression>,IGroupExpression> Functor { get; }
     }
 }
