@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <OutputType>Library</OutputType>
     <RootNamespace>com.antlersoft.HostedTools.Utility</RootNamespace>
     <AssemblyName>com.antlersoft.HostedTools.Utility</AssemblyName>
@@ -36,8 +36,10 @@
     <PackageReference Include="System.ComponentModel.Composition" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Remove="Testing\FileSystemCloudStorage.cs" />
     <Compile Remove="Testing\PrivateOdsPublisher.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Cloud/Cloud.csproj" />
   </ItemGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DebugType>portable</DebugType>

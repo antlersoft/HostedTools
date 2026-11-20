@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using com.antlersoft.HostedTools.Cloud;
 using com.antlersoft.HostedTools.Interface;
 
 namespace com.antlersoft.HostedTools.Utility.Testing
