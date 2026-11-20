@@ -17,6 +17,28 @@ namespace com.antlersoft.HostedTools.HostedBbqClient {
         IWorkMonitorSource? MonitorSource { get; set; }
         public IEnumerable<ISettingDefinition> Definitions =>  new [] { Query };
 
+        private QueryResponse? _response;
+        private List<string> _selections = new List<string>();
+
+        private void AddSelection(Dictionary<string,object>? row, string? s)
+        {
+            var rowV = row ?? new Dictionary<string,object>();
+            object? desc, t;
+            if (rowV.TryGetValue("description", out desc) && rowV.TryGetValue("type", out t))
+            {
+                var description = desc as string;
+                var typeV = t as string;
+                ResponseObject[] results = _response?.Responses ?? Array.Empty<ResponseObject>();
+                foreach (var respObject in results)
+                {
+                    if (respObject.Description == description && respObject.ObjectType == typeV)
+                    {
+                        _selections.Add(respObject.ObjectKey);
+                    }
+                }
+            }
+        }
+
         public BbqTool()
         : base(new MenuItem("DevTools.BbqTool", "BBQ Tool", typeof(BbqTool).FullName, "DevTools"), new [] { Query.FullKey() })
         {
@@ -32,26 +54,33 @@ namespace com.antlersoft.HostedTools.HostedBbqClient {
                 }
                 ProcessStartInfo pi = new ProcessStartInfo("/usr/bin/code", args);
                 ConsoleCommandHelper.InvokeConsoleCommand(MonitorSource?.GetMonitor(), pi);
-            })};        }
+            }),
+            new SimpleGridItemCommand("Add selection", AddSelection),
+            new SimpleGridItemCommand("Clear selections", (row, s) => {_selections.Clear();})
+            };
+        }
 
         public override void Perform(IWorkMonitor monitor)
         {
             ClearGrid(monitor);
             QueryRequest query = new QueryRequest(Query.Value<string>(SettingManager));
+            foreach (var s in _selections) {
+                query.ObjectKeys.Add(s);
+            }
             using (var connect = new BrowseByQueryBySocket()) {
                 connect.Connect();
-                QueryResponse response = connect.PerformQuery(query);
-                var exc = response.RequestException;
+                _response = connect.PerformQuery(query);
+                var exc = _response.RequestException;
                 if (exc != null) {
                     monitor.Writer.WriteLine(exc.Message);
                     if (exc.StackTrace != null) {
                         monitor.Writer.WriteLine(exc.StackTrace);
                     }
                 }
-                if (response.Responses != null ) {
-                    for (int i=0; i<response.ResponseCount; i++) {
+                if (_response.Responses != null ) {
+                    for (int i=0; i<_response.ResponseCount; i++) {
                         JsonHtValue row = new JsonHtValue();
-                        var item=response.Responses[i];
+                        var item=_response.Responses[i];
                         row["file"] = new JsonHtValue(item.FileName??string.Empty);
                         row["index"] = new JsonHtValue(item.LineNumber);
                         row["type"]=new JsonHtValue(item.ObjectType??string.Empty);
