@@ -1,20 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
-using System.ComponentModel.Design;
-using System.Configuration;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using com.antlersoft.HostedTools.Framework.Interface.Plugin;
 using com.antlersoft.HostedTools.Framework.Interface.Setting;
 using com.antlersoft.HostedTools.Framework.Model;
 using com.antlersoft.HostedTools.Framework.Model.Menu;
-using com.antlersoft.HostedTools.Framework.Model.Plugin;
 using com.antlersoft.HostedTools.Framework.Model.Setting;
-using com.antlersoft.HostedTools.Framework.Model.Setting.Internal;
 using com.antlersoft.HostedTools.Interface;
+using com.antlersoft.HostedTools.Pipeline.Streams;
 using com.antlersoft.HostedTools.Serialization;
 using Newtonsoft.Json;
 
@@ -22,7 +16,7 @@ namespace com.antlersoft.HostedTools.Pipeline
 {
     [Export(typeof(ISettingDefinitionSource))]
     [Export(typeof(ILeafNode))]
-    public class TabDelimitedSink : AbstractPipelineNode, IHtValueLeaf, ISettingDefinitionSource
+    public class TabDelimitedSink : AbstractPipelineNode, IHtValueLeaf, ISettingDefinitionSource, IHtValueSinkToStream
     {
         [Import] public IJsonFactory JsonFactory;
 
@@ -45,15 +39,30 @@ namespace com.antlersoft.HostedTools.Pipeline
         {
         }
 
-        class Sink : HostedObjectBase, IHtValueSink {
+        class Sink : HostedObjectBase, IHtValueSink, IDisposable {
             private readonly bool writeTail;
             private readonly string destFile;
             private readonly JsonSerializer serializer;
+            private StreamWriter writer;
+            private Stream destStream;
 
             internal Sink(string outputPath, bool wt, JsonSerializer ser) {
                 destFile = outputPath;
                 writeTail = wt;
                 serializer = ser;
+            }
+
+            internal Sink(Stream stream, bool wt, JsonSerializer ser)
+            {
+                destStream = stream;
+                writeTail = wt;
+                serializer = ser;
+            }
+
+            public void Dispose()
+            {
+                writer?.Dispose();
+                destStream?.Dispose();
             }
 
             public void ReceiveRows(IEnumerable<IHtValue> rows, IWorkMonitor monitor)
@@ -62,7 +71,7 @@ namespace com.antlersoft.HostedTools.Pipeline
                 var outputPath = writeTail ? Path.GetTempFileName() : destFile;
                 var cancelable = monitor.Cast<ICancelableMonitor>();
 
-                using (StreamWriter writer = new StreamWriter(outputPath))
+                using (StreamWriter writer = (writeTail || destStream == null) ? new StreamWriter(outputPath) : new StreamWriter(destStream))
                 {
                     bool first;
                     foreach (var row in rows)
@@ -109,7 +118,7 @@ namespace com.antlersoft.HostedTools.Pipeline
                 }
                 if (writeTail)
                 {
-                    using (StreamWriter writer = new StreamWriter(destFile))
+                    using (StreamWriter writer = (destStream == null) ? new StreamWriter(destFile) : new StreamWriter(destStream))
                     {
                         bool first = true;
                         foreach (var v in columns)
@@ -146,6 +155,12 @@ namespace com.antlersoft.HostedTools.Pipeline
             var writeTail = (bool)Convert.ChangeType(state.SettingValues[ColumnHeader.FullKey()], typeof(bool));
             var destFile = state.SettingValues[TabDelimitedOutput.FullKey()];
             return new Sink(destFile, writeTail, JsonFactory.GetSerializer(false));
+        }
+
+        public IHtValueSink GetHtValueSink(PluginState state, Stream stream)
+        {
+            var writeTail = (bool)Convert.ChangeType(state.SettingValues[ColumnHeader.FullKey()], typeof(bool));
+            return new Sink(stream, writeTail, JsonFactory.GetSerializer(false));        
         }
 
         public override string NodeDescription

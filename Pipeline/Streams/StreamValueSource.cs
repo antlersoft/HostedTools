@@ -69,7 +69,7 @@ namespace com.antlersoft.HostedTools.Pipeline.Streams
     }
 
     [Export(typeof(IPlugin))]
-    public class NullStreamTransform : HostedObjectBase, IPlugin, ISourceStreamTransform
+    public class NullStreamTransform : HostedObjectBase, IPlugin, ISourceStreamTransform, ISinkStreamTransform
     {
         [Import]
         IPluginManager PluginManager;

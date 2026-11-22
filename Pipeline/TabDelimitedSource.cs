@@ -12,12 +12,13 @@ using com.antlersoft.HostedTools.Interface;
 using com.antlersoft.HostedTools.Serialization;
 using com.antlersoft.HostedTools.Framework.Interface.Plugin;
 using com.antlersoft.HostedTools.Framework.Model;
+using com.antlersoft.HostedTools.Pipeline.Streams;
 
 namespace com.antlersoft.HostedTools.Pipeline
 {
     [Export(typeof(IRootNode))]
     [Export(typeof(ISettingDefinitionSource))]
-    public class TabDelimitedSource : AbstractPipelineNode, IHtValueRoot, ISettingDefinitionSource
+    public class TabDelimitedSource : AbstractPipelineNode, IHtValueRoot, ISettingDefinitionSource, IHtValueSourceFromStream
     {
         static ISettingDefinition TabDelimitedInput = new PathSettingDefinition("TabDelimitedInput", "Pipeline", "Tab-delimited input file", false, false,
                         "Tab-delimited text|*.txt");
@@ -39,16 +40,31 @@ namespace com.antlersoft.HostedTools.Pipeline
         {
         }
 
-        class Source : HostedObjectBase, IHtValueSource {
-            private readonly string _filePath;
+        class Source : HostedObjectBase, IHtValueSource, IDisposable {
             private readonly int _rowsToSkip;
             private readonly string _expr;
+            private StreamReader _reader;
 
             internal Source(string filePath, int rowsToSkip, string expr)
             {
-                _filePath = filePath;
+                _reader = new StreamReader(filePath);
                 _rowsToSkip = rowsToSkip;
                 _expr = expr;
+            }
+
+            internal Source(Stream stream, int rowsToSkip, string expr)
+            {
+                _reader = new StreamReader(stream);
+                _rowsToSkip = rowsToSkip;
+                _expr = expr;
+            }
+
+            public void Dispose()
+            {
+                if (_reader != null)
+                {
+                    _reader.Dispose();
+                }
             }
 
             public IEnumerable<IHtValue> GetRows(IWorkMonitor monitor)
@@ -58,32 +74,29 @@ namespace com.antlersoft.HostedTools.Pipeline
                 {
                     expr = new com.antlersoft.HostedTools.ConditionBuilder.Model.ConditionBuilder().ParseCondition(_expr);
                 }
-                using (var sr = new StreamReader(_filePath))
+                int rowNum = 0;
+                for (string line=_reader.ReadLine(); line!=null; line=_reader.ReadLine())
                 {
-                    int rowNum = 0;
-                    for (string line=sr.ReadLine(); line!=null; line=sr.ReadLine())
+                    if (rowNum++ < _rowsToSkip)
                     {
-                        if (rowNum++ < _rowsToSkip)
-                        {
-                            continue;
-                        }
-                        var columns = new JsonHtValue();
-                        int columnNum = 0;
-                        foreach (var col in line.Split('\t'))
-                        {
-                            columns[columnNum++] = new JsonHtValue(col);
-                        }
-                        var row = new JsonHtValue();
-                        row["rownum"] = new JsonHtValue(rowNum - _rowsToSkip);
-                        row["c"] = columns;
-                        if (expr == null)
-                        {
-                            yield return row;
-                        }
-                        else
-                        {
-                            yield return expr.Evaluate(row);
-                        }
+                        continue;
+                    }
+                    var columns = new JsonHtValue();
+                    int columnNum = 0;
+                    foreach (var col in line.Split('\t'))
+                    {
+                        columns[columnNum++] = new JsonHtValue(col);
+                    }
+                    var row = new JsonHtValue();
+                    row["rownum"] = new JsonHtValue(rowNum - _rowsToSkip);
+                    row["c"] = columns;
+                    if (expr == null)
+                    {
+                        yield return row;
+                    }
+                    else
+                    {
+                        yield return expr.Evaluate(row);
                     }
                 }
             }
@@ -92,6 +105,13 @@ namespace com.antlersoft.HostedTools.Pipeline
         public IHtValueSource GetHtValueSource(PluginState state)
         {
             return new Source(state.SettingValues[TabDelimitedInput.FullKey()],
+                (int)Convert.ChangeType(state.SettingValues[SkipInitialLines.FullKey()], typeof(int)),
+                state.SettingValues[ColumnsToRowExpression.FullKey()]);
+        }
+
+        public IHtValueSource GetHtValueSource(PluginState state, Stream stream)
+        {
+            return new Source(stream,
                 (int)Convert.ChangeType(state.SettingValues[SkipInitialLines.FullKey()], typeof(int)),
                 state.SettingValues[ColumnsToRowExpression.FullKey()]);
         }
